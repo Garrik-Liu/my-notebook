@@ -1,6 +1,7 @@
+---
+home: true
+---
+
 # 目录
 
-* test-item
-* test-item
-* test-item
-* test-item
+* [JavaScript 笔记](/javascript/)
