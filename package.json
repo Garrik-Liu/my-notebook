@@ -1,0 +1,23 @@
+{
+  "name": "front-end-notebook",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Garrik-Liu/front-end-notebook.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Garrik-Liu/front-end-notebook/issues"
+  },
+  "homepage": "https://github.com/Garrik-Liu/front-end-notebook#readme",
+  "dependencies": {
+    "vuepress": "^0.10.2"
+  }
+}
