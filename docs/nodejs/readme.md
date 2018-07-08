@@ -2,4 +2,4 @@
 
 ## Express
 
-*  [中间件](./Express/中间件.md){:target="_blank"}
+*  [中间件](./Express/中间件.md)
