@@ -4,4 +4,4 @@ sidebar: false
 
 # NodeJs 笔记
 
-* [Node.Js 笔记](/NodeJs/)
+* [Node.Js 笔记](./NodeJs/readme.md)
