@@ -1,5 +1,7 @@
 # 静态 WEB 服务器
 
+[代码链接](https://github.com/Garrik-Liu/front-end-notebook/tree/notes-code/nodejs/%E9%9D%99%E6%80%81WEB%E6%9C%8D%E5%8A%A1%E5%99%A8)
+
 ## 服务器代码:
 
 ``` js
