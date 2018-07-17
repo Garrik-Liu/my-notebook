@@ -5,7 +5,7 @@ const url = require('url');
 
 const contentTypes = require('./contentTypes');
 
-const port = 3000;
+const port = 3001;
 
 const server = http.createServer(((req, res) => {
     let reqUrlObj = url.parse(req.url);
