@@ -1,4 +1,4 @@
-{
+module.exports = `{
     ".323": "text/h323",
     ".3gp": "video/3gpp",
     ".aab": "application/x-authoware-bin",
@@ -482,4 +482,4 @@
     ".zac": "application/x-zaurus-zac",
     ".zip": "application/zip",
     ".json": "application/json"
-}
+}`;
