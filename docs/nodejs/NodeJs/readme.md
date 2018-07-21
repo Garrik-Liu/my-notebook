@@ -12,3 +12,4 @@
 ## 实际应用
 
 * [静态WEB服务器](./实际应用/static-web-server.md)
+* [使用 路由 和 EJS 模板引擎 的 WEB 服务器](./实际应用/router-ejs-web-server.md)
