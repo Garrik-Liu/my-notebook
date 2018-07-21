@@ -19,6 +19,7 @@
     },
     "homepage": "https://github.com/Garrik-Liu/front-end-notebook#readme",
     "dependencies": {
+        "ejs": "^2.6.1",
         "vuepress": "^0.10.2"
     }
 }
