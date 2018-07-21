@@ -2,7 +2,7 @@ npm run docs:build
 
 git add *
 git commit -m "update"
-git push
+git push --force
 
 # 删除 ph-pages 分支，以防冲突。每次提交都是暴力覆盖
 git branch -d origin/ph-pages
