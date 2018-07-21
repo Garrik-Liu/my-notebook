@@ -10,6 +10,8 @@ const port = 3001;
 // 开启 HTTP 服务器
 const server = http.createServer(((req, res) => {
     // 解析请求 URL
+    console.log(req.url);
+    console.log(req.headers);
     let reqUrlObj = url.parse(req.url);
 
     // 加载静态资源
