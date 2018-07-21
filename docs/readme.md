@@ -12,6 +12,7 @@ home: true
 * [NodeJs 笔记](/nodejs/)
 * [Webpack 笔记](/webpack/)
 * [Canvas 笔记](/canvas/)
+* [MongoDB 笔记](/mongodb/)
 * [其它笔记](/others/)
 
 ## 其他
