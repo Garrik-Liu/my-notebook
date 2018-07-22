@@ -17,4 +17,4 @@
 
 * [静态WEB服务器](./实际应用/static-web-server.md)
 * [使用 路由 和 EJS 模板引擎 的 WEB 服务器](./实际应用/router-ejs-web-server.md)
-* [Node.js 连接 MongoDB 数据库]('./实际应用/node-mongodb-add-document.md')
+* [Node.js 连接 MongoDB 数据库](./实际应用/node-mongodb-add-document.md)
