@@ -5,9 +5,9 @@ git commit -m "update"
 git push -f
 
 # 删除 ph-pages 分支，以防冲突。每次提交都是暴力覆盖
-git branch -d origin/ph-pages
+# git branch -d origin/gh-pages
 
-git branch -d origin/notes-code
+# git branch -d origin/notes-code
 
 # 提交到远程
 git subtree push --prefix docs/.vuepress/dist origin gh-pages
