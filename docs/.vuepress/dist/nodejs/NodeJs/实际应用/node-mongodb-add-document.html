@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Node.js 连接 MongoDB | Garrik 的笔记</title>
+    <meta name="description" content="这里是 Garrik 的前端笔记本">
+    
+    
+    <link rel="preload" href="/front-end-notebook/assets/css/32.styles.43b5abd9.css" as="style"><link rel="preload" href="/front-end-notebook/assets/js/app.9fccb4c4.js" as="script"><link rel="preload" href="/front-end-notebook/assets/js/17.3dae93bd.js" as="script"><link rel="prefetch" href="/front-end-notebook/assets/js/1.7470dda4.js"><link rel="prefetch" href="/front-end-notebook/assets/js/2.fb2b031b.js"><link rel="prefetch" href="/front-end-notebook/assets/js/3.9cc94b22.js"><link rel="prefetch" href="/front-end-notebook/assets/js/4.964bebd7.js"><link rel="prefetch" href="/front-end-notebook/assets/js/5.0045253c.js"><link rel="prefetch" href="/front-end-notebook/assets/js/6.e4194780.js"><link rel="prefetch" href="/front-end-notebook/assets/js/7.73b6b505.js"><link rel="prefetch" href="/front-end-notebook/assets/js/8.5631a7c1.js"><link rel="prefetch" href="/front-end-notebook/assets/js/9.d9431ebf.js"><link rel="prefetch" href="/front-end-notebook/assets/js/10.23656bf2.js"><link rel="prefetch" href="/front-end-notebook/assets/js/11.5aacc41c.js"><link rel="prefetch" href="/front-end-notebook/assets/js/12.07cfce2b.js"><link rel="prefetch" href="/front-end-notebook/assets/js/13.023b3401.js"><link rel="prefetch" href="/front-end-notebook/assets/js/14.3a9bf0cf.js"><link rel="prefetch" href="/front-end-notebook/assets/js/15.8348b515.js"><link rel="prefetch" href="/front-end-notebook/assets/js/16.d9473abb.js"><link rel="prefetch" href="/front-end-notebook/assets/js/0.ac38c313.js"><link rel="prefetch" href="/front-end-notebook/assets/js/18.624514f8.js"><link rel="prefetch" href="/front-end-notebook/assets/js/19.2581bf35.js"><link rel="prefetch" href="/front-end-notebook/assets/js/20.c9009b69.js"><link rel="prefetch" href="/front-end-notebook/assets/js/21.5da2d088.js"><link rel="prefetch" href="/front-end-notebook/assets/js/22.f9979ebf.js"><link rel="prefetch" href="/front-end-notebook/assets/js/23.36dc4ece.js"><link rel="prefetch" href="/front-end-notebook/assets/js/24.a37b7695.js"><link rel="prefetch" href="/front-end-notebook/assets/js/25.65a3d9ec.js"><link rel="prefetch" href="/front-end-notebook/assets/js/26.a1798aae.js"><link rel="prefetch" href="/front-end-notebook/assets/js/27.d27dd428.js"><link rel="prefetch" href="/front-end-notebook/assets/js/28.1338cb88.js"><link rel="prefetch" href="/front-end-notebook/assets/js/29.b82cd1e7.js"><link rel="prefetch" href="/front-end-notebook/assets/js/30.751bbdb1.js"><link rel="prefetch" href="/front-end-notebook/assets/js/31.22a7b388.js">
+    <link rel="stylesheet" href="/front-end-notebook/assets/css/32.styles.43b5abd9.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div><a href="/front-end-notebook/" class="home-link router-link-active"><!----><span class="site-name">
+      Garrik 的笔记
+    </span></a><div class="links"><div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""><!----></div><nav class="nav-links can-hide"><div class="nav-item"><a href="/front-end-notebook/" class="nav-link">主页</a></div><!----></nav></div></header><div class="sidebar-mask"></div><div class="sidebar"><nav class="nav-links"><div class="nav-item"><a href="/front-end-notebook/" class="nav-link">主页</a></div><!----></nav><ul class="sidebar-links"><li><div class="sidebar-group first"><p class="sidebar-heading open"><span>Node.js 连接 MongoDB</span><!----></p><ul class="sidebar-group-items"><li><a href="/front-end-notebook/nodejs/NodeJs/%E5%AE%9E%E9%99%85%E5%BA%94%E7%94%A8/node-mongodb-add-document.html#服务器代码" class="sidebar-link">服务器代码:</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/front-end-notebook/nodejs/NodeJs/%E5%AE%9E%E9%99%85%E5%BA%94%E7%94%A8/node-mongodb-add-document.html#自定义数据库操作函数" class="sidebar-link">自定义数据库操作函数</a><ul class="sidebar-sub-headers"></ul></li></ul></div></li></ul></div><div class="page"><div class="content"><h1 id="node-js-连接-mongodb"><a href="#node-js-连接-mongodb" aria-hidden="true" class="header-anchor">#</a> Node.js 连接 MongoDB</h1><p>使用原生 Node.js 代码连接 MongoDB 数据库, 并且在 collection 中添加 document.</p><h2 id="服务器代码"><a href="#服务器代码" aria-hidden="true" class="header-anchor">#</a> 服务器代码:</h2><div class="language-js extra-class"><pre class="language-js"><code><span class="token keyword">const</span> http <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'http'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> url <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'url'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> fs <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'fs'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">// 用于解析客户端发过来的 query</span>
+<span class="token keyword">const</span> querystring <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'querystring'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">// 数据库客户端</span>
+<span class="token keyword">const</span> MongoClient <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'mongodb'</span><span class="token punctuation">)</span><span class="token punctuation">.</span>MongoClient<span class="token punctuation">;</span>
+
+<span class="token comment">// 数据库 URL</span>
+<span class="token keyword">const</span> dbUrl <span class="token operator">=</span> <span class="token string">&quot;mongodb://localhost:27017/&quot;</span><span class="token punctuation">;</span>
+
+<span class="token comment">// 具体 database 的名字</span>
+<span class="token keyword">const</span> targetDB <span class="token operator">=</span> <span class="token string">&quot;mytest&quot;</span><span class="token punctuation">;</span>
+
+<span class="token comment">// 具体 collection 的名字</span>
+<span class="token keyword">const</span> targetCol <span class="token operator">=</span> <span class="token string">&quot;users&quot;</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> server <span class="token operator">=</span> http<span class="token punctuation">.</span><span class="token function">createServer</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">(</span>req<span class="token punctuation">,</span> res<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+    <span class="token keyword">const</span> pathname <span class="token operator">=</span> url<span class="token punctuation">.</span><span class="token function">parse</span><span class="token punctuation">(</span>req<span class="token punctuation">.</span>url<span class="token punctuation">)</span><span class="token punctuation">.</span>pathname<span class="token punctuation">;</span>
+
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>pathname <span class="token operator">===</span> <span class="token string">&quot;/&quot;</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        fs<span class="token punctuation">.</span><span class="token function">readFile</span><span class="token punctuation">(</span><span class="token string">'./index.html'</span><span class="token punctuation">,</span> <span class="token punctuation">(</span>err<span class="token punctuation">,</span> data<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span>err<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>err<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+                res<span class="token punctuation">.</span><span class="token function">writeHead</span><span class="token punctuation">(</span><span class="token number">200</span><span class="token punctuation">,</span> <span class="token punctuation">{</span> <span class="token string">'Content-Type'</span><span class="token punctuation">:</span> <span class="token string">'text/html'</span> <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                res<span class="token punctuation">.</span><span class="token function">end</span><span class="token punctuation">(</span>data<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span>pathname <span class="token operator">===</span> <span class="token string">&quot;/login&quot;</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token comment">// 获取 query</span>
+        <span class="token keyword">const</span> queryStr <span class="token operator">=</span> url<span class="token punctuation">.</span><span class="token function">parse</span><span class="token punctuation">(</span>req<span class="token punctuation">.</span>url<span class="token punctuation">)</span><span class="token punctuation">.</span>query<span class="token punctuation">;</span>
+        
+        <span class="token comment">// 如果有 query 发过来, 把它写入数据库</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>queryStr<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token comment">// 把 query 解析成对象</span>
+            <span class="token keyword">const</span> queryObj <span class="token operator">=</span> querystring<span class="token punctuation">.</span><span class="token function">parse</span><span class="token punctuation">(</span>queryStr<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+            <span class="token comment">// 调用 自定义的数据库操作函数</span>
+            <span class="token function">db</span><span class="token punctuation">(</span>dbUrl<span class="token punctuation">,</span> targetDB<span class="token punctuation">,</span> targetCol<span class="token punctuation">,</span> queryObj<span class="token punctuation">)</span>
+        <span class="token punctuation">}</span>
+        
+        <span class="token comment">// 返回给 客户端 的响应</span>
+        fs<span class="token punctuation">.</span><span class="token function">readFile</span><span class="token punctuation">(</span><span class="token string">'./login.html'</span><span class="token punctuation">,</span> <span class="token punctuation">(</span>err<span class="token punctuation">,</span> data<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span>err<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>err<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+                res<span class="token punctuation">.</span><span class="token function">writeHead</span><span class="token punctuation">(</span><span class="token number">200</span><span class="token punctuation">,</span> <span class="token punctuation">{</span> <span class="token string">'Content-Type'</span><span class="token punctuation">:</span> <span class="token string">'text/html'</span> <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                res<span class="token punctuation">.</span><span class="token function">end</span><span class="token punctuation">(</span>data<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span><span class="token punctuation">)</span>
+
+    <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+        res<span class="token punctuation">.</span><span class="token function">writeHead</span><span class="token punctuation">(</span><span class="token number">404</span><span class="token punctuation">,</span> <span class="token punctuation">{</span> <span class="token string">'Content-Type'</span><span class="token punctuation">:</span> <span class="token string">'text/plain'</span> <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        res<span class="token punctuation">.</span><span class="token function">end</span><span class="token punctuation">(</span><span class="token string">&quot;404&quot;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+server<span class="token punctuation">.</span><span class="token function">listen</span><span class="token punctuation">(</span><span class="token number">3000</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+    console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">&quot;监听 3000 端口!&quot;</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div><h2 id="自定义数据库操作函数"><a href="#自定义数据库操作函数" aria-hidden="true" class="header-anchor">#</a> 自定义数据库操作函数</h2><div class="language-js extra-class"><pre class="language-js"><code><span class="token keyword">function</span> <span class="token function">db</span><span class="token punctuation">(</span>dbUrl<span class="token punctuation">,</span> targetDB<span class="token punctuation">,</span> targetCol<span class="token punctuation">,</span> data<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// 连接数据库</span>
+    MongoClient<span class="token punctuation">.</span><span class="token function">connect</span><span class="token punctuation">(</span>dbUrl<span class="token punctuation">,</span> <span class="token punctuation">{</span> useNewUrlParser<span class="token punctuation">:</span> <span class="token boolean">true</span> <span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token punctuation">(</span>err<span class="token punctuation">,</span> db<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>err<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>err<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+            <span class="token comment">// 获取数据库中具体的 database</span>
+            <span class="token keyword">const</span> dbase <span class="token operator">=</span> db<span class="token punctuation">.</span><span class="token function">db</span><span class="token punctuation">(</span>targetDB<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+            console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">&quot;数据库已连接&quot;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            
+            <span class="token comment">// 操作具体的 collection</span>
+            dbase<span class="token punctuation">.</span><span class="token function">collection</span><span class="token punctuation">(</span>targetCol<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">insertOne</span><span class="token punctuation">(</span>data<span class="token punctuation">,</span> <span class="token punctuation">(</span>err<span class="token punctuation">,</span> res<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+                <span class="token keyword">if</span> <span class="token punctuation">(</span>err<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                    console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>err<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+                    console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">&quot;数据插入成功&quot;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                    
+                    <span class="token comment">// 关闭数据库</span>
+                    db<span class="token punctuation">.</span><span class="token function">close</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span>
+            <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre></div></div><div class="page-edit"><!----><!----></div><!----></div></div></div>
+    <script src="/front-end-notebook/assets/js/17.3dae93bd.js" defer></script><script src="/front-end-notebook/assets/js/app.9fccb4c4.js" defer></script>
+  </body>
+</html>
