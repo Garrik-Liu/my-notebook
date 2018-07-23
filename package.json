@@ -19,9 +19,11 @@
     },
     "homepage": "https://github.com/Garrik-Liu/front-end-notebook#readme",
     "dependencies": {
+        "body-parser": "^1.18.3",
         "ejs": "^2.6.1",
         "express": "^4.16.3",
         "mongo": "^0.1.0",
+        "mongodb": "^3.1.1",
         "morgan": "^1.9.0",
         "vuepress": "^0.10.2"
     }
