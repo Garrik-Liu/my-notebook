@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Express 静态文件服务器 | Garrik 的笔记</title>
+    <meta name="description" content="这里是 Garrik 的前端笔记本">
+    
+    
+    <link rel="preload" href="/front-end-notebook/assets/css/35.styles.ecb4f165.css" as="style"><link rel="preload" href="/front-end-notebook/assets/js/app.fbc43dc9.js" as="script"><link rel="preload" href="/front-end-notebook/assets/js/23.717c96b4.js" as="script"><link rel="prefetch" href="/front-end-notebook/assets/js/18.c38ea065.js"><link rel="prefetch" href="/front-end-notebook/assets/js/1.a78a24dd.js"><link rel="prefetch" href="/front-end-notebook/assets/js/2.f2b0fef5.js"><link rel="prefetch" href="/front-end-notebook/assets/js/3.4f52606e.js"><link rel="prefetch" href="/front-end-notebook/assets/js/4.1960801c.js"><link rel="prefetch" href="/front-end-notebook/assets/js/5.39890d80.js"><link rel="prefetch" href="/front-end-notebook/assets/js/6.3d8e3f4e.js"><link rel="prefetch" href="/front-end-notebook/assets/js/7.de9efd6f.js"><link rel="prefetch" href="/front-end-notebook/assets/js/8.06e20ba5.js"><link rel="prefetch" href="/front-end-notebook/assets/js/9.dedc9fad.js"><link rel="prefetch" href="/front-end-notebook/assets/js/10.80ab82ac.js"><link rel="prefetch" href="/front-end-notebook/assets/js/11.aceb7b4c.js"><link rel="prefetch" href="/front-end-notebook/assets/js/12.d9469094.js"><link rel="prefetch" href="/front-end-notebook/assets/js/13.7af0db9f.js"><link rel="prefetch" href="/front-end-notebook/assets/js/14.f50f838d.js"><link rel="prefetch" href="/front-end-notebook/assets/js/15.ddc754ee.js"><link rel="prefetch" href="/front-end-notebook/assets/js/16.8c1838d8.js"><link rel="prefetch" href="/front-end-notebook/assets/js/17.dd382ae0.js"><link rel="prefetch" href="/front-end-notebook/assets/js/0.25414b1f.js"><link rel="prefetch" href="/front-end-notebook/assets/js/19.b06b4c83.js"><link rel="prefetch" href="/front-end-notebook/assets/js/20.3967f187.js"><link rel="prefetch" href="/front-end-notebook/assets/js/21.ffeccbca.js"><link rel="prefetch" href="/front-end-notebook/assets/js/22.9ac42313.js"><link rel="prefetch" href="/front-end-notebook/assets/js/24.8e51c784.js"><link rel="prefetch" href="/front-end-notebook/assets/js/25.f35c0978.js"><link rel="prefetch" href="/front-end-notebook/assets/js/26.8bf5061a.js"><link rel="prefetch" href="/front-end-notebook/assets/js/27.6c70930b.js"><link rel="prefetch" href="/front-end-notebook/assets/js/28.ed45709a.js"><link rel="prefetch" href="/front-end-notebook/assets/js/29.cf5c7940.js"><link rel="prefetch" href="/front-end-notebook/assets/js/30.535abb69.js"><link rel="prefetch" href="/front-end-notebook/assets/js/31.5be87528.js"><link rel="prefetch" href="/front-end-notebook/assets/js/32.797c6916.js"><link rel="prefetch" href="/front-end-notebook/assets/js/33.4cffb0bb.js"><link rel="prefetch" href="/front-end-notebook/assets/js/34.13141e5f.js">
+    <link rel="stylesheet" href="/front-end-notebook/assets/css/35.styles.ecb4f165.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div><a href="/front-end-notebook/" class="home-link router-link-active"><!----><span class="site-name">
+      Garrik 的笔记
+    </span></a><div class="links"><div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""><!----></div><nav class="nav-links can-hide"><div class="nav-item"><a href="/front-end-notebook/" class="nav-link">主页</a></div><!----></nav></div></header><div class="sidebar-mask"></div><div class="sidebar"><nav class="nav-links"><div class="nav-item"><a href="/front-end-notebook/" class="nav-link">主页</a></div><!----></nav><ul class="sidebar-links"><li><div class="sidebar-group first"><p class="sidebar-heading open"><span>Express 静态文件服务器</span><!----></p><ul class="sidebar-group-items"><li><a href="/front-end-notebook/nodejs/Express/%E5%AE%9E%E9%99%85%E5%BA%94%E7%94%A8/%E9%9D%99%E6%80%81%E6%96%87%E4%BB%B6%E6%9C%8D%E5%8A%A1%E5%99%A8.html#服务器代码" class="sidebar-link">服务器代码</a><ul class="sidebar-sub-headers"></ul></li></ul></div></li></ul></div><div class="page"><div class="content"><h1 id="express-静态文件服务器"><a href="#express-静态文件服务器" aria-hidden="true" class="header-anchor">#</a> Express 静态文件服务器</h1><h2 id="服务器代码"><a href="#服务器代码" aria-hidden="true" class="header-anchor">#</a> 服务器代码</h2><div class="language-js extra-class"><pre class="language-js"><code><span class="token keyword">const</span> express <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'express'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> path <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'path'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> fs <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'fs'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> morgan <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">&quot;morgan&quot;</span><span class="token punctuation">)</span><span class="token punctuation">(</span><span class="token string">&quot;short&quot;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">// 创建 express app 对象</span>
+<span class="token keyword">const</span> app <span class="token operator">=</span> <span class="token function">express</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">// log middleware</span>
+app<span class="token punctuation">.</span><span class="token function">use</span><span class="token punctuation">(</span><span class="token punctuation">(</span>req<span class="token punctuation">,</span> res<span class="token punctuation">,</span> next<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+    console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">'请求 URL: '</span> <span class="token operator">+</span> req<span class="token punctuation">.</span>url<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">'请求 时间: '</span> <span class="token operator">+</span> <span class="token keyword">new</span> <span class="token class-name">Date</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token function">next</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+
+<span class="token comment">// static file server middleware</span>
+app<span class="token punctuation">.</span><span class="token function">use</span><span class="token punctuation">(</span><span class="token punctuation">(</span>req<span class="token punctuation">,</span> res<span class="token punctuation">,</span> next<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+    <span class="token comment">// __dirname 总是指向被执行 js 文件的绝对路径</span>
+    <span class="token keyword">const</span> filePath <span class="token operator">=</span> path<span class="token punctuation">.</span><span class="token function">join</span><span class="token punctuation">(</span>__dirname<span class="token punctuation">,</span> <span class="token string">&quot;static&quot;</span><span class="token punctuation">,</span> req<span class="token punctuation">.</span>url<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token comment">// fs.stat 获得文件相关信息</span>
+    fs<span class="token punctuation">.</span><span class="token function">stat</span><span class="token punctuation">(</span>filePath<span class="token punctuation">,</span> <span class="token punctuation">(</span>err<span class="token punctuation">,</span> stats<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>err<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token function">next</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token comment">// 判断是否是文件</span>
+        <span class="token comment">// 如果 fs.Stats 对象表示一个普通文件，则返回 true 。</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>stats<span class="token punctuation">.</span><span class="token function">isFile</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token comment">// res.sendFile 返回 PATH参数 所指定的文件, 根据文件后缀, 自动设置响应头</span>
+            res<span class="token punctuation">.</span><span class="token function">sendFile</span><span class="token punctuation">(</span>filePath<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+            <span class="token function">next</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">// 404 middleware</span>
+app<span class="token punctuation">.</span><span class="token function">use</span><span class="token punctuation">(</span><span class="token punctuation">(</span>req<span class="token punctuation">,</span> res<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+    res<span class="token punctuation">.</span><span class="token function">status</span><span class="token punctuation">(</span><span class="token number">404</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    res<span class="token punctuation">.</span><span class="token function">send</span><span class="token punctuation">(</span><span class="token string">&quot;404 - 没有找到文件&quot;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+app<span class="token punctuation">.</span><span class="token function">listen</span><span class="token punctuation">(</span><span class="token number">3000</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+    console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">&quot;开始监听 3000 端口请求:&quot;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span>
+</code></pre></div></div><div class="page-edit"><!----><!----></div><!----></div></div></div>
+    <script src="/front-end-notebook/assets/js/23.717c96b4.js" defer></script><script src="/front-end-notebook/assets/js/app.fbc43dc9.js" defer></script>
+  </body>
+</html>
