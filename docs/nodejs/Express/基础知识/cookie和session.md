@@ -136,7 +136,8 @@ res.cookie('username', 'garrik', {
 });
 ```
 
-这时再在客户端获得 cookie, 值就是加密后的一大串看不懂的字符了.
+这时再在客户端获得 cookie, 值就是加密后的一大串看不懂的字符了.  
+
 
 ![Screen Shot 2018-07-28 at 4.46.31 PM](https://i.imgur.com/FLDcQvT.png)
 
@@ -144,3 +145,95 @@ res.cookie('username', 'garrik', {
 
 * `req.cookie` 用于获取未加密的 cookie, 只能获得未加密的, 加密的也不会以密码形式出现.
 * `req.signeCookie` 用于获取未加密的cookie, 只能获得加密过的, 未加密的也不会出现.
+
+## Session
+
+session 和 cookie 的作用是一样的，也是存储用户信息，但是 session 是存储在服务器端的。
+
+session 还需借助 cookie 将唯一标识 sessionID 存到客户端。当客户端访问服务器时，会生成一个全局唯一标识 sessionID，然后服务器会记录用户的信息然后存储到服务器 session 中，由于客户端下一次发送请求时, 服务器要知道来的是谁，故需要将 sessionID 发送到客户端，方法有三种，一种就是设置 set-cookie 头将 sessionID 发送到客户端，另一种就是 url 重写, 把 session id 直接附加在 URL 路径的后面。还有就是用 表单隐藏字段.
+
+第二次请求该网站时，请求头中就会带上 cookie，cookie 的值是就是 sessionID。session 一般用于用户的身份验证，即利用 sessionID 判断用户是否合法。
+
+再详细一点, 服务器使用一种类似于散列表的结构来保存信息,  当程序需要为某个客户端的请求创建一个 session 时，服务器首先检查这个客户端的请求里是否已包含了一个 session 标识 (session id), 如果已包含则说明以前已经为此客户端创建过 session，服务器就按照session id 把对应的 session 检索出来, 如果检索不到，会新建一个.  如果客户端请求不包含 session id，则为此客户端创建一个session 并且生成一个与此 session 相关联的 session id，然后在本次响应中返回给客户端保存。
+
+### express-session
+
+[文档](https://github.com/expressjs/session)
+
+安装好中间件之后, 就要设置 session 中间件了:
+
+``` js
+app.use(cookieParser());
+
+// 要放在 cookieParser 之后, 因为要用到 session id.
+app.use(session({
+    secret: 'my app secret', // 用来对session id相关的cookie进行签名
+    
+    saveUninitialized: false, // 是否自动保存未初始化的会话，建议false
+    
+    resave: false, // 是否每次都重新保存会话，建议false
+    
+    store: new MongoStore({ //创建新的mongodb数据库存储session
+        host: 'localhost', //数据库的地址，本机的话就是127.0.0.1，也可以是网络主机
+        port: 27017, //数据库的端口号
+        db: 'test-app' //数据库的名称。
+    }),
+    
+    name: 'test', //cookie 的 name，默认值是：connect.sid
+    
+    cookie: {
+        maxAge: 10 * 1000
+    }
+}));
+```
+
+#### 常用参数:
+
+* secret: 一个 String 类型的字符串，作为服务器端生成 session 的签名。
+
+* name: 返回客户端的 cookie key 的名称，默认为 connect.sid,也可以自己设置。
+* resave: (是否允许)当客户端并行发送多个请求时，其中一个请求在另一个请求结束时对 session 进行修改覆盖并保存。
+默认为 true。但是(后续版本)有可能默认失效，所以最好手动添加。
+* saveUninitialized: 初始化 session 时是否保存到存储。默认为 true， 但是(后续版本)有可能默认失效，所以最好手动添加。
+* cookie: 设置返回到前端 key 的设置，默认值为 `{ path: ‘/', httpOnly: true, secure: false, maxAge: null } `
+
+#### 使用实例:
+
+``` js
+app.use(cookieParser('secret'));
+app.use(session({
+ secret: 'secret',//与 cookieParser 中的一致
+ resave: true,
+ saveUninitialized:true
+}));
+
+// 保存 session
+app.use((req, res, next) => {
+  var user = {
+    name: "garrik",
+    gender: "male",
+  };
+
+  req.session.user = user;
+})
+
+// 就可以看到刚刚保存的 session 了
+app.use((req, res) => {
+    if (req.session.user) {
+        console.log(req.session.user);
+    } 
+
+    res.end();
+})
+```
+
+
+
+### cookie-session
+
+## 区别 和 优缺点
+
+* 最大的区别应该在于存储的地方不一样，cookie存储在客户端，session存储在服务器；
+* 从安全性方面来说，cookie 存储在客户端，很容易被窃取，暴露用户信息，而 session 存储在服务器，被窃取的机会小很多，故session 的安全性比 cookie 高；
+* 从性能方面来说，cookie 存储在浏览器端消耗的是用户的资源，相对比较分散，而 session 消耗的服务器的内存，会造成服务器端的压力；
+* cookie 可以长期的存储在客户端，但是数量和大小都是有限制的, 单个cookie保存的数据不能超过4K；session 存在服务器的时间较短，但是没有大小的限制
