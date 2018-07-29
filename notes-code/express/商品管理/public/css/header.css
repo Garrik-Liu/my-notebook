@@ -3,6 +3,7 @@
     flex-direction: row;
     height: 100px;
     background-color: #333;
+    justify-content: flex-start;
     align-items: center;
     padding: 0 10px;
 }
@@ -24,4 +25,16 @@
 
 .main_nav a {
     padding: 0 5px;
+}
+
+.main_userinfo {
+    color: aqua;
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+}
+
+.main_userinfo_username {
+    margin-right: 5px;
 }

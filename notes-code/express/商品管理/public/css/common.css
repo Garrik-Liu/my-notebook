@@ -36,3 +36,7 @@ a:hover {
 .main_content h2 {
     color: red;
 }
+
+.main_login_state {
+    color: blue;
+}

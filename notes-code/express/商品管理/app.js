@@ -13,6 +13,8 @@ const targetCol = "users";
 
 const signKey = 'secret';
 
+var loginState = "";
+
 // 使用 ejs 模板引擎, 默认去 views 目录下面找 
 app.set('view engine', 'ejs');
 
@@ -37,10 +39,24 @@ app.use(session({
 
 app.use(express.static('public'));
 
+app.use((req, res, next) => {
+
+    app.locals['userinfo'] = {};
+    app.locals['login'] = {
+        state: loginState
+    };
+
+    next();
+})
+
 // 自定义中间件用于判断登录状态
 app.use((req, res, next) => {
     if (req.url == '/login' || req.url == '/dologin') {
-        next();
+        if (req.session.userinfo && req.session.userinfo.username != '') {
+            res.redirect('/logout');
+        } else {
+            next();
+        }
     } else {
         if (req.session.userinfo && req.session.userinfo.username != '') {
             /*配置全局变量  可以在任何模板里面使用*/
@@ -75,14 +91,13 @@ app.post('/dologin', (req, res) => {
                 } else {
                     if (result.length) {
                         if (result[0].password == userInput.password) {
-                            console.log("登陆成功");
-
                             req.session.userinfo = result[0];
+                            loginState = '登录成功';
                         } else {
-                            console.log("密码错误");
+                            loginState = '密码错误';
                         }
                     } else {
-                        console.log("用户名不存在");
+                        loginState = '用户名不存在';
                     }
                     db.close();
 
@@ -94,6 +109,7 @@ app.post('/dologin', (req, res) => {
 });
 
 app.get('/logout', (req, res) => {
+    loginState = "";
     req.session.destroy((err) => {
         if (err) {
             console.log(err);
@@ -104,18 +120,22 @@ app.get('/logout', (req, res) => {
 })
 
 app.get('/product', (req, res) => {
+    loginState = "";
     res.render('product');
 })
 
 app.get('/product-add', (req, res) => {
+    loginState = "";
     res.render('product-add');
 })
 
 app.get('/product-edit', (req, res) => {
+    loginState = "";
     res.render('product-edit');
 })
 
 app.get('/product-delete', (req, res) => {
+    loginState = "";
     res.send('删除商品');
 })
 
