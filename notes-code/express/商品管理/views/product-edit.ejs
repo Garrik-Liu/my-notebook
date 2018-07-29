@@ -5,12 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>修改商品</title>
+    <%- include('templates/common-head_style.ejs') %>
 </head>
 
 <body>
-    <%- include('templates/header') %>
-        <h2>修改商品</h2>
+
+    <div class="wrapper">
+        <div class="main_top">
+            <%- include('templates/header') %>
+                <div class="main_content">
+                    <h2>修改商品</h2>
+                </div>
+        </div>
         <%- include('templates/footer') %>
+    </div>
 </body>
 
 </html>
