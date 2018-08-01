@@ -15,11 +15,7 @@
             <%- include('templates/header') %>
                 <div class="main_content">
                     <h2>登录页面</h2>
-                    <% if(login.state != '') { %>
-                    <div class="main_login_state">
-                    <%= login.state %>
-                    </div>
-                    <% } %>
+
                     <form action="/dologin" method="POST">
                         <label for="">账户: </label>
                         <input type="text" name="username"> <br>
