@@ -15,7 +15,14 @@
             <%- include('templates/header') %>
                 <div class="main_content">
                     <h2>主页</h2>
-                    <a href="/login">登录</a>
+                    <% if(userinfo.username) { %>
+                    <a href="/logout" class="login-btn">登出</a>
+                    <% } else { %>
+                    <a href="/login" class="login-btn">登录</a>
+                    <% } %>
+                    <p>
+                    这是一个商品管理系统, 欢迎使用!
+                    </p>
                 </div>
         </div>
         <%- include('templates/footer') %>

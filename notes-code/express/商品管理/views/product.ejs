@@ -16,56 +16,27 @@
             <%- include('templates/header') %>
                 <div class="main_content">
                     <h2>商品列表</h2>
+                    <a class="product-add" href="/product-add">添加</a>
                     <div class="product-list">
-                        <div class="product-unit-wrapper">
-                            <div class="product-unit">
-                                <p>名称: XXX</p>
-                                <p>价格: XXX</p>
-                                <p>数量: XX</p>
+                        <% for(let i=0; i<products.length; i++) { %>
+                            <div class="product-unit-wrapper">
+                                <div class="product-unit">
+                                    <p>名称:
+                                        <%= products[i].name %>
+                                    </p>
+                                    <p>价格:
+                                        <%= products[i].price %>
+                                    </p>
+                                    <p>数量:
+                                        <%= products[i].quantity %>
+                                    </p>
+                                    <div class="product-unit-btnGrp">
+                                        <a class="product-unit-edit" href="/product-edit?id=<%= products[i]._id %>">修改</a>
+                                        <a class="product-unit-delete" href="/doproduct-delete/<%= products[i]._id %>">删除</a>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="product-unit-wrapper">
-                            <div class="product-unit">
-                                <p>名称: XXX</p>
-                                <p>价格: XXX</p>
-                                <p>数量: XX</p>
-                            </div>
-                        </div>
-                        <div class="product-unit-wrapper">
-                            <div class="product-unit">
-                                <p>名称: XXX</p>
-                                <p>价格: XXX</p>
-                                <p>数量: XX</p>
-                            </div>
-                        </div>
-                        <div class="product-unit-wrapper">
-                            <div class="product-unit">
-                                <p>名称: XXX</p>
-                                <p>价格: XXX</p>
-                                <p>数量: XX</p>
-                            </div>
-                        </div>
-                        <div class="product-unit-wrapper">
-                            <div class="product-unit">
-                                <p>名称: XXX</p>
-                                <p>价格: XXX</p>
-                                <p>数量: XX</p>
-                            </div>
-                        </div>
-                        <div class="product-unit-wrapper">
-                            <div class="product-unit">
-                                <p>名称: XXX</p>
-                                <p>价格: XXX</p>
-                                <p>数量: XX</p>
-                            </div>
-                        </div>
-                        <div class="product-unit-wrapper">
-                            <div class="product-unit">
-                                <p>名称: XXX</p>
-                                <p>价格: XXX</p>
-                                <p>数量: XX</p>
-                            </div>
-                        </div>
+                            <% } %>
                     </div>
                 </div>
         </div>
