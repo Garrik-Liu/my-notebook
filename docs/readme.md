@@ -12,7 +12,9 @@ home: true
 
 ## 后端开发
 
-* [NodeJs 笔记](/nodejs/)
+* [NodeJs 笔记](/nodejs/NodeJs)
+* [Express 笔记](/nodejs/Express/readme.md)
+* [模板引擎](/nodejs/模板引擎)
 
 ## 图形
 
