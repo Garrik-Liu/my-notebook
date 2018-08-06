@@ -12,25 +12,28 @@ home: true
 
 ## 后端开发
 
-* [NodeJs 笔记](/nodejs/NodeJs/readme.md)
-* [Express 笔记](/nodejs/Express/readme.md)
-* [模板引擎](/nodejs/模板引擎/readme.md)
+* [NodeJs 笔记](/后端开发/NodeJs/readme.md)
+* [Express 笔记](/后端开发/Express/readme.md)
+* [模板引擎](/后端开发/模板引擎/readme.md)
 
 ## 图形
 
-* [Canvas 笔记](/canvas/)
+* [Canvas 笔记](/图形/canvas/readme.md)
 
 ## 工程化
 
-* [Webpack 笔记](/webpack/)
+* [Webpack 笔记](/工程化/webpack/readme.md)
 
 ## 数据库
 
-* [MongoDB 笔记](/mongodb/)
+* [MongoDB 笔记](/数据库/mongodb/readme.md)
 
+## 计算机通用
+
+* [HTTP](/计算机通用/http/readme.md)
 
 ## 其他
 
-* [计算机通用笔记](/others/)
 * [读书笔记](/读书笔记/)
+* [个人心得](/个人心得/)
 

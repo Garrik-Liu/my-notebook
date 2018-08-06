@@ -25,6 +25,47 @@ App.use(session({
     }
 }));
 
+App.get('/', function(req, res, next) {
+    var sess = req.session;
+    var loginUser = sess.loginUser;
+    var isLogined = !!loginUser;
+
+
+});
+
+// 登录接口
+app.post('/login', function(req, res, next) {
+
+    var user = findUser(req.body.username, req.body.password);
+
+    if (user) {
+        req.session.regenerate(function(err) {
+            if (err) {
+                res.json({ ret_code: 2, ret_msg: '登录失败' });
+                return;
+            }
+
+            req.session.loginUser = user.name;
+            res.json({ ret_code: 0, ret_msg: '登录成功' });
+        });
+    } else {
+        res.json({ ret_code: 1, ret_msg: '账号或密码错误' });
+    }
+});
+
+// 退出登录
+app.get('/logout', function(req, res, next) {
+    req.session.destroy(function(err) {
+        if (err) {
+            res.json({ ret_code: 2, ret_msg: '退出登录失败' });
+
+            return;
+        }
+
+        res.redirect('/');
+    });
+});
+
 
 
 App.listen(Port, () => {
