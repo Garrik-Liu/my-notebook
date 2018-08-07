@@ -352,7 +352,56 @@ ORDER BY num_emps DESC, ename ASC;
 
 ### Using Subqueries with INSERT, UPDATE, and DELETE
 
+[My Note](https://garrik-liu.github.io/front-end-notebook/%E8%AE%A1%E7%AE%97%E6%9C%BA%E9%80%9A%E7%94%A8/ols/files/Modifying_a_Table_with_DML_Statements.html#insert)
 
+#### Insert
+
+``` sql
+INSERT INTO donations (receipt_no, first_name, last_name, amount) 
+VALUES (1280, 'Kevin', 'Dunn', 800);
+```
+
+Insert Date:
+
+``` sql
+INSERT INTO card_accounts (card_number, first_name, middle_initial, last_name, valid_date, expiry_date) VALUES (55555555, 'Cathy', NULL, 'Puck', TO_DATE('11-NOV-2005', 'DD-MON-YYYY'), TO_DATE('10-NOV-2006', 'DD-MON-YYYY'));
+```
+
+Insert Internal:
+
+``` sql
+INSERT INTO events (duration, next_event) 
+VALUES (TO_DSINTERVAL('0 02:30:00'), TO_YMINTERVAL('1-6'));
+```
+
+#### Update
+
+``` sql
+UPDATE donations SET last_name = NULL, amount = 880 WHERE receipt_no = 1280;
+
+UPDATE donations SET last_name = 'Dunn', amount = DEFAULT WHERE receipt_no = 1280;
+
+UPDATE donations SET last_name = NULL, amount = 880 
+WHERE receipt_no = 1280 AND last_name = 'Dunn' AND amount = 800;
+```
+
+#### Delete
+
+``` sql
+DELETE FROM donations WHERE receipt_no = 1280;
+```
+
+Note that a row with a primary key cannot be deleted while a foreign key still refers to that primary key.
+
+If it is desireable that any related foreign keys are automatically removed as well or that foreign keys are set to NULL, the foreign key can be defined with the phrase `ON DELETE CASCADE` or `ON DELETE SET NULL`.
+
+``` sql
+receipt_no NUMBER(8)
+    CONSTRAINT receipt_no_fk REFERENCES donations(receipt_no) ON DELETE CASCADE
+    
+receipt_no NUMBER(8)
+    CONSTRAINT receipt_no_fk REFERENCES donations(receipt_no) ON DELETE SET NULL
+```
 
 ## Views 
 
