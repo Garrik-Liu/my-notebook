@@ -398,11 +398,21 @@ If it is desireable that any related foreign keys are automatically removed as w
 ``` sql
 receipt_no NUMBER(8)
     CONSTRAINT receipt_no_fk REFERENCES donations(receipt_no) ON DELETE CASCADE
-    
+
 receipt_no NUMBER(8)
     CONSTRAINT receipt_no_fk REFERENCES donations(receipt_no) ON DELETE SET NULL
 ```
 
 ## Views 
+
+### Create Views
+
+### Using Views
+
+### Modifying Data behind a view
+
+### Modifying Data through a view
+
+### Restriction when updating through a view
 
 ## Privileges 
