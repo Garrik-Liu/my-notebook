@@ -405,14 +405,143 @@ receipt_no NUMBER(8)
 
 ## Views 
 
+a view is a virtual table based on the result-set of an SQL statement.
+
 ### Create Views
+
+The syntax for creating a view is : 
+
+``` sql
+CREATE [OR REPLACE] VIEW view_name [(column1, . . ., columnN)] AS select_statement. 
+```
+
+Use the `OR REPLACE` option to recreate a view.
+
+E.g:  Construct a view that lists the name of all clerks along with their employee number and salary.
+
+``` sql
+CREATE VIEW clerks_analysts AS
+SELECT empno, ename, sal, job FROM emp WHERE job IN ('CLERK', 'ANALYST');
+```
+
+E.g: Construct a view that lists all employees who have at least one other employee in the same department with the same manager they have AND who earn more than their managers.
+
+``` sql
+CREATE VIEW same_dept_big_money (empno, ename, job, mgr) AS
+SELECT empno, ename, job, mgr FROM emp
+WHERE EXISTS
+(
+   SELECT * FROM emp empcompare
+   WHERE emp.mgr = empcompare.mgr AND
+   emp.deptno = empcompare.deptno AND
+   emp.empno != empcompare.empno
+)
+INTERSECT
+SELECT e1.empno, e1.ename, e1.job, e1.mgr
+FROM emp e1, emp e2
+WHERE e2.empno = e1.mgr AND e1.sal > e2.sal;
+```
 
 ### Using Views
 
+#### Delete
+
+``` sql
+DROP VIEW view_name.
+```
+
 ### Modifying Data behind a view
+
+Creating a view differs from creating a table from a subquery in that a table is static and will not reflect changes in the tables on which it is based. A view will always reflect the current data.
 
 ### Modifying Data through a view
 
+Data can be modified through a view under three conditions.
+* The view is based on a single table (or more precisely, the modification only affects a single key-preserved table).
+* The select statement does not have a `DISTINCT` clause, aggregates, or a `GROUP BY` clause.
+* The columns to be updated are not virtual columns — that is, they are based on real columns, not expressions.
+
+
 ### Restriction when updating through a view
 
+#### Creating a Read-Only View
+
+A view that would otherwise be updatable can be made non-updatable by adding the clause `WITH READ ONLY` to its create statement.
+
+``` sql
+CREATE OR REPLACE VIEW clerks_analysts AS
+SELECT empno, ename, sal, job FROM emp WHERE job IN ('CLERK', 'ANALYST')
+WITH READ ONLY;
+```
+
+#### Using the WITH CHECK OPTION
+
+A view that includes a filter condition can prevent any updates to a row that will result in the row being excluded from the view.
+
+``` sql
+CREATE VIEW clerks_analysts AS
+SELECT empno, ename, sal, job FROM emp WHERE job IN ('CLERK', 'ANALYST')
+WITH CHECK OPTION;
+```
+
 ## Privileges 
+
+Privileges allow a user to grant another user authority to access and/or create, modify, or delete database objects within the user's workspace.
+
+There are two types of privileges:
+
+* **System privileges** allow the user to grant to another user the ability to create or destroy database objects in the user's workspace. E.g. CREATE TABLE privilege, DROP TABLE privilege. System privileges also include database administrator privileges such as CREATE USER privilege. A user must be database administrator to grant a database administration privilege to another user.
+* **Object privileges** allow the user to grant to another user the ability to access or modify a database object in the user's workspace. E.g. SELECT privilege, INSERT privilege, ALTER privilege. Object privileges must specify the object on which the privileges are being granted.
+
+
+![Screen Shot 2018-08-07 at 4.14.32 AM](https://i.imgur.com/DBdRD4w.png)
+
+### Granting Privileges
+
+Done By DBA
+
+``` sql
+GRANT CREATE SESSION, CREATE TABLE TO username;
+```
+
+Grant System Privileges:
+
+``` sql
+GRANT CREATE TABLE TO username WITH ADMIN OPTION;
+```
+
+### Revoking Privileges
+
+``` sql
+REVOKE CREATE TABLE FROM username;
+```
+
+### Creating Roles
+
+``` sql
+CREATE ROLE role_name;
+```
+
+### Using Roles
+
+Assign a role to a user
+
+``` sql
+GRANT role_name TO user_name
+```
+
+### Granting and Revoking Privliges on Database Objects
+
+``` sql
+GRANT privilege1, privilege2, …
+ON object_name
+TO user1, user 2, …;
+```
+
+``` sql
+REVOKE privilege1, privilege2, …
+ON object_name
+FROM user1, user 2, …;
+```
+
+## PL/SQL
