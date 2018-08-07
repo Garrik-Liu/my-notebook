@@ -545,3 +545,239 @@ FROM user1, user 2, …;
 ```
 
 ## PL/SQL
+
+## ASP.NET 
+
+### Using GridView, Drop Down List, DetailView components (including binding)
+
+**GridView ** can used to display database data.
+
+To populate the GridView, create a data table and fill it with the results of a SELECT statement. Then set the data table as the DataSource for the GridView and bind it. 
+
+``` c
+OracleConnection conn = new OracleConnection(String.Format("Data Source=Neptune; User Id={0}; Password={1}", txtUsername.Text, txtPassword.Text));
+OracleCommand cmd = new OracleCommand("SELECT empno, ename, job, sal, comm, deptno FROM emp", conn);
+OracleDataAdapter da = new OracleDataAdapter(cmd);
+DataTable dt = new DataTable();
+da.Fill(dt);
+gvEmp.DataSource = dt;
+gvEmp.DataBind();
+```
+
+### Using GridView RowCommand events
+
+
+### Using the IsPostBack property in the PageLoad event
+
+All events occur only when the form is sent back to the server (called **Posting Back** to the server). 
+
+Once all of the event code has run, the response page is constructed and sent back to the browser. This cycle is called a **round trip**
+
+.Initialization code is often added to the page's **Load** event. that the page's Load event occurs each time the page loads
+
+If the initialization should only occur when the page first loads but not during user post back events, use the form's IsPostBack property to test for this.
+
+``` c
+protected void Page_Load(object sender, EventArgs e){    
+    if (!IsPostBack) {
+    ...
+    }
+}
+```
+
+### Using Validators and the IsValid property
+
+You can add a **validator** to the web form from the Validation section of the toolbox
+
+Tie the validator to a web control using its **ConstrolToValidate** property.
+
+Note that when using validators with a .NET 4.5 web application project you may get the error message:s
+
+> WebForms UnobtrusiveValidationMode requires a ScriptResourceMapping for 'jquery'. Please add a ScriptResourceMapping named jquery(case-sensitive).
+> 
+To resolve the problem, open your Web.config file and add the code
+
+``` html 
+<appSettings>    
+    <add key="ValidationSettings:UnobtrusiveValidationMode" value="None" /> 
+</appSettings> 
+``` 
+
+just before the `</configuration>` element.   
+
+![image](http://mdp.tylingsoft.com/icon.png) 
+
+If event code should only run if the validation was successful, the use the form's **IsValid** property to test the validation results. The function returns True only if all form validations were successful.  
+
+``` c
+
+protected void btnSubmit_Click(object sender, EventArgs e) {    
+    if (IsValid){      ...    }
+}
+```
+
+### Using URL-encoded parameters
+
+### Page Transfers (Server.Transfer)
+
+`Server.Transfer(url)` is used to make an internal transfer to the desired page. The browser is unaware of the transfer and does not display the new URL in its address bar. This could be a bit confusing for the user in some instances but often is desirable.
+
+
+``` c
+Server.Transfer("~/Birthday.aspx");
+```
+
+### Page Redirection (Response.Redirect)
+
+`Response.Redirect(url)` is used to send back a special redirection response to the browser. The browser will then send a new request for the new URL. This URL will then appear in the browser's address bar.
+
+``` c
+Response.Transfer("~/Birthday.aspx");
+```
+
+### Retrieving Data From Previous Page Controls
+
+After navigating to a new page using either server transfer or cross-page posting,
+the controls of the previous page can still be accessed using the page's **PreviousPage** object.
+Simply check first that this object is not null. Then any control from the previous page can be found using the `PreviousPage.FindControl` method.
+
+``` c
+Calendar calBirthdate = (Calendar)PreviousPage.FindControl("calBirthdate");
+TextBox txtName = (TextBox)PreviousPage.FindControl("txtName");
+```
+
+To retrieve public properties defined in the web form page, include the line
+
+``` html
+<%@ PreviousPageType VirtualPath="previous page name.aspx"%>
+```
+
+E.g:
+
+``` html
+<!-- PREVIOUS PAGE IS HOME -->
+<%@ PreviousPageType VirtualPath="Home.aspx"%>
+```
+
+### Creating/Using master-detail pages
+
+A master/detail page allows a record to be selected in one data control and then have detail data related to the selected record displayed in another data control.
+
+For example, selecting a department in one data control and then seeing a list of employees in that department in the other data control.
+
+The master/detail page uses two data sources: 
+* one for the master records 
+* one for the related detail records.
+
+Add a Drop Down List to the web form. Select the data source created above for its data source. Specify the DataTextField as DNAME and the DataValueField as DEPTNO.
+
+Important! The DropDownList's **AutoPostBack** property is set to `True` so that the selection is sent to the server immediately when the selection is made.
+
+``` c
+if (!IsPostBack) // Only populate the drop down if the request is not a postback request
+{
+    LoginInfo login = (LoginInfo)Session["login"];
+    DepartmentDAO departmentDAO = new DepartmentDAO(login.UserName, login.Password);
+
+    ddlDept.DataSource = departmentDAO.LoadAll();
+    ddlDept.DataTextField = "Dname";
+    ddlDept.DataValueField = "DeptNo";
+    ddlDept.DataBind();
+}
+```
+
+Also, the first entry in the list is an invalid entry prompting the user to select a department. The property `AppendDataBoundItems` is set to `True` to allow the data bound items to be added after this item. It is, therefore, important to not add more items every time the page loads. So the page load event includes a condition to only populate the list if the request is not a postback request (a postback request occurs when you respond to the page by clicking on a button, or selecting an item in a list, etc.
+
+When the `SelectedIndexChanged` event occurs, the value is retrieved and used to look up data corresponding to the master data selection and display it.
+
+``` C
+protected void ddlDept_SelectedIndexChanged(object sender, EventArgs e)
+{
+    LoginInfo login = (LoginInfo)Session["login"];
+    EmployeeDAO employeeDAO = new EmployeeDAO(login.UserName, login.Password);
+    int deptNo = Convert.ToInt32(ddlDept.SelectedValue);
+    List<Employee> employees = employeeDAO.FindByDepartmentNo(deptNo);
+    gvEmp.DataSource = employees;
+    gvEmp.DataBind();
+    if (0 == employees.Count)
+        lblNoEmployees.Visible = deptNo != 0;
+    else
+        lblNoEmployees.Visible = false;
+}
+```
+
+Add a GridView control to the web form. Set its data source to the second (detail) data source.
+
+
+### Using login authentication scheme (with BasePage)
+
+We want to force the user to log in before being able to view any pages.  To do that we can use inheritance: a base Web Form page is created from which all other pages that need authentication can inherit.
+
+That is, in all future pages, change the clause:
+
+``` c#
+public partial class Home : BasePage
+```
+
+assuming **BasePage** is the name of the WebForm used as the base page.
+
+In the code of this base page, add
+
+``` c
+protected override void OnInit(EventArgs e)
+ {
+    base.OnInit(e);
+    if (Context != null && Context.Session != null && null == Session["login"])
+       Response.Redirect("~/Login.aspx");
+ }
+```
+
+![Capture](https://i.imgur.com/8D04AUB.jpg)
+
+The session item "login" will contain a `LoginInfo` object that is created by the **login page**.
+
+To login, we will simply try to connect to the database using the given username and password. If the connection is successful, the user is authenticated. If the connection fails, we assume that either the username or password is invalid.
+
+Login Page Code:
+
+``` c
+protected void btnLogin_Click(object sender, EventArgs e)
+{
+    if (IsValid)
+    {
+        try
+        {
+            LoginInfo loginInfo = DatabaseHelper.Login(txtUserName.Text, txtPassword.Text);
+            Session.Add("login", loginInfo); // Save login information into session
+            Response.Redirect("~/Home.aspx");
+        }
+        catch (Exception)
+        {
+            lblInvalid.Visible = true;
+        }
+    }
+}
+```
+
+Home Page Code:
+
+``` c
+protected void Page_Load(object sender, EventArgs e)
+{
+    LoginInfo login = (LoginInfo)Session["login"];
+    EmployeeDAO employeeDAO = new EmployeeDAO(login.UserName, login.Password);
+    gvEmp.DataSource = employeeDAO.LoadAll();
+    gvEmp.DataBind();
+}
+
+ protected void btnLogout_Click(object sender, EventArgs e)
+{
+    Session.Abandon();
+    Response.Redirect("~/Home.aspx");
+}
+```
+
+
+### Using Command Parameters 
+
+### Executing INSERT, UPDATE, and DELETE statements from ASP.NET
