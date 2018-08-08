@@ -548,9 +548,21 @@ FROM user1, user 2, …;
 
 ## ASP.NET 
 
+### Using Data Access Objects
+
+A **Employee** class is created to represent one employee. The constructor for the class takes parameters representing the employee's data. The **EmployeeDAO** class is used to get a List<Employee> object representing all of the employees. This object is suitable to use as a data source for our GridView.
+
+``` c
+EmployeeDAO employeeDAO = new EmployeeDAO(username, password);
+List<Employee> employees;
+employees = employeeDAO.LoadAll();
+gvEmp.DataSource = employees;
+gvEmp.DataBind();
+```
+
 ### Using GridView, Drop Down List, DetailView components (including binding)
 
-**GridView ** can used to display database data.
+**GridView** can used to display database data.
 
 To populate the GridView, create a data table and fill it with the results of a SELECT statement. Then set the data table as the DataSource for the GridView and bind it. 
 
@@ -565,6 +577,14 @@ gvEmp.DataBind();
 ```
 
 ### Using GridView RowCommand events
+
+The grid view's **RowCommand** event is invoked when the grid view's Edit button is clicked. The GridView can have more than one button. To distinguish which button is being pressed, check the event's CommandName property (from the **GridViewCommandEventArgs** object). The property value will match the CommandName property set for the button. 
+E.g.
+``` c
+if ("EDIT" == e.CommandName)
+```
+
+When the user clicks the Edit button, the row corresponding to which edit button was clicked is sent to the event in the **GridViewCommandEventArgs** object's **CommandArgument** property. 
 
 
 ### Using the IsPostBack property in the PageLoad event
@@ -605,7 +625,6 @@ To resolve the problem, open your Web.config file and add the code
 
 just before the `</configuration>` element.   
 
-![image](http://mdp.tylingsoft.com/icon.png) 
 
 If event code should only run if the validation was successful, the use the form's **IsValid** property to test the validation results. The function returns True only if all form validations were successful.  
 
@@ -617,6 +636,14 @@ protected void btnSubmit_Click(object sender, EventArgs e) {
 ```
 
 ### Using URL-encoded parameters
+
+URL-encoded can used to pass data from previous page. To add a URL-encoded parameter, append `?name=value ` to the URL of the desired page 
+
+``` c
+int receiptNo;
+// 解析 url query
+if (int.TryParse(Request.Params["receiptno"], out receiptNo)
+```
 
 ### Page Transfers (Server.Transfer)
 
@@ -780,4 +807,22 @@ protected void Page_Load(object sender, EventArgs e)
 
 ### Using Command Parameters 
 
+``` c
+...
+OracleCommand cmd = new OracleCommand("SELECT first_name, last_name, amount FROM donations WHERE receipt_no = :receiptNo", conn);
+...
+cmd.Parameters.AddWithValue(":receiptNo", receiptNo);
+```
+
+
 ### Executing INSERT, UPDATE, and DELETE statements from ASP.NET
+
+#### INSERT
+
+![Screen Shot 2018-08-07 at 6.42.49 PM](https://i.imgur.com/SXgA5lH.png)
+
+#### UPDATE
+
+#### Delete
+
+#### Sequences
