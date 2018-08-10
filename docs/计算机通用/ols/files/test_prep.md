@@ -817,12 +817,54 @@ cmd.Parameters.AddWithValue(":receiptNo", receiptNo);
 
 ### Executing INSERT, UPDATE, and DELETE statements from ASP.NET
 
-#### INSERT
+直接去看代码吧.
 
-![Screen Shot 2018-08-07 at 6.42.49 PM](https://i.imgur.com/SXgA5lH.png)
+### Sequences
 
-#### UPDATE
+#### Creating Sequences:
 
-#### Delete
+A sequence is a database object that can be used to create unique surrogate key values.  A sequence can be created using the `CREATE SEQUENCE` statement.
 
-#### Sequences
+``` sql
+CREATE SEQUENCE receipt_no_sequence
+   START WITH 1290
+   INCREMENT BY 10;
+```
+
+If START WITH is not specified, the default is 1. If INCREMENT BY is not specified, the default is 1.
+
+#### Using Sequences
+
+To retrieve the next value in a sequence, reference the `NEXTVAL` pseudocolumn
+
+``` sql
+INSERT INTO donations (receipt_no, first_name, last_name, amount) VALUES (receipt_no_sequence.NEXTVAL, 'Kevin', 'Dunn', 800);
+```
+
+the `CURRVAL` pseudocolumn to get the last generated sequence value on the connection. This is useful when inserting foreign key values when the primary key value was generated with the sequence. 
+E.g.:
+ 
+``` sql
+CREATE SEQUENCE make_id_sequence
+   START WITH 1;
+
+INSERT INTO makes (make_id, make) VALUES (make_id_sequence.NEXTVAL, 'Infinity');
+INSERT INTO models (make_id, model) VALUES (make_id_sequence.CURRVAL, 'G35 Sedan');
+
+INSERT INTO makes (make_id, make) VALUES (make_id_sequence.NEXTVAL, 'Jaguar');
+INSERT INTO models (make_id, model) VALUES (make_id_sequence.CURRVAL, '2005 XJR');
+
+INSERT INTO makes (make_id, make) VALUES (make_id_sequence.NEXTVAL, 'Lexus');
+INSERT INTO models (make_id, model) VALUES (make_id_sequence.CURRVAL, 'GS 300 AWD');
+INSERT INTO models (make_id, model) VALUES (make_id_sequence.CURRVAL, 'LS 430');
+
+INSERT INTO makes (make_id, make) VALUES (make_id_sequence.NEXTVAL, 'Mercedes Benz');
+```
+
+#### Deleting Sequences
+
+To delete a sequence object, use the `DROP SEQUENCE` statement.
+
+``` sql
+DROP SEQUENCE receipt_no_sequence;
+```
