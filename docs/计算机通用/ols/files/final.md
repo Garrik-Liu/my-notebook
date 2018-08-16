@@ -1,3 +1,5 @@
+# Final
+
 ## Database Overview
 
 * **Database**: A Database consists of a collection of Tables and other database objects. 
@@ -914,5 +916,9 @@ REVOKE privilege1, privilege2, …
 ON object_name
 FROM user1, user 2, …;
 ```
+
+## PL/SQL 
+
+[GO TO PL/SQL](./PL_SQL.md)
 
 ## Subversion Repository 
