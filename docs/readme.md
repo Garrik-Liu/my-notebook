@@ -36,6 +36,7 @@ home: true
 ## 计算机通用
 
 * [HTTP](/计算机通用/http/readme.md)
+* [计算机基础](/计算机通用/计算机基础/readme.md)
 
 ## 其他
 
