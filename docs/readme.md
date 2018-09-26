@@ -4,6 +4,8 @@ home: true
 
 # 目录
 
+[收藏夹](./收藏夹.md)
+
 ## 前端开发
 
 * [JavaScript 笔记](/前端开发/javascript/readme.md)
