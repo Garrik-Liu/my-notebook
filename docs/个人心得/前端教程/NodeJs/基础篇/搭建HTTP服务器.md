@@ -1,28 +1,180 @@
-# 搭建 HTTP 服务器
+# 实现 "Hello World" HTTP 服务器
 
-📝 什么是 HTTP ( HTTP 基础概念 )
+## 客户端 & 服务器
 
-当我们想要访问页面时, 浏览器根据地址栏中的指定 URL, 向服务器端获取指定的文件资源, 服务器返回内容给浏览器, 然后浏览器显示出 Web 页面.  Web 浏览器在这里可称为客户端.  
+先思考, 平时我们在浏览器地址栏中, 输入网址按下回车之后, 网页是如何呈现在我们面前的?
 
-那么客户端与服务器之间是怎么通信的呢?
+很显然, 我们想要访问的网页不是原本就保存在我们的电脑里的.  我们在浏览器中输入网址, 去网页文件所在的网络设备中去请求网页.  拥有网页的网络设别同意了我们的请求, 把网页返回给了浏览器.  之后浏览器再解析渲染网页文件, 使网页最终能呈现在我们面前.
+
+像浏览器这样, 请求访问文本或图像等资源的一端称为**客户端**，而提供资源响应的一端称为**服务器端**。
+
+## 什么是 HTTP 协议
+
+[MDN HTTP 文档](https://developer.mozilla.org/zh-CN/docs/Web/HTTP)
+
+那客户端和服务器之间是怎么交流信息, 传递数据的呢?  网络之间的各种网络设备, 就像 "学校里说不同地方方言的同学", 大家想要交流就必须使用 "普通话".  各种网络设别之间想要通信也需要一套大家都认可的通信标准.
+
+**HTTP 协议** (Hyper Text Transfer Protocol 超文本传输协议）就是 服务器 和 客户端 之间的**通信规则**.
+
+在应用 HTTP 协议时，必定是一端担任客户端角色，另一端担任服务器端角色
+
+使用 HTTP 协议传输的信息叫做 **HTTP 报文**. 请求端（客户端）的 HTTP 报文叫做**请求报文**，响应端（服务器端）的叫做**响应报文**。 HTTP 报文可分为 **报文首部** 和 **报文主体** 两块, 中间由一个空行分开.****
+
+![Untitled Diagram(2)](https://i.imgur.com/n8ecmof.png)
+
+### 请求报文 & 响应报文
+
+**请求报文组成**: 请求方法 + 请求 URI + HTTP 协议版本 + (可选的请求首部字段 和 内容实体)
+
+![](https://i.imgur.com/pZbTmLG.png)
+
+**响应报文组成**: HTTP 协议版本 + 状态码（表示请求成功或失败的数字代码）+ 用以解释状态码的原因短语 + (可选的响应首部字段 以及 实体主体)
+
+![](https://i.imgur.com/LhTUXaJ.png)
+
+**请求方法**:
+
+[MDN - HTTP 请求方法 文档](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Methods)
+
+HTTP 定义了一组请求方法, 以表明要对给定资源执行的操作。
+
+常用的有:
+* `GET`: 用来请求服务器端指定的资源。使用 GET 的请求应该只用于获取数据。
+* `POST`: 用来发送数据给服务器. 虽然用 GET 方法也可以传输主体.  但一般不用 GET 方法进行传输，而是用 POST 方法。
+* `PUT`: 用于新增资源.  PUT 与 POST 方法的区别在于，PUT 方法调用一次与连续调用多次是等价的，而连续调用多次 POST 方法可能会有副作用，比如将一个订单重复提交多次。
+* `DELETE`: 用于删除指定的资源。
+
+除上面这些之外, 还有其他请求方法, 想了解可以自行查阅文档.
+
+**URI**:
+
+HTTP 协议使用 URI 定位互联网上的资源。也就是我们常说的 "网址".  多数情况下 URL 和 URI 说的是一回事.  这里不做过多论述.
+
+![2824193-3b10e5ce8796c938](https://i.imgur.com/PNmbAh1.png)
+
+**状态码**:
+
+[ MDN - HTTP 状态码 - 文档](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status)
+
+状态码的职责是当客户端向服务器端发送请求时，描述服务器返回的请求结果。
+
+借助状态码，用户可以知道服务器端是正常处理了请求，还是出现了错误。
+
+状态码以 3 位数字 和 原因短语 组成。
+
+数字中的第一位指定了响应类别，后两位无分类。响应类别有以下 5 种:
+
+![Screen Shot 2018-09-26 at 4.31.44 PM](https://i.imgur.com/m3Qc4kc.png)
+
+最常见的两个就是:
+
+* `200 OK`: 表示从客户端发来的请求在服务器端被正常处理了。
+* `404 Not Found`: 该状态码表明服务器上无法找到请求的资源。除此之外，也可以在服务器端拒绝请求且不想说明理由时使用。
+
+其余的状态码, 大家可以查阅文档, 这里就不介绍了.
 
 
+**首部字段**:
 
+[MDN - HTTP 首部字段 - 文档](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers)
 
+首部字段, 为客户端和服务器, 处理请求和响应, 提供了所需要的信息。
 
+HTTP 首部字段是由 首部字段名 和 字段值 构成的，中间用 `:` 分隔。
 
+例如: 
 
+在 HTTP 首部中以 Content-Type 这个字段来表示报文主体的类型。 `Content-Type: text/html` 就是说, 报文主体的类型为 HTML.
 
-HTTP 指的是超文本传输协议 ( HyperText Transfer Protocol ) 是互联网上应用最为广泛的一种网络协议.  简单来说, HTTP 协议 用于规定 服务器 和 客户端 之间通信的规则.
+更多首部字段我就不再这里介绍了, 大家可以根据需要查阅文档.
 
-📝 什么是 HTTP 服务器 ( 服务器基础概念 )
+## 使用 HTTP 模块 实现一个 "Hello World" 服务器
 
-📝 写一个 "HELLO WORLD" 服务器
-* 介绍 `http.createServer` 这个方法
-* 绑定端口接听 (服务器端口的概念)
+[HTTP 模块 - 文档](http://nodejs.cn/api/http.html)
 
-📝 读取请求头 & 设置响应头
+Node.js 自身提供的 `http` 模块, 提供了 HTTP 服务器和客户端接口, 可以很便捷地应用 HTTP 协议.
 
-📝 设置响应状态码
+下面我就介绍如何用 `http` 模块实现一个响应 "Hello World" 给客户端的 Web 服务器:
 
-📝 RESTful
+首先, 新建一个 JavaScript 文件, 取名 `myServer.js` , 当然你可以叫别的.
+
+在文件开头先引用 `http` 模块.
+
+``` js
+var http = require('http');
+```
+
+然后调用 `http.createServer` 函数创建并返回一个 HTTP 服务器.  这个函数接收一个回调函数作为参数.  服务器每次收到客户端发过来的 HTTP 请求会交给这个回调函数处理.  回调函数会受到两个参数, 请求对象和响应对象, 一般简写为 `req` 和 `res`.
+
+``` js
+var server = http.createServer(function(req, res) {
+    // 处理请求, 送出响应
+});
+```
+
+服务器每次收到新的请求, 都会创建新的请求对象和响应对象.  从客户端发过来的请求报文会被解析, 然后作为请求对象的一部分.  在回调函数的内部, 你需要根据业务逻辑处理请求, 然后送出响应给客户端, 结束此次请求.
+
+在本练习中, 我们要返回给客户端一个写有 "Hello World" 的纯文本.  在回调函数中我们需要用到三个响应对象上的函数:
+
+* `res.writeHead(statusCode[, statusMessage][, headers])`: 该方法会发送一个响应头给客户端.  第一个参数作为状态码, 最后一个参数 `headers` 是响应头对象。 第二个参数 `statusMessage` 是可选的状态描述。
+* `res.write(chunk[, encoding][, callback])`: 该方法会发送一块响应主体。 它可被多次调用，以便提供连续的响应主体片段。第一个参数是一个字符串或一个 Buffer 字节流, 如果是字符串的话, 第二个参数指定如何将它编码成一个字节流 (默认为 utf-8).  最后一个参数这里先不考虑.
+* `res.end([data][, encoding][, callback])`: 该方法会通知服务器，所有响应头和响应主体都已被发送，即服务器将其视为已完成。每次响应都必须调用这个方法来结束请求, 否则请求会被一直挂起.  如果传入 data 参数, 相当于调用 `res.write(data, encoding)`.
+
+那么根据需求我们知道:
+* 响应成功, 状态码为 200.
+* 响应回去的为纯文本, 需要设定响应头 `Content-Type` 的值为 `text/plain`.
+* 响应回去的主体是一个字符串 "Hello World".
+
+根据这两个信息, 我们就可以很轻松的写出请求处理函数内的代码:
+
+``` js
+var server = http.createServer(function(req, res) {
+    res.writeHead(200, {'Content-Type':'text/plain'});
+    res.write("Hello World");
+    res.end();
+});
+```
+
+最后, 我们需要给 Web 服务器绑定一个端口.  为了让服务器可以提供多种服务, 不同请求会被发送到不同的端口.  只有发送到我们指定端口的 HTTP 请求会被上面的代码所处理. 
+
+我们使用 `server.listen` 函数, 第一个参数为端口号, 最后一个参数是一个回调函数, 监听成功后调用.
+
+在这里我用 `3000` 作为端口号, 当然你也可以改成你喜欢的.
+
+``` js
+server.listen(3000, function() {
+    console.log("服务器启动成功!");
+    console.log("正在监听 3000 端口:");
+});
+```
+
+全部写完后代码为:
+
+``` js
+var http = require('http');
+
+var server = http.createServer(function(req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.write("Hello World");
+    res.end();
+});
+
+server.listen(3000, function() {
+    console.log("服务器启动成功!");
+    console.log("正在监听 3000 端口:");
+});
+```
+
+在命令行中输入 `node myServer.js` ( 注意你的路径和文件名 )
+
+服务器运行后, 可以在命令行看见
+
+![Screen Shot 2018-09-26 at 6.10.47 PM](https://i.imgur.com/jkchEZQ.png)
+
+然后在浏览器中登录 `localhost:3000`, 你就可以看见服务器响应给你的 "Hello World" 了.
+
+![Screen Shot 2018-09-26 at 6.11.52 PM](https://i.imgur.com/o9Dxynd.png)
+
+现在你成功的返回了一条纯文本内容给客户端, 你可以试着返回一个 HTML 文本吗?
+
+**Tip:** `Content-Type` 的值应改成什么?
