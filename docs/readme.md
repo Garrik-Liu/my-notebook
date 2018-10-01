@@ -37,7 +37,7 @@ home: true
 
 ## 数据结构 & 算法
 
-* [JavaScript 数据结构与算法](/数据结构与算法/JavaScript数据结构与算法/readme.md)
+* [JavaScript 数据结构与算法](/数据结构与算法/readme.md)
 
 ## 网络
 
