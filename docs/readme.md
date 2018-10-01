@@ -35,10 +35,13 @@ home: true
 
 * [MongoDB 笔记](/数据库/mongodb/readme.md)
 
-## 计算机通用
+## 数据结构 & 算法
 
-* [HTTP](/计算机通用/http/readme.md)
-* [计算机基础](/计算机通用/计算机基础/readme.md)
+* [JavaScript 数据结构与算法](/数据结构与算法/JavaScript数据结构与算法/readme.md)
+
+## 网络
+
+* [HTTP](/网络/http/readme.md)
 
 ## 其他
 
