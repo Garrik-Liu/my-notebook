@@ -14,6 +14,17 @@
 
 ## 设计模式
 
+* 创建型设计模式
+  * [工厂模式](./设计模式/工厂模式.md)
+  * [建造者模式](./设计模式/建造者模式.md)
+  * [原型模式](./设计模式/原型模式.md)
+  * [单例模式](./设计模式/单例模式.md)
+
+
+* 结构型设计模式
+
+
+
 ## 参考
 
 * [MDN JS文档](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects)
