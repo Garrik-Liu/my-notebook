@@ -16,6 +16,7 @@
 * [简介](./ES6/简介.md)
 * [let 和 const](./ES6/let和const.md)
 * [解构赋值](./ES6/解构赋值.md)
+* [Symbol](./ES6/Symbol.md)
 
 ## 数据结构
 
