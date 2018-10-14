@@ -31,7 +31,7 @@ MongoDB 将数据存储为一个文档，数据结构由键值对 `key:value` �
 
 在具体讲如何使用 MongoDB 之前, 我要先介绍一些基本概念.
 
-
+『 数据库 』(database) 
 
 ## MongoDB 基本操作
 
