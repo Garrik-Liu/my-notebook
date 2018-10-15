@@ -1,15 +1,23 @@
 # 使用 MongoDB 
 
+::: danger 注意
+以下内容过时, 请直接参照 3.x 版本文档.  [传送门](http://mongodb.github.io/node-mongodb-native/3.1/quick-start/quick-start/)
+:::
+
 ## 创建数据库
 
-要在 MongoDB 中创建一个数据库，首先我们需要创建一个 MongoClient 对象，然后配置好指定的 URL 和 端口号。
+要在 MongoDB 中创建一个数据库，首先我们需要先连接到 MongoDB 服务器
 
-如果数据库不存在，MongoDB 将创建数据库并建立连接。
+`MongoClient.connect` 方法可以让我们与 MongoDB 服务器建立连接.  
+
+这个方法的第一个参数为 MongoBD 服务器的 URL.  例如: `mongodb://localhost:27017/mydb`.  在这个 URL 中 `localhost:27017` 为服务器的地址, `/mydb` 为我想要链接的数据库的名字.  如果数据库不存在，在与 MongoDB 服务器建立连接时, 会自动创建.  
+
+最后一个参数是个回调函数, 连接建立之后被调用.  回调函数的第一个参数是错误信息, 如果没有错误则为 `null`.  第二个参数是 `db` 实例, 通过它来与数据库进行交互.
 
 ``` js
 var MongoClient = require('mongodb').MongoClient;
 
-var url = "mongodb://localhost:27017/runoob";
+var url = "mongodb://localhost:27017/mydb";
  
 MongoClient.connect(url, (err, db) => {
   if (err) throw err;
@@ -28,7 +36,7 @@ MongoClient.connect(url, (err, db) => {
 
 var MongoClient = require('mongodb').MongoClient;
 
-var url = 'mongodb://localhost:27017/runoob';
+var url = 'mongodb://localhost:27017/mydb';
 
 // 连接数据库
 MongoClient.connect(url, (err, db) => {
@@ -36,9 +44,9 @@ MongoClient.connect(url, (err, db) => {
     
     console.log('数据库已创建');
     
-    var dbase = db.db("runoob");
+    var dbase = db.db("mydb");
 
-    dbase.createCollection('site', function (err, res) {
+    dbase.createCollection('users', function (err, res) {
         if (err) throw err;
         
         console.log("创建集合!");
