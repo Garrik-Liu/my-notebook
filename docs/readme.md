@@ -11,6 +11,7 @@ home: true
 * [JavaScript 笔记](/前端开发/javascript/readme.md)
 * [HTML 笔记](/前端开发/html/readme.md)
 * [CSS 笔记](/前端开发/css/readme.md)
+* [浏览器](/前端开发/浏览器/readme.md)
 
 ## 后端开发
 

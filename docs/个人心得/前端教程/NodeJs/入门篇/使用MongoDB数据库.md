@@ -128,25 +128,105 @@ MongoDB 的默认数据库为 `"db"`，该数据库存储在 `data` 目录中。
 
 ## 在 Node.js 中使用 MongoDB
 
-想要在 Node.js 中使用 MongoDB, 要先安装 [mongodb 模块](https://www.npmjs.com/package/mongodb), 具体步骤不赘述.  
+[mongodb 模块 - 文档](http://mongodb.github.io/node-mongodb-native/3.1/api/index.html)
 
-### 创建数据库
+想要在 Node.js 中使用 MongoDB, 要先安装 [mongodb 模块](https://www.npmjs.com/package/mongodb), 具体步骤不赘述.  在 Node.js 中使用之前, 还需要先在命令行中用 `mongod` 指令运行 MongoDB 服务器. 
 
-要在 MongoDB 中创建一个数据库，首先我们需要创建一个 MongoClient 对象，然后配置好指定的 URL 和 端口号。 如果数据库不存在，MongoDB 将创建数据库并建立连接。
+> 以下代码适用于 mongodb 模块 3.x 版本
+
+### 连接数据库
+
+要想连接 MongoDB 数据库, 我们要先创建一个 MongoDB 客户端并且连接上 MongoDB 服务器.  之后在此连接之上创建数据库实例.
 
 ``` js
 // 引入模块
-var MongoClient = require('mongodb').MongoClient;
+const MongoClient = require('mongodb').MongoClient;
 
-// 
-var url = "mongodb://localhost:27017/runoob";
- 
-MongoClient.connect(url, (err, db) => {
-  if (err) throw err;
-  
-  console.log("数据库已创建!");
-  
-  db.close();
+// MongoDB 服务器的地址
+const url = 'mongodb://localhost:27017';
+
+// 目标数据库的名字
+const dbname = 'mydb';
+
+// 创建 MongoDB 客户端
+const client = new MongoClient(url);
+
+// 让客户端连接上服务器
+client.connect(function(err) {
+    if (err) throw err;
+
+    console.log("成功连接到 MongoDB 服务器!");
+    
+    // 创建数据库实例
+    const db = client.db(dbname);
+    
+    // 断开连接 
+    client.close();
 });
-
 ```
+
+### 插入文档
+
+要想向一个特定的集合插入文档, 首先我们用 `db.collection` 方法去获取目标集合的实例对象.  该方法第一个参数为集合的名字.  如果用这个名字的集合之前不存在, 它会自动帮你创建.
+
+之后我们用刚刚获得的集合实例的 `insertMany` 或 `insertOne` 方法来向集合插入文档.  
+
+区别是:
+* `insertOne` 用以插入单个文档, 第一个参数为文档对象
+* `insertMany` 用以插入多个文档, 第一个参数为由文档对象组成的数组
+
+这两个方法的最后一个参数都为回调函数.  回调函数的第一个参数为错误信息, 第二个为处理结果
+
+假如说我们现在要向 `usersInfo` 集合插入用户信息, 代码如下:
+
+``` js
+client.connect(function(err) {
+    if (err) throw err;
+
+    const db = client.db(dbname);
+
+    // 获取 'usersInfo' 集合的实例对象.
+    const collection = db.collection('usersInfo');
+
+    // 插入单个用户的信息
+    collection.insertOne({
+        name: "Garrik",
+        date_of_birth: new Date("1997-06-04")
+    }, function(err, result) {
+        if (err) throw err;
+        
+        client.close();
+    })
+});
+```
+
+### 查询全部文档
+
+如果我们想查询一个集合下的全部文档, 我们可以使用集合实例的 `find` 方法.  该方法的第一个参数为查询条件对象, 如果传入一个空对象 `{}` 则表示查询全部文档.
+
+``` js
+client.connect(function(err) {
+    if (err) throw err;
+
+    const db = client.db(dbname);
+
+    // 获取 'usersInfo' 集合的实例对象.
+    const collection = db.collection('usersInfo');
+
+    // 查询集合下的所有文档, 然后用 toArray 转换成数组
+    collection.find({}).toArray(function(err, result) {
+        if (err) throw err;
+
+        console.log(result);
+
+        client.close();
+    });
+});
+```
+
+### 查询特定文档
+
+### 更新文档
+
+### 删除文档
+
