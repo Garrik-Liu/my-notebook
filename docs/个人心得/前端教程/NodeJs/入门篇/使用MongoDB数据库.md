@@ -226,7 +226,116 @@ client.connect(function(err) {
 
 ### 查询特定文档
 
+前面说集合实例的 `find` 方法的第一个参数为查询条件对象.  想要查找特定文档的前提是知道怎么写查询条件对象.  
+
+首先, 平时最常用的查询是找到有特定 "键值对" 的文档.  比如找到 "文档中有 `name` 键, 且它的值为 `小明`".  这个查询写成查询条件对象是: `{'name':'小明'}`.  假如要查询的文档在 ` usersInfo` 集合下, 在 Node.js 的代码就为:
+
+``` js
+// 客户端连接上服务器
+client.connect(function(err) {
+    if (err) throw err;
+
+    console.log("成功连接到 MongoDB 服务器!");
+
+    // 创建数据库实例
+    const db = client.db(dbname);
+
+    //查询 'name' 等于 '小明' 的文档
+    db.collection('usersInfo').find({ 'name': '小明' }).toArray((err, array) => {
+        if (err) throw err;
+
+        // 打印出匹配到的文档
+        console.log(array);
+
+        // 关闭客户端
+        client.close();
+    })
+});
+```
+
+如果再想加一条 `gender` 键的值 等于 `male`.  那查询条件对象就为 `{'name':'小明', 'gender':'male'}`  查询条件对象中各个条件是 AND 的关系.  也就是只匹配 `name` 键的值等于 `小明`, 且 `gender` 键的值为 `male` 的文档.
+
+假如集合中的文档有如下:
+
+``` json
+{ "_id" : ObjectId("5bd1e7df8a5c0550f4722b01"), "name" : "小明", "gender" : "male" }
+{ "_id" : ObjectId("5bd1e7e28a5c0550f4722b02"), "name" : "小明", "gender" : "female" }
+{ "_id" : ObjectId("5bd1e7e88a5c0550f4722b03"), "name" : "小红", "gender" : "female" }
+{ "_id" : ObjectId("5bd1e7f48a5c0550f4722b04"), "name" : "小王", "gender" : "male" }
+```
+
+那么执行上面代码匹配到的为:
+
+``` json
+{ "_id" : ObjectId("5bd1e7df8a5c0550f4722b01"), "name" : "小明", "gender" : "male" }
+```
+
+#### 比大小
+
+上面的查询条件都是精确匹配, 也就是匹配文档中某个键的值是否等于多少.  平时常用的另一个查询是范围比较.  也就是 `<`, `>`, `<=`, `>=`, `!=`.  它们对应的 MongoDB 关键字为 `$lt`, `$gt`, `$lte`, `$gte`.  
+
+比如要匹配 `age` 键的值小于 60, 那么查询条件对象为 `{'age': {$lt:60}}`.
+
+如果在小于 60 的同时还要大于 18, 那就是 `{'age': {$lt:60, $gt:18}}`.
+
+#### OR 查询
+
+MongoDB 中有两种方式进行 OR 查询 `$in` 关键字可以查询一个键的多个值, `$or` 可以用于多个键值对.  
+
+比如我们要查 `name` 键的值为 `小明` 或者 `小红` 的文档. 用 `$in` 的话, 文档查询对象为 `{'name': {$in: ['小明', '小红']}}`;  用 `$or` 的话, 文档查询对象为 `{$or:[{'name':'小明'}, {'name':'小红'}]}`
+
+但如果我们要查 `name` 键的值为 `小明` 或 `小红`, 或者 `gender` 键的值为 `male` 的文档的话, `$in` 和 `$or` 结合使用会很方便.  其文档查询对象为 `{$or:[{'name':{$in:['小明','小红']}}, {'gender':'male'}]}` 
+
 ### 更新文档
+
+使用集合实例的 `updateOne` 和 `updateMany` 方法可以更新文档.  它们的第一个参数为查询对象, 用来匹配到需要更新的文档.  第二个参数为更新对象, 也就是要应用于文档上的更新内容.  最后一个参数为回调函数, 回调函数第一个参数为错误信息, 第二个为操作结果.  这两个方法的区别是 `updateOne` 只更新匹配到的第一个文档, `updateMany` 更新所有匹配到的文档.  
+
+比如我们要更新 `name` 键的值为 `小明` 的文档的 `age` 键为 22.  Node.js 代码如下: (注意更新对象里面的 `$set` 关键字)
+
+``` js
+// 客户端连接上服务器
+client.connect(function(err) {
+    if (err) throw err;
+
+    console.log("成功连接到 MongoDB 服务器!");
+
+    // 创建数据库实例
+    const db = client.db(dbname);
+
+    //查询 'name' 等于 '小明' 的文档, 然后更新 `age` 键
+    db.collection('usersInfo').updateOne({ 'name': '小明' }, { $set: { 'age': 22 } }, function(err, result) {
+        if (err) throw err;
+        console.log(result);
+
+        // 关闭客户端
+        client.close();
+    });
+});
+```
 
 ### 删除文档
 
+想要删除一个文档可以用 `deleteOne` 和 `deleteMany` 方法.  第一参数为查询对象, 最后一个参数为回调函数.
+
+比如我们要删除 `name` 为 `小明` 的第一个文档. Node.js 代码如下:
+
+``` js
+// 客户端连接上服务器
+client.connect(function(err) {
+    if (err) throw err;
+
+    console.log("成功连接到 MongoDB 服务器!");
+
+    // 创建数据库实例
+    const db = client.db(dbname);
+
+    //删除 'name' 等于 '小明' 的第一条文档
+    db.collection('usersInfo').deleteOne({ 'name': '小明' }, function(err, result) {
+        if (err) throw err;
+        console.log(result);
+
+        // 关闭客户端
+        client.close();
+    });
+});
+```
