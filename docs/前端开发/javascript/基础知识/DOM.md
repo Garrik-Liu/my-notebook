@@ -207,3 +207,5 @@ DocumentType包含着与文档的 `doctype` 有关的所有信息，它具有下
 * `parentNode` 是 `null`
 
 元素的特性在DOM中以Attr类型来表示。尽管它们也是节点，但特性却不被认为是DOM文档树的一部分。
+
+
