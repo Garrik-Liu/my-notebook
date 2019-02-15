@@ -31,6 +31,7 @@ home: true
 
 ## 工程化
 
+* [Git 笔记](/工程化/git/readme.md)
 * [Webpack 笔记](/工程化/webpack/readme.md)
 
 ## 数据库
