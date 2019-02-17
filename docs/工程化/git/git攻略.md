@@ -290,6 +290,105 @@ ca82a6dff817ec66f44342007202690a93763949 changed the version number
 a11bef06a3f659402fe7563abf99ad00de2209e6 first commit
 ```
 
+### 打标签
+
+Git 可以给历史中的某一个提交打上标签，以示重要。 比较有代表性的是人们会使用这个功能来标记发布结点（v1.0 等等）。
+
+#### 列出标签
+
+`git tag` 列出已有标签
+
+``` bash
+$ git tag
+v0.1
+v1.3
+```
+
+`-l` 参数可以查号特定标签
+
+``` bash
+$ git tag -l 'v1.8.5*'
+v1.8.5
+v1.8.5-rc0
+v1.8.5-rc1
+v1.8.5-rc2
+```
+
+#### 创建标签
+
+Git 使用两种主要类型的标签：**轻量标签**（lightweight）与**附注标签**（annotated）
+
+一个轻量标签很像一个不会改变的分支 - 它只是一个特定提交的引用。
+
+然而，附注标签是存储在 Git 数据库中的一个完整对象。 它们是可以被校验的；其中包含打标签者的名字、电子邮件地址、日期时间；还有一个标签信息；并且可以使用 GNU Privacy Guard （GPG）签名与验证。 通常建议创建附注标签，这样你可以拥有以上所有信息
+
+创建**轻量标签**只需要提供标签名字:
+
+``` bash
+$ git tag v1.4-lw
+$ git tag
+v0.1
+v1.3
+v1.4
+v1.4-lw
+v1.5
+```
+
+在标签上运行 `git show`，你不会看到额外的标签信息。 命令只会显示出提交信息：
+
+``` bash
+$ git show v1.4-lw
+commit ca82a6dff817ec66f44342007202690a93763949
+Author: Scott Chacon <schacon@gee-mail.com>
+Date:   Mon Mar 17 21:52:11 2008 -0700
+
+    changed the version number
+```
+
+创建一个**附注标签**, 最简单的方式是当你在运行 `tag` 命令时指定 `-a` 选项：
+
+``` bash
+$ git tag -a v1.4 -m 'my version 1.4'
+$ git tag
+v0.1
+v1.3
+v1.4
+```
+
+`-m` 选项指定了一条将会存储在标签中的信息。 如果没有为附注标签指定一条信息，Git 会运行编辑器要求你输入信息。
+
+使用 `git show` 命令可以看到标签信息与对应的提交信息：
+
+``` bash
+$ git show v1.4
+tag v1.4
+Tagger: Ben Straub <ben@straub.cc>
+Date:   Sat May 3 20:19:12 2014 -0700
+
+my version 1.4
+
+commit ca82a6dff817ec66f44342007202690a93763949
+Author: Scott Chacon <schacon@gee-mail.com>
+Date:   Mon Mar 17 21:52:11 2008 -0700
+
+    changed the version number
+```
+
+如果要给**过去的提交**打标签, 需要在命令的末尾指定提交的校验和
+
+``` bash
+$ git tag -a v1.2 9fceb02
+```
+
+#### 删除标签
+
+命令 `git tag -d <tagname>` 可以删除指定标签:
+
+``` bash
+$ git tag -d v1.4-lw
+Deleted tag 'v1.4-lw' (was e7d5add)
+```
+
 ## 使用分支
 
 ### 分支简介
@@ -699,7 +798,8 @@ $ git remote
 origin
 ```
 
-### 远程分支
+
+
 
 
 
