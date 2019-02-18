@@ -798,8 +798,10 @@ $ git remote
 origin
 ```
 
+### 远程分支
 
+ 假设你的网络里有一个在 git.ourcompany.com 的 Git 服务器。 如果你从这里克隆，Git 的 `clone` 命令会为你自动将其命名为 `origin`，拉取它的所有数据，创建一个指向它的 `master` 分支的指针，并且在本地将其命名为 `origin/master`。 Git 也会给你一个与 `origin` 的 `master` 分支在指向同一个地方的本地 `master` 分支.
 
+![remote-branches-1](/assets/remote-branches-1.png)
 
-
-
+如果要同步你的工作，运行 `git fetch origin` 命令。 这个命令查找 “origin” 是哪一个服务器（在本例中，它是 git.ourcompany.com），从中抓取本地没有的数据，并且更新本地数据库，移动 origin/master 指针指向新的、更新后的位置。
