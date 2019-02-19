@@ -16,7 +16,7 @@ Git 是分布式的, 相比于集中式的最大区别在于每一个客户端�
 
 ### 初始化仓库
 
-在一个目录下使用 `git init` 指令初始化這個目錄，主要目的是要讓 Git 開始對這個目錄進行版本控制。這個指令會在這個目錄裡建立了一個 `.git` 隐藏目录.  目录是 Git 来跟踪管理版本库的, 它将默认记录项目目录中任何文件的改动。如果把这个子目录删除了，这里面记录的文件版本就都没有了.
+在一个目录下使用 `git init` 指令初始化這個目錄，主要目的是要讓 Git 開始對這個目錄進行版本控制。這個指令會在這個目錄裡建立了一個 `.git` 隐藏目录.  这个目录是 Git 来跟踪管理版本库的, 它将默认记录项目目录中任何文件的改动。如果把这个子目录删除了，这里面记录的文件版本就都没有了.
 
 ### 记录每次更新到仓库
 
@@ -157,7 +157,7 @@ M  lib/simplegit.rb
 
 如果**文件删除之前修改过并且已经放到暂存区域**的话，则必须要用强制删除选项 `-f`. 这是一种安全特性，用于防止误删还没有添加到快照的数据.
 
-另外一种情况是，我们想**把文件从 Git 仓库中删除（亦即从暂存区域移除），但仍然希望保留在当前工作目录中**。换句话说，你想让文件保留在磁盘，但是并不想让 Git 继续跟踪。 当你忘记添加 .gitignore 文件，不小心把一大堆文件添加到暂存区时，这一做法尤其有用。使用 `--cached` 选项可以做到.
+另外一种情况是，我们想**把文件从 Git 仓库中删除（亦即从暂存区域移除），但仍然希望保留在当前工作目录中**。使用 `git rm --cached` 选项可以做到.  它会让文件从暂存区 (index) 中移除, 并且不会出现在 "未跟踪" 列表下. 
 
 #### 忽略文件
 
@@ -227,7 +227,7 @@ Git 数据库中保存的信息都是以文件内容的哈希值来索引.
 
 在 Git 中文件有两种状态：**已跟踪（tracked）** 和 **未跟踪（untracked）**
 
-**已跟踪（tracked）**又分为：**已提交（committed）**、**已修改（modified）**和 **已暂存（staged）**
+**已跟踪（tracked）** 又分为：**已提交（committed）**、**已修改（modified）**和 **已暂存（staged）**
 
 被 Git 管理的项目有三个工作区域：**版本库（Repository）**、**工作区（Working Directory）** 和 **暂存区（Staging Area）**。
 
@@ -399,13 +399,13 @@ Deleted tag 'v1.4-lw' (was e7d5add)
 
 假设现在有一个工作目录，里面包含了三个将要被暂存和提交的文件。 暂存操作会为每一个文件计算 "校验和"，然后会把当前版本的文件快照保存到 Git 仓库中（Git 使用 blob 对象来保存它们），最终将校验和加入到暂存区域等待提交.  当使用 `git commit` 进行提交操作时，Git 会先计算每一个子目录（本例中只有项目根目录）的校验和，然后在 Git 仓库中这些校验和保存为 "树对象"。随后，Git 便会创建一个提交对象，它除了包含上面提到的那些信息外，还包含指向那个树对象（项目根目录）的指针。如此一来，Git 就可以在需要的时候重现此次保存的快照。
 
-![commit-and-tree](/assets/commit-and-tree.png)
+![commit-and-tree](https://i.loli.net/2019/02/19/5c6b70bd48685.png)
 
 Git 仓库中有五个对象：三个 blob 对象（保存着文件快照）、一个树对象（记录着目录结构和 blob 对象索引）以及一个提交对象（包含着指向前述树对象的指针和所有提交信息）。
 
 **Git 的分支，其实本质上仅仅是指向提交对象的可变指针。** 
 
-![branch-and-history](/assets/branch-and-history.png)
+![branch-and-history](https://i.loli.net/2019/02/19/5c6b70d3a8a9e.png)
 
 由于 Git 的分支实质上仅是包含所指对象校验和（长度为 40 的 SHA-1 值字符串）的文件，所以它的创建和销毁都异常高效。 创建一个新分支就相当于往一个文件中写入 41 个字节（40 个字符和 1 个换行符）
 
@@ -421,7 +421,7 @@ git branch testing
 
 当有两个指向相同提交对象的分支存在时, Git 又是怎么知道当前在哪一个分支上呢？ 也很简单，它有一个名为 HEAD 的特殊指针。在 Git 中，它是一个指针，指向当前所在的本地分支（译注：将 HEAD 想象为当前分支的别名）。
 
-![head-to-master](/assets/head-to-master.png)
+![head-to-master](https://i.loli.net/2019/02/19/5c6b70e4e0668.png)
 
 使用 `git log` 命令的 `--decorate` 参数, 可以查看各个分支当前所指的对象。
 
@@ -450,11 +450,11 @@ $ git checkout -b testing
 
 在刚刚的例子中, 把分支切换回 master.  HEAD 指回 master 分支，同时工作目录恢复成 master 分支所指向的快照内容。 也就是说，你现在做修改的话，项目将始于一个较旧的版本。 本质上来讲，这就是忽略 testing 分支所做的修改，以便于向另一个方向进行开发。
 
-![checkout-master](/assets/checkout-master.png)
+![checkout-master](https://i.loli.net/2019/02/19/5c6b70fa72e92.png)
 
 如果在 master 分支上, 做一些内容修改, 并且提交, 则项目出现分支分叉情况.
 
-![advance-master](/assets/advance-master.png)
+![advance-master](https://i.loli.net/2019/02/19/5c6b71064e0f2.png)
 
 使用 `git log` 命令查看分叉历史。 运行 `git log --oneline --decorate --graph --all` ，它会输出你的提交历史、各个分支的指向以及项目的分支分叉情况。
 
@@ -483,7 +483,7 @@ Fast-forward
 
 上面命令里, 切换到 master 分支, 然后把 hotfix 分支合并进来.
 
-![basic-branching-4](/assets/basic-branching-4.png)
+![basic-branching-4](https://i.loli.net/2019/02/19/5c6b711339866.png)
 
 你应该注意到了 "快进"（fast-forward）这个词。 在这个例子中, 由于当前 master 分支所指向的提交是你要合并进来的分支所指向的提交（有关 hotfix 的提交）的直接上游，所以 Git 只是简单的将指针向前移动。 
 
@@ -493,11 +493,11 @@ Fast-forward
 
 如果要合并两个之间存在分叉的分支.  Git 会使用两个分支的末端所指的快照, 以及这两个分支的工作祖先，做一个简单的三方合并。
 
-![basic-merging-1](/assets/basic-merging-1.png)
+![basic-merging-1](https://i.loli.net/2019/02/19/5c6b711f2541b.png)
 
 和之前将分支指针向前推进所不同的是，Git 将此次三方合并的结果做了一个新的快照并且自动创建一个新的提交指向它。这个被称作一次 "合并提交"，它的特别之处在于他有不止一个父提交。
 
-![basic-merging-2](/assets/basic-merging-2.png)
+![basic-merging-2](https://i.loli.net/2019/02/19/5c6b71269b25b.png)
 
 如果你在两个不同的分支中，对同一个文件的同一个部分进行了不同的修改，冲突就会出现.  合并时 Git 会等待你去解决合并产生的冲突。 你可以在合并冲突后的任意时刻使用 git status 命令来查看那些因包含合并冲突而处于未合并（unmerged）状态的文件：
 
@@ -559,7 +559,7 @@ $ git branch --merged
 
 另一种方法是, 你可以使用 `rebase` 命令将提交到某一分支上的所有修改都移至另一分支上，就好像“重新播放”一样。 变基是将一系列提交按照原有次序依次应用到另一分支上，而合并是把最终结果合在一起。
 
-![basic-rebase-3](/assets/basic-rebase-3.png)
+![basic-rebase-3](https://i.loli.net/2019/02/19/5c6b71337c5c3.png)
 
 ``` bash
 $ git checkout experiment
@@ -578,7 +578,7 @@ Applying: added staged command
 
 在对两个分支进行变基时，所生成的“重放”并不一定要在目标分支上应用，你也可以指定另外的一个分支进行应用。 
 
-![interesting-rebase-2](/assets/interesting-rebase-2.png)
+![interesting-rebase-2](https://i.loli.net/2019/02/19/5c6b713f4bb09.png)
 
 上图中, 假设你希望将 client 中的修改合并到主分支并发布，但暂时并不想合并 server 中的修改，因为它们还需要经过更全面的测试。 这时，你就可以使用 `git rebase` 命令的 `--onto` 选项，选中在 client 分支里但不在 server 分支里的修改（即 C8 和 C9），将它们在 master 分支上重放
 
@@ -602,19 +602,19 @@ $ git rebase --onto master server client
 
 假设你从一个中央服务器克隆然后在它的基础上进行了一些开发。 你的提交历史如图所示：
 
-![perils-of-rebasing-1](/assets/perils-of-rebasing-1.png)
+![perils-of-rebasing-1](https://i.loli.net/2019/02/19/5c6b71535bd24.png)
 
 然后，某人又向中央服务器提交了一些修改，其中还包括一次合并。 你抓取了这些在远程分支上的修改，并将其合并到你本地的开发分支，然后你的提交历史就会变成这样：
 
-![perils-of-rebasing-2](/assets/perils-of-rebasing-2.png)
+![perils-of-rebasing-2](https://i.loli.net/2019/02/19/5c6b717f7240b.png)
 
 接下来，这个人又决定把合并操作回滚，改用变基；继而又用 `git push --force` 命令覆盖了服务器上的提交历史。 之后你从服务器抓取更新，会发现多出来一些新的提交。
 
-![perils-of-rebasing-3](/assets/perils-of-rebasing-3.png)
+![perils-of-rebasing-3](https://i.loli.net/2019/02/19/5c6b716430fce.png)
 
 结果就是你们两人的处境都十分尴尬。 如果你执行 `git pull` 命令，你将合并来自两条提交历史的内容，生成一个新的合并提交，最终仓库会如图所示：
 
-![perils-of-rebasing-4](/assets/perils-of-rebasing-4.png)
+![perils-of-rebasing-4](https://i.loli.net/2019/02/19/5c6b716dc19c5.png)
 
 此时如果你执行 `git log` 命令，你会发现有两个提交的作者、日期、日志居然是一样的，这会令人感到混乱。 此外，如果你将这一堆又推送到服务器上，你实际上是将那些已经被变基抛弃的提交又找了回来，这会令人感到更加混乱。 很明显对方并不想在提交历史中看到 C4 和 C6，因为之前就是他把这两个提交通过变基丢弃的。
 
@@ -630,7 +630,7 @@ $ git rebase --onto master server client
 
 * 把查到的这些提交应用在 teamone/master 上面
 
-![perils-of-rebasing-5](/assets/perils-of-rebasing-5.png)
+![perils-of-rebasing-5](https://i.loli.net/2019/02/19/5c6b7190693fe.png)
 
 本例中使用 `git pull --rebase` 命令可以完成上述操作. 它的意思是先 `git fetch`，再 `git rebase teamone/master`。
 
@@ -802,6 +802,7 @@ origin
 
  假设你的网络里有一个在 git.ourcompany.com 的 Git 服务器。 如果你从这里克隆，Git 的 `clone` 命令会为你自动将其命名为 `origin`，拉取它的所有数据，创建一个指向它的 `master` 分支的指针，并且在本地将其命名为 `origin/master`。 Git 也会给你一个与 `origin` 的 `master` 分支在指向同一个地方的本地 `master` 分支.
 
-![remote-branches-1](/assets/remote-branches-1.png)
+![remote-branches-1](https://i.loli.net/2019/02/19/5c6b71a4dd2c9.png)
 
 如果要同步你的工作，运行 `git fetch origin` 命令。 这个命令查找 “origin” 是哪一个服务器（在本例中，它是 git.ourcompany.com），从中抓取本地没有的数据，并且更新本地数据库，移动 origin/master 指针指向新的、更新后的位置。
+
