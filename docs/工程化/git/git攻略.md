@@ -128,69 +128,6 @@ $ git commit --allow-empty -m "空的"
 [master 76a5b84] 空的
 ```
 
-#### 重置(撤销)提交
-
-使用 `git reset` 指令可以将当前分支所指向的提交对象重置到另外一个提交对象上去.
-
-``` bash
-$ git reset HEAD^
-```
-
-每一個 `^` 符號表示「前一次」的意思.  所以 `HEAD^` 是指在 `HEAD` 這個 Commit 的「前一次」，如果是 `HEAD^^ `則是往前兩次，以此類推。不過如果要倒退五次，通常不會寫 `HEAD^^^^^`，而會寫成 `HEAD~5`。
-
-假如 `HEAD` 指向 `master` 分支的 `e12d8ef` 提交对象.  那么还可以写成:
-
-``` bash
-$ git reset master^
-$ git reset e12d8ef^
-```
-
-`reset` 指令改变一个分支 (分支只是指向提交对象的指针) 所指向的提交对象, 同时 `HEAD` 也随之移动.
-
-![182229495415187](https://i.loli.net/2019/02/19/5c6bd8c8d4331.png)
-
-这个指令有三个常用参数: `--soft`, `--hard`, `--mixed`
-
-* `--mixed` 是 `reset` 指令的默认参数. 它将重置 `HEAD` 到另外一个提交, 并且重置暂存区以便和 `HEAD` 相匹配，但是也到此为止。工作区的文件不会被更改。所有该分支上从重置前的提交到你重置到的那个提交之间的所有变更将作为本地修改保存在工作区中 (被标示为 `local modification or untracked via git status`) 但是并未 `staged` 的状态
-
-* `--soft` 参数告诉 Git 重置 `HEAD` 到另外一个提交，但也到此为止。暂存区和工作区都不会变化.  所有该分支上从重置前的提交到你重置到的那个提交之间的所有变更都被放在暂存区.
-
-* `--hard` 参数是一个比较危险的动作，具有破坏性.  暂存区和工作区都会重置到目标提交所处的状态.  所有该分支上从重置前的提交到你重置到的那个提交之间的所有变更都被丢掉.  
-
-假如我们在目录中添加了一个文件叫 `myFile.md`, 并且进行了提交.
-
-``` bash
-bogon:git_practice xiangliu$ git log --oneline
-0935e0d (HEAD -> master) add my file
-2e0425c first commit
-```
-
-使用 `git reset HEAD^` 后, 执行 `git status` 看到 `myFile.md` 为未跟踪状态, 但文件仍在工作区中.
-
-``` bash
-On branch master
-Untracked files:
-  (use "git add <file>..." to include in what will be committed)
-
-	myFile.md
-
-nothing added to commit but untracked files present (use "git add" to track)
-```
-
-使用 `git reset HEAD^ --soft` 后, 执行 `git status` 看到 `myFile.md` 在暂存区, 等待提交.
-
-``` bash
-On branch master
-Changes to be committed:
-  (use "git reset HEAD <file>..." to unstage)
-
-	new file:   myFile.md
-```
-
-使用 `git reset HEAD^ --hard` 后, `myFile.md` 直接没了.
-
-因为使用了 `reset` 后, 重置到的提交对象之后的提交仍然存在.  通过 `reset` 再重置回你要的提交就可以再返回去.  如果你找不到你想要的提交对象的校验和是什么了, 可以通过 `git reflog` 命令.  它可以查看所有分支的所有操作记录，包括已经被删除的提交记录
-
 #### 状态简览
 
 `git status` 命令的输出十分详细，但其用语有些繁琐。 如果你使用 `git status -s` 命令或 `git status --short` 命令，你将得到一种更为紧凑的格式输出。 
@@ -303,6 +240,69 @@ Git 数据库中保存的信息都是以文件内容的哈希值来索引.
 当对工作区修改（或新增）的文件执行 "`git add`" 命令时，暂存区的目录树被更新，同时工作区修改（或新增）的文件内容被写入到对象库中的一个新的对象中，而该对象的 ID 被记录在暂存区的文件索引中。
 
 当执行提交操作（`git commit`）时，暂存区的目录树写到版本库（对象库）中，master 分支会做相应的更新。即 master 指向的目录树就是提交时暂存区的目录树。 
+
+### 重置(撤销)提交
+
+使用 `git reset` 指令可以将当前分支所指向的提交对象重置到另外一个提交对象上去.
+
+``` bash
+$ git reset HEAD^
+```
+
+每一個 `^` 符號表示「前一次」的意思.  所以 `HEAD^` 是指在 `HEAD` 這個 Commit 的「前一次」，如果是 `HEAD^^ `則是往前兩次，以此類推。不過如果要倒退五次，通常不會寫 `HEAD^^^^^`，而會寫成 `HEAD~5`。
+
+假如 `HEAD` 指向 `master` 分支的 `e12d8ef` 提交对象.  那么还可以写成:
+
+``` bash
+$ git reset master^
+$ git reset e12d8ef^
+```
+
+**`reset` 指令改变一个分支所指向的提交对象 (分支只是指向提交对象的指针) , 同时 `HEAD` 也随之移动**.
+
+![182229495415187](https://i.loli.net/2019/02/19/5c6bd8c8d4331.png)
+
+这个指令有三个常用参数: `--soft`, `--hard`, `--mixed`
+
+* `--mixed` 是 `reset` 指令的默认参数. 它将重置 `HEAD` 到另外一个提交, 并且重置暂存区以便和 `HEAD` 相匹配，但是也到此为止。工作区的文件不会被更改。所有该分支上从重置前的提交到你重置到的那个提交之间的所有变更将作为本地修改保存在工作区中 (被标示为 `local modification or untracked via git status`) 但是并未 `staged` 的状态
+
+* `--soft` 参数告诉 Git 重置 `HEAD` 到另外一个提交，但也到此为止。暂存区和工作区都不会变化.  所有该分支上从重置前的提交到你重置到的那个提交之间的所有变更都被放在暂存区.
+
+* `--hard` 参数是一个比较危险的动作，具有破坏性.  暂存区和工作区都会重置到目标提交所处的状态.  所有该分支上从重置前的提交到你重置到的那个提交之间的所有变更都被丢掉.  
+
+假如我们在目录中添加了一个文件叫 `myFile.md`, 并且进行了提交.
+
+``` bash
+bogon:git_practice xiangliu$ git log --oneline
+0935e0d (HEAD -> master) add my file
+2e0425c first commit
+```
+
+使用 `git reset HEAD^` 后, 执行 `git status` 看到 `myFile.md` 为未跟踪状态, 但文件仍在工作区中.
+
+``` bash
+On branch master
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+	myFile.md
+
+nothing added to commit but untracked files present (use "git add" to track)
+```
+
+使用 `git reset HEAD^ --soft` 后, 执行 `git status` 看到 `myFile.md` 在暂存区, 等待提交.
+
+``` bash
+On branch master
+Changes to be committed:
+  (use "git reset HEAD <file>..." to unstage)
+
+	new file:   myFile.md
+```
+
+使用 `git reset HEAD^ --hard` 后, `myFile.md` 直接没了.
+
+因为使用了 `reset` 后, 重置到的提交对象之后的提交仍然存在.  通过 `reset` 再重置回你要的提交就可以再返回去.  如果你找不到你想要的提交对象的校验和是什么了, 可以通过 `git reflog` 命令.  它可以查看所有分支的所有操作记录，包括已经被删除的提交记录
 
 ### 查看提交历史
 
@@ -888,3 +888,236 @@ $ git remote rm paul
 $ git remote
 origin
 ```
+
+## 修改历史记录
+
+### 修改提交信息
+
+#### 修改最近一次提交
+
+要修改最後一次的 Commit 訊息，只要直接在 Commit 指令後面加上 `--amend` 參數即可：
+
+``` bash
+$ git commit --amend -m "Welcome To Facebook"
+[master 614a90c] Welcome To Facebook
+Date: Wed Aug 16 05:42:56 2017 +0800
+1 file changed, 0 insertions(+), 0 deletions(-)
+create mode 100644 config/database.yml
+```
+
+#### 修改更早的提交
+
+可以使用 `rebase` 命令的互动模式来修改更早的提交信息.
+
+假如我们有如下的提交:
+
+``` bash
+$ git log --oneline
+27f6ed6 (HEAD -> master) add dog 2
+2bab3e7 add dog 1
+ca40fc9 add 2 cats
+1de2076 add cat 2
+cd82f29 add cat 1
+382a2a5 add database settings
+bb0c9c2 init commit
+```
+使用 `rebase` 指令的 `-i` 參數进入 『 互动模式 』, 後面的 `bb0c9c2` 是指這次的指令的應用範圍會從最近的提交到 `bb0c9c2` 這個提交, 但是不包括 `bb0c9c2`. 
+
+``` bash
+$ git rebase -i bb0c9c2
+```
+
+這個指令會跳出一個 Vim 編輯器：
+
+::: warning
+注意, `rebase` 的互动模式展示的提交记录排序是 『 从最旧到最新 』, 与 `git log` 的正好相反.
+:::
+
+``` bash
+pick 382a2a5 add database settings
+pick cd82f29 add cat 1
+pick 1de2076 add cat 2
+pick ca40fc9 add 2 cats
+pick 2bab3e7 add dog 1
+pick 27f6ed6 add dog 2
+
+# Rebase bb0c9c2..27f6ed6 onto bb0c9c2 (6 commands)
+#
+# Commands:
+# p, pick = use commit
+# r, reword = use commit, but edit the commit message
+# e, edit = use commit, but stop for amending
+# s, squash = use commit, but meld into previous commit
+# f, fixup = like "squash", but discard this commit's log message
+# x, exec = run command (the rest of the line) using shell
+# d, drop = remove commit
+#
+# These lines can be re-ordered; they are executed from top to bottom.
+#
+# If you remove a line here THAT COMMIT WILL BE LOST.
+#
+# However, if you remove everything, the rebase will be aborted.
+#
+# Note that empty commits are commented out
+```
+
+将想要改信息的提交前面的 `pick` 改成 `reword`，或是 `r`, 就表示待會我要來修改這兩次提交的信息.  存檔並離開之後，立馬就會再跳另一個 Vim 編輯器畫面, 让我们改信息.
+
+因为提交改变了, 提交的 SHA-1 也就改变了.  之後的 Commit 因為前面的歷史改了，所以後面整串的 Commit 全部都重新做出新的 Commit 出來替代舊的 Commit。
+
+### 合并多个提交
+
+`rebase` 的互动模式同样也可以合并多个提交, 以来让提交历史更简洁.
+
+把想要合并的提交前的指令改成 `squash` 或 `s`.
+
+``` bash
+pick 382a2a5 add database settings
+pick cd82f29 add cat 1
+squash 1de2076 add cat 2
+squash ca40fc9 add 2 cats
+pick 2bab3e7 add dog 1
+squash 27f6ed6 add dog 2
+```
+* 最後一行的 `27f6ed6` 會跟前一個 Commit `2bab3e7` 進行合併
+* 倒數第三號的 `ca40fc9` 會跟前一個 Commit `1de2076` 合併，但因為 `1de2076` 又會再往前一個 Commit `cd82f29` 合併
+
+存檔並離開 Vim 編輯器後，它會開始進行 Rebase，而在 Squash 的過程中，它還會跳出 Vim 編輯器讓你編輯一下訊息
+
+![squash1](https://i.loli.net/2019/02/20/5c6cdf896c1d5.png)
+
+把訊息改成「add all cats」：
+
+![squash2](https://i.loli.net/2019/02/20/5c6cdf94aac1e.png)
+
+### 将一个提交拆成多个
+
+如果你在一个提交里做了多出改动, 你之后想把它拆成多个提交, 同樣也可使用互動模式的 Rebase 來操作.
+
+``` bash
+$ git log --oneline
+27f6ed6 (HEAD -> master) add dog 2
+2bab3e7 add dog 1
+ca40fc9 add 2 cats
+1de2076 add cat 2
+cd82f29 add cat 1
+382a2a5 add database settings
+bb0c9c2 init commit
+```
+
+假如 `ca40fc9` 這個 Commit 一口氣增加了兩個檔案，我想把它拆成兩個提交. 我们需要进入互动模式, 把要拆的那個 Commit 的 `pick` 改成 `edit`: 
+
+``` bash
+pick 382a2a5 add database settings
+pick cd82f29 add cat 1
+pick 1de2076 add cat 2
+edit ca40fc9 add 2 cats
+pick 2bab3e7 add dog 1
+pick 27f6ed6 add dog 2
+```
+
+Rebase 在執行到 `ca40fc9` 這個 Commit 的時候就會停下來：
+
+![split1](https://i.loli.net/2019/02/20/5c6ce0ef3d2bb.png)
+
+`HEAD` 指向 `ca40fc9`, 我们通过 `reset` 指令到这个提交的上一个提交.
+
+``` bash
+$ git reset HEAD^
+```
+
+这两个提交之间的改动都处于 『 未暂存 』状态.  根据你自己的需要通过 `add` 和 `commit` 来进行提交.  
+
+等你弄完了, 別忘了現在還是處於 Rebase 狀態，通过 `--continue` 参数来让 Rebase 执行完.
+
+``` bash
+$ git rebase --continue
+Successfully rebased and updated refs/heads/master.
+```
+
+### Reset、Revert 跟 Rebase 的区别?
+
+`revert` 指令同样可以用来后悔
+
+假如想撤销掉最近的一次提交可以输入下面指令, 加上後面的 `--no-edit` 參數，表示不編輯 Commit 訊息。
+
+``` bash
+$ git revert HEAD --no-edit
+```
+
+![revert2](https://i.loli.net/2019/02/20/5c6ce5acd37ff.png)
+
+但会发现原来的提交还在, 而且多了一个新的提交来表示撤销.  
+
+如果想再恢复之前的提交, 一种方法是再用一次 `revert` 那么就是等于执行了 『 撤销的撤销 』, 之前被撤销的提交就被恢复了
+
+#### 所以，這三個指令有什麼差別？
+
+指令 	| 改變歷史紀錄 |	說明
+--- | --- | ---
+Reset |是 |把目前的狀態設定成某個指定的 Commit 的狀態，通常適用於尚未推出去的 Commit。
+Rebase |是 |不管是新增、修改、刪除 Commit 都相當方便，用來整理、編輯還沒有推出去的 Commit 相當方便，但通常也只適用於尚未推出去的 Commit。
+Revert |否 |新增一個 Commit 來反轉（或說取消）另一個 Commit 的內容，原本的 Commit 依舊還是會保留在歷史紀錄中。雖然會因此而增加 Commit 數，但通常比較適用於已經推出去的 Commit，或是不允許使用 Reset 或 Rebase 之修改歷史紀錄的指令的場合。
+
+
+## Git Flow
+
+## 知识/技巧解析
+
+### 断头 (detached HEAD) 是什么?
+
+正常情况下，`HEAD` 會指向某一個分支，而分支會指向某一個提交。当 `HEAD` 没有指向一个分支的时候, 这个状态就被称为 `detached HEAD`
+
+可能發生這個狀態的原因有：
+* 使用 `checkout` 指令直接跳到某個提交，而那個提交剛好目前沒有分支指著它。
+* `rebase` 的過程其實也是處於不斷的 `detached HEAD` 狀態。
+* 切換到某個遠端分支的時候。
+
+让我们来说个更具体的例子: 
+
+![detached-head0](https://i.loli.net/2019/02/20/5c6cc5701a4d8.png)
+
+假如w我使用 `checkout` 指令切換至 `add cat 1` 那個 `commmit`.  同时 `HEAD` 也就指向了那个提交.  因为没有分支指向这个提交, 所有处于 `detached HEAD` 状态.
+
+![detached-head1](https://i.loli.net/2019/02/20/5c6cc6a57e5e0.png)
+
+这个时候如果再进行一次提交.
+
+``` bash
+$ touch no-head.html
+
+$ git add no-head.html
+
+$ git commit -m "add a no-head file"
+[detached HEAD b6d204e] add no-head file
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ create mode 100644 no-head.html
+```
+
+![detached-head2](https://i.loli.net/2019/02/20/5c6cc6dd145be.png)
+
+因为并没有一个分支指向这个新的提交, 只是 `HEAD` 在指向它.  如果之后我让 `HEAD` 再指向其他分支.  这个提交就不容易被找到了, 除非我记住它的 SHA-1 校验和.
+
+如果還想留下這個提交，就給它一個分支指著它就行了.
+
+``` bash
+$ git branch new_branch b6d204e
+$ git checkout new_branch
+```
+
+或者
+
+``` bash
+$ git checkout -b new_branch b6d204e
+Switched to a new branch 'new_branch'
+```
+
+### SHA-1 字符串是怎么算的?
+
+SHA-1 是「Secure Hash Algorithm 1」的缩写, 計算之後的結果通常會以 40 個十六進位的字符呈現.  這個演算法的特點之一，就是只要輸入一樣的值，就會有一樣的輸出值，反之，如果是不同的輸入值，就會有不同的輸出值。
+
+#### SHA-1 值會有「重複」的狀況發生嗎？
+
+首先，前面提到 SHA-1 演算法的特性之一，就是相同的輸入值就會得到相同的結果.  而當輸入兩個不同的值，卻得到相同的結果，也就是說，兩個內容不同的檔案，卻得到一樣的 SHA-1 值，這種情況稱之為**碰撞**（collision）。
+
+这个几率十分小, 小到不用考虑.
