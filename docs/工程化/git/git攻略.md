@@ -969,7 +969,7 @@ pick 27f6ed6 add dog 2
 
 `rebase` 的互动模式同样也可以合并多个提交, 以来让提交历史更简洁.
 
-把想要合并的提交前的指令改成 `squash` 或 `s`.
+把想要合并的提交前的指令改成 `squash` 或 `s`.  也可以用 `fixup` 它与 `squash` 相同，但不会保存当前 commit 的提交信息
 
 ``` bash
 pick 382a2a5 add database settings
@@ -1060,7 +1060,75 @@ Rebase |是 |不管是新增、修改、刪除 Commit 都相當方便，用來�
 Revert |否 |新增一個 Commit 來反轉（或說取消）另一個 Commit 的內容，原本的 Commit 依舊還是會保留在歷史紀錄中。雖然會因此而增加 Commit 數，但通常比較適用於已經推出去的 Commit，或是不允許使用 Reset 或 Rebase 之修改歷史紀錄的指令的場合。
 
 
-## Git Flow
+## 工作流程 Workflow
+
+Git 作为一个分布式版本系统，不可避免涉及到多人协作。
+
+协作必须有一个规范的工作流程，让大家有效地合作，使得项目井井有条地发展下去。
+
+下面介绍的工作流程有一个共同点：都采用"**功能驱动式开发**"（Feature-driven development，简称FDD）。
+
+它指的是，需求是开发的起点，先有需求再有功能分支（feature branch）或者补丁分支（hotfix branch）。完成开发后，该分支就合并到主分支，然后被删除。
+
+团队开发中，遵循一个合理、清晰的 Git 使用流程，是非常重要的。
+
+![bg2015080501](https://i.loli.net/2019/02/20/5c6d0dba2e04c.png)
+
+* **第一步：新建分支**
+
+每次开发新功能，都应该新建一个单独的分支
+
+``` bash
+# 获取主干最新代码
+$ git checkout master
+$ git pull
+
+# 新建一个开发分支myfeature
+$ git checkout -b myfeature
+```
+
+* **第二步：提交分支 commit**
+* **第三步：撰写提交信息**
+
+``` bash
+Present-tense summary under 50 characters
+
+* More information about commit (under 72 characters).
+* More information about commit (under 72 characters).
+
+http://project.management-system.com/ticket/123
+```
+
+第一行是不超过 50 个字的提要，然后空一行，罗列出改动原因、主要变动、以及需要注意的问题。最后，提供对应的网址.
+
+* **第四步：与主干同步**
+
+``` bash
+$ git fetch origin
+$ git rebase origin/master
+```
+
+* **第五步：合并commit**
+
+分支开发完成后，很可能有一堆 commit，但是合并到主干的时候，往往希望只有一个（或最多两三个）commit，这样不仅清晰，也容易管理。
+
+前面讲过用 `rebase` 合并
+
+另外一种合并提交的简便方法，就是先用 `reset` 撤销过去多个提交，然后再建一个新的.
+
+* **第六步：推送到远程仓库**
+
+合并提交后，就可以推送当前分支到远程仓库了。
+
+``` bash
+$ git push --force origin myfeature
+```
+
+`git push` 命令要加上 `force` 参数，因为 `rebase` 以后，分支历史改变了，跟远程分支不一定兼容，有可能要强行推送.
+
+* **第七步：发出Pull Request**
+
+提交到远程仓库以后，就可以发出 Pull Request 到 `master` 分支，然后请求别人进行代码 Review，确认可以合并到 `master`。
 
 ## 知识/技巧解析
 
