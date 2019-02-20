@@ -1,15 +1,12 @@
 npm run docs:build
 
-git add *
-git commit -m "update"
-git push -f
+git add .
+git commit 
 
-# 删除 ph-pages 分支，以防冲突。每次提交都是暴力覆盖
-# git branch -d origin/gh-pages
+# 提交到 master 分支
+git push -f 
 
-# git branch -d origin/notes-code
+# 提交相应目录下内容到对应分支
+git subtree push -f --prefix docs/.vuepress/dist origin gh-pages
 
-# 提交到远程
-git subtree push --prefix docs/.vuepress/dist origin gh-pages
-
-git subtree push --prefix notes-code origin notes-code
+git subtree push -f --prefix notes-code origin notes-code

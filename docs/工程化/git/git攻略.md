@@ -1090,16 +1090,7 @@ $ git checkout -b myfeature
 * **第二步：提交分支 commit**
 * **第三步：撰写提交信息**
 
-``` bash
-Present-tense summary under 50 characters
-
-* More information about commit (under 72 characters).
-* More information about commit (under 72 characters).
-
-http://project.management-system.com/ticket/123
-```
-
-第一行是不超过 50 个字的提要，然后空一行，罗列出改动原因、主要变动、以及需要注意的问题。最后，提供对应的网址.
+好的提交信息可以帮助你更好的再将来查阅你之前的代码提交.  我在下面 **知识/技巧** 章节有涉及提交信息的内容.
 
 * **第四步：与主干同步**
 
@@ -1189,3 +1180,36 @@ SHA-1 是「Secure Hash Algorithm 1」的缩写, 計算之後的結果通常會�
 首先，前面提到 SHA-1 演算法的特性之一，就是相同的輸入值就會得到相同的結果.  而當輸入兩個不同的值，卻得到相同的結果，也就是說，兩個內容不同的檔案，卻得到一樣的 SHA-1 值，這種情況稱之為**碰撞**（collision）。
 
 这个几率十分小, 小到不用考虑.
+
+### commit messgae 格式
+
+我使用的格式为: 
+
+``` bash
+<type>(<scope>): <subject>
+<BLANK LINE>
+<body>
+<BLANK LINE>
+<footer>
+```
+
+大致分为三个部分(使用空行分割):
+
+* 标题行: 必填, 描述主要修改类型和内容
+* 主题内容: 描述为什么修改, 做了什么样的修改, 以及开发的思路等等
+* 页脚注释: 放 Breaking Changes 或 Closed Issue
+
+* `type`: 提交的类型
+  * `feat`: 新特性
+  * `fix`: 修改问题
+  * `refactor`: 代码重构
+  * `docs`: 文档修改
+  * `style`: 代码格式修改, (注意不是 CSS 修改)
+  * `test`: 测试用例修改
+  * `chore`: 其他修改, 比如构建流程, 依赖管理.
+* `scope`: commit 影响的范围, 比如: route, component, utils, build…
+* `subject`: commit 的概述, 建议符合 "50/72 formatting"
+* `body`: commit 具体修改内容, 可以分为多行, 建议符合 "50/72 formatting"
+* `footer`: 一些备注, 通常是 BREAKING CHANGE 或修复的 bug 的链接.
+
+通过修改 `~/.gitconfig` 可以添加模板, 每次提交的时候在 vim 中带出, 时刻提醒自己:
