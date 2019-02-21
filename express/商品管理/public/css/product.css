@@ -1,0 +1,70 @@
+.product-add {
+    display: inline-block;
+    background-color: aquamarine;
+    padding: 10px 20px;
+    border-radius: 4px;
+    box-shadow: 0px 1px 1px 0px #ccc;
+    transition: 200ms;
+    margin-top: 10px;
+}
+
+.product-add:hover {
+    box-shadow: 0px 1px 1px 1px #ccc;
+    cursor: pointer;
+}
+
+.product-list {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+}
+
+.product-unit-wrapper {
+    width: 33%;
+    flex: 0 0 auto;
+    padding: 5px;
+}
+
+.product-unit {
+    padding: 10px;
+    border-radius: 4px;
+    box-shadow: 0px 1px 2px 1px #ccc;
+    transition: box-shadow 200ms;
+}
+
+.product-unit:hover {
+    box-shadow: 0px 2px 3px 2px #ccc;
+    cursor: pointer;
+}
+
+.product-unit-btnGrp a {
+    border-radius: 4px;
+    padding: 5px;
+    margin-right: 5px;
+    box-shadow: 0px 1px 1px 0px #ccc;
+}
+
+.product-unit-btnGrp {
+    display: flex;
+    margin-top: 10px;
+}
+
+.product-unit-edit {
+    transition: 200ms;
+    background-color: greenyellow;
+}
+
+.product-unit-edit:hover {
+    box-shadow: 0px 1px 1px 1px #ccc;
+}
+
+.product-unit-delete {
+    transition: 200ms;
+    background-color: red;
+}
+
+.product-unit-delete:hover {
+    box-shadow: 0px 1px 1px 1px #ccc;
+}

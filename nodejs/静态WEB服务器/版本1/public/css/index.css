@@ -1,0 +1,16 @@
+h1 {
+    color: red;
+}
+
+p {
+    color: green;
+}
+
+a {
+    text-decoration: none;
+    color: blue;
+}
+
+a:hover {
+    color: red;
+}
