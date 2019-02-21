@@ -1,0 +1,36 @@
+module.exports = [{
+    id: 001,
+    name: "健身器",
+    price: '12',
+    quality: '12',
+}, {
+    id: 002,
+    name: "健身器",
+    price: '12',
+    quality: '12',
+}, {
+    id: 003,
+    name: "健身器",
+    price: '15',
+    quality: '51',
+}, {
+    id: 004,
+    name: "健身器",
+    price: '51',
+    quality: '16',
+}, {
+    id: 005,
+    name: "健身器",
+    price: '42',
+    quality: '42',
+}, {
+    id: 006,
+    name: "健身器",
+    price: '12',
+    quality: '63',
+}, {
+    id: 007,
+    name: "健身器",
+    price: '23',
+    quality: '12',
+}]
