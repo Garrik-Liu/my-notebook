@@ -1,0 +1,47 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>商品列表</title>
+    <%- include('templates/common-head_style.ejs') %>
+        <link rel="stylesheet" href="css/product.css">
+</head>
+
+<body>
+
+    <div class="wrapper">
+        <div class="main_top">
+            <%- include('templates/header') %>
+                <div class="main_content">
+                    <h2>商品列表</h2>
+                    <a class="product-add" href="/product-add">添加</a>
+                    <div class="product-list">
+                        <% for(let i=0; i<products.length; i++) { %>
+                            <div class="product-unit-wrapper">
+                                <div class="product-unit">
+                                    <p>名称:
+                                        <%= products[i].name %>
+                                    </p>
+                                    <p>价格:
+                                        <%= products[i].price %>
+                                    </p>
+                                    <p>数量:
+                                        <%= products[i].quantity %>
+                                    </p>
+                                    <div class="product-unit-btnGrp">
+                                        <a class="product-unit-edit" href="/product-edit?id=<%= products[i]._id %>">修改</a>
+                                        <a class="product-unit-delete" href="/doproduct-delete/<%= products[i]._id %>">删除</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <% } %>
+                    </div>
+                </div>
+        </div>
+        <%- include('templates/footer') %>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,43 @@
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+a {
+    color: #fff;
+    text-decoration: none;
+    transform: color 200ms;
+}
+
+a:hover {
+    color: azure;
+}
+
+.wrapper {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.main_top {
+    min-height: 100%;
+    flex: 1;
+}
+
+.main_content {
+    padding: 10px 40px;
+}
+
+.main_content a {
+    color: #000;
+}
+
+.main_content h2 {
+    color: red;
+}
+
+.main_login_state {
+    color: blue;
+}
