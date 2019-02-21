@@ -6,6 +6,8 @@ home: true
 
 [收藏夹](./收藏夹.md)
 
+做个小实验
+
 ## 前端开发
 
 * [JavaScript 笔记](/前端开发/javascript/readme.md)

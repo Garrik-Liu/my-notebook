@@ -1,0 +1,43 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title><%= actionTitle %>商品</title>
+    <%- include('templates/common-head_style.ejs') %>
+
+</head>
+
+<body>
+    <div class="wrapper">
+        <div class="main_top">
+            <%- include('templates/header') %>
+                <div class="main_content">
+                    <h2><%= actionTitle %>商品</h2>
+                    <form action=<%= action + '?id=' + item.id %> method="POST">
+                        名字: 
+                        <input type="text" name="name" 
+                        value = <%= item.name %>
+                        >
+                        <br>
+                        价格: 
+                        <input type="text" name="price"
+                        value = <%= item.price %>
+                        >
+                        <br>
+                        数量: 
+                        <input type="number" name="quantity"
+                        value = <%= item.quantity %>
+                        >
+                        <br>
+                        <button><%= actionTitle %></button>
+                    </form>
+                </div>
+        </div>
+        <%- include('templates/footer') %>
+    </div>
+
+</body>
+
+</html>
