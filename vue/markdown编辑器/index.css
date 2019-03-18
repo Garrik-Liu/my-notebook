@@ -1,0 +1,48 @@
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+.container {
+    display: flex;
+    flex-direction: row;
+    height: 100vh;
+}
+
+.panel {
+    padding: 10px;
+    border: 1px solid #ccc;
+    overflow: auto;
+    flex: 1 0 auto;
+}
+
+.notelist {
+    width: 150px;
+    flex: 0 0 auto;
+}
+
+.markdown textarea {
+    border: none;
+    height: 500px;
+    width: 100%;
+    resize: none;
+}
+
+.notelist__list {
+    list-style: none;
+}
+
+.notelist__addBtn {
+    width: 100%;
+    height: 50px;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2em;
+    background: #666;
+    color: white;
+}
+
+.notelist__addBtn:hover {
+    background: #333;
+}
