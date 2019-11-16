@@ -9,15 +9,15 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/Garrik-Liu/front-end-notebook.git"
+        "url": "git+https://github.com/Garrik-Liu/my-notebook.git"
     },
     "keywords": [],
     "author": "",
     "license": "ISC",
     "bugs": {
-        "url": "https://github.com/Garrik-Liu/front-end-notebook/issues"
+        "url": "https://github.com/Garrik-Liu/my-notebook/issues"
     },
-    "homepage": "https://github.com/Garrik-Liu/front-end-notebook#readme",
+    "homepage": "https://github.com/Garrik-Liu/my-notebook#readme",
     "dependencies": {
         "body-parser": "^1.18.3",
         "cookie-parser": "^1.4.3",
