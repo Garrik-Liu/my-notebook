@@ -1,43 +1,46 @@
-# Function and inverse function
+# Review
 
-# Limits Using 
+## Function and inverse function
 
-## Limit Law
+## Limits Using
+
+### Limit Law
+
 ![未命名图片](https://i.imgur.com/bfcONKo.png)
 
-## The Squeeze Theorem
+### The Squeeze Theorem
+
 ![未命名图片](https://i.imgur.com/H2KTpWo.png)
 
-### Examples 
+#### Examples
 
 ![未命名图片](https://i.imgur.com/lsUFn1G.png)
 ![未命名图片](https://i.imgur.com/zpyMAps.png)
 
-# Limits at Infinity, horizontal and vertical asymptotes
+## Limits at Infinity, horizontal and vertical asymptotes
 
-## Horizontal
+### Horizontal
 
 ![未命名图片](https://i.imgur.com/8Wjz9sw.png)
 
-## Vetical
+### Vetical
 
 ![未命名图片](https://i.imgur.com/MUec96O.png)
 
-### Examples
+#### Examples
 
 ![未命名图片](https://i.imgur.com/uy86A8D.png)
 
+## Continuity and Intermediate value theorem
 
-# Continuity and Intermediate value theorem
-
-## Continuity
+### Continuity
 
 ![未命名图片](https://i.imgur.com/U1bi7GD.png)
 ![未命名图片](https://i.imgur.com/D8x4UuY.png)
 ![未命名图片](https://i.imgur.com/pX8CR3H.png)
 ![未命名图片](https://i.imgur.com/hPc7L7X.png)
 
-### Examples
+#### Examples
 
 问题：
 ![未命名图片](https://i.imgur.com/vl5bnH2.png)
@@ -48,30 +51,30 @@
 答案：
 ![未命名图片](https://i.imgur.com/YQdMOAI.png)
 
-## Intermediate Value Theorem (IVT)
+### Intermediate Value Theorem (IVT)
 
 ![未命名图片](https://i.imgur.com/Rgv0OXn.png)
 
-### Examples
+#### Examples
 
 ![未命名图片](https://i.imgur.com/InNkyIn.png)
 
-# Using definition of the derivative to find derivatives
+## Using definition of the derivative to find derivatives
 
 ![未命名图片](https://i.imgur.com/sBAutQX.png)
 ![未命名图片](https://i.imgur.com/w90ePj3.png)
 
-## Differentiable
+### Differentiable
 
 ![未命名图片](https://i.imgur.com/MXeCzQy.png)
 
-### Examples
+#### Examples
 
 ![未命名图片](https://i.imgur.com/28JClak.png)
 ![未命名图片](https://i.imgur.com/Py4PJak.png)
 ![未命名图片](https://i.imgur.com/yqY41EO.png)
 
-# Find derivatives using laws, theorems
+## Find derivatives using laws, theorems
 
 ![Capture](https://i.imgur.com/mpwtKuM.png)
 
@@ -81,7 +84,7 @@ Derivatives of Inverse Trigonometric Function:
 
 ![8694a4c27d1ed21beb4ff5fead6eddc451da3f23.jpg](https://i.imgur.com/TxeuPFA.png)
 
-### Examples
+#### Examples
 
 问题：
 ![Capture](https://i.imgur.com/gSzt3QK.png)
@@ -116,39 +119,40 @@ Derivatives of Inverse Trigonometric Function:
 问题：
 ![Capture](https://i.imgur.com/XePr6Is.png)
 
-# Chain Rule
+## Chain Rule
 
 ![Capture](https://i.imgur.com/QX9EG7w.png)
 ![Capture](https://i.imgur.com/YwR9CHu.png)
 ![Capture](https://i.imgur.com/lf69D5a.png)
 ![Capture](https://i.imgur.com/TPOuo5l.png)
 
-# Implicit differentiation
+## Implicit differentiation
 
 ![Capture](https://i.imgur.com/S33K0UE.png)
 ![Capture](https://i.imgur.com/NzvB0F8.png)
 ![Capture](https://i.imgur.com/tH9pzL0.png)
 
-# Higher Derivatives
+## Higher Derivatives
 
 ![Capture](https://i.imgur.com/ctMfktf.png)
 
-# Tangent / Normal, Velocity / Acceleration
+## Tangent / Normal, Velocity / Acceleration
 
 ![Capture](https://i.imgur.com/j6rGsuk.png)
 ![Capture](https://i.imgur.com/5SHAozK.png)
 ![Capture](https://i.imgur.com/LeiEIAJ.png)
 ![Capture](https://i.imgur.com/Y4Tb95N.png)
 
-# Linear Approximation
+## Linear Approximation
 
 ![Capture](https://i.imgur.com/2v0cmwQ.png)
 
-### Examples
+#### Examples
+
 ![Capture](https://i.imgur.com/1zyi29P.png)
 ![Capture](https://i.imgur.com/8pSFga6.png)
 
-# Related Rates
+## Related Rates
 
 ![Capture](https://i.imgur.com/BPNSFCS.png)
 
@@ -159,7 +163,7 @@ Derivatives of Inverse Trigonometric Function:
 ![Capture](https://i.imgur.com/IHDsMlI.png)
 ![Capture](https://i.imgur.com/RkBQHAW.png)
 
-# Maxima / Minima
+## Maxima / Minima
 
 ![Capture](https://i.imgur.com/8XpwDf7.png)
 ![Capture](https://i.imgur.com/ADQ3SAQ.png)
@@ -167,12 +171,12 @@ Derivatives of Inverse Trigonometric Function:
 ![Capture](https://i.imgur.com/pfSx9S9.png)
 ![Capture](https://i.imgur.com/1IfMkIM.png)
 
-# Mean Value Theorem
+## Mean Value Theorem
 
 ![Capture](https://i.imgur.com/X681NfV.png)
 ![Capture](https://i.imgur.com/1TdRCQn.png)
 
-### Example
+#### Example
 
 ![Capture](https://i.imgur.com/mEu02Mt.png)
 ![Capture](https://i.imgur.com/IPyjofC.png)
@@ -181,7 +185,7 @@ Derivatives of Inverse Trigonometric Function:
 ![Capture](https://i.imgur.com/PWCl0qM.png)
 ![Capture](https://i.imgur.com/FUdwzgA.png)
 
-# Optimization Problems
+## Optimization Problems
 
 ![Capture](https://i.imgur.com/WfK3DVy.png)
 ![Capture](https://i.imgur.com/kTt4AeO.png)
@@ -191,19 +195,19 @@ Derivatives of Inverse Trigonometric Function:
 ![Capture](https://i.imgur.com/ndGUO1t.png)
 ![Capture](https://i.imgur.com/J4gNd2c.png)
 
-# L’Hospital’s rule
+## L’Hospital’s rule
 
 ![Capture](https://i.imgur.com/91FAWUY.png)
 ![Capture](https://i.imgur.com/pR2yww0.png)
 
-# Curve Sketching
+## Curve Sketching
 
 ![Capture](https://i.loli.net/2019/12/16/pmSi3bYuqa9DBTw.png)
 ![Capture](https://i.loli.net/2019/12/16/KiFzNAlHVL94PR7.png)
 ![Capture](https://i.loli.net/2019/12/16/8BMgDajuhZId654.png)
 ![Capture](https://i.loli.net/2019/12/16/MB1PUd8LYkx7f2z.png)
 
-# Newton’s Method
+## Newton’s Method
 
 ![Capture](https://i.imgur.com/G60TDww.png)
 ![Capture](https://i.imgur.com/sn0PchH.png)
@@ -222,12 +226,12 @@ Derivatives of Inverse Trigonometric Function:
 ![Capture](https://i.loli.net/2019/12/16/T49IaBdPZJ2yvoD.png)
 ![Capture](https://i.loli.net/2019/12/16/5SOCodgtnfFQRuc.png)
 
-# Definite Integrals: find Rn,Ln and then evaluate limn→∞Rn and limn→∞L
+## Definite Integrals: find Rn,Ln and then evaluate limn→∞Rn and limn→∞L
 
 ![Capture](https://i.imgur.com/dhD1vLX.png)
 ![Capture](https://i.loli.net/2019/12/16/IGXnpMYPzwVkxRc.png)
 
-# Antiderivatives: basic rules, constant multiple rule, sum rule
+## Antiderivatives: basic rules, constant multiple rule, sum rule
 
 ![Capture](https://i.loli.net/2019/12/16/IByhiQzfH8MNJKW.png)
 ![Capture](https://i.loli.net/2019/12/16/kDYzJm3Z7AqByTU.png)
