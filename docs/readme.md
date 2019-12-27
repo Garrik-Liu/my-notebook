@@ -21,9 +21,9 @@ home: true
 - [Express 笔记](/后端开发/Express/readme.md)
 - [模板引擎](/后端开发/模板引擎/readme.md)
 
-<!-- ## 游戏开发
+## 运营
 
-* [从0开始学习游戏开发](/游戏开发/从0开始学习游戏开发/readme.md) -->
+- [运营笔记](/运营/readme.md)
 
 ## 图形
 
