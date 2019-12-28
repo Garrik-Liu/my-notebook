@@ -14,5 +14,6 @@ module.exports = {
             { text: '主页', link: '/' },
         ],
         sidebar: 'auto',
-    }
+    },
+    plugins: ['vuepress-plugin-container']
 }
