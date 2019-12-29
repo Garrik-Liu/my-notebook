@@ -29,5 +29,21 @@ module.exports = {
                 after: '</div>',
             },
         ],
+        [
+            'vuepress-plugin-container',
+            {
+                type: 'theorem',
+                before: info => `<div class="theorem"><p class="title">${info}</p>`,
+                after: '</div>',
+            },
+        ],
+        [
+            'vuepress-plugin-container',
+            {
+                type: 'details',
+                before: info => `<details class="custom-block details"><summary>${info}</summary>\n`,
+                after: () => '</details>\n',
+            },
+        ],
     ],
 }
