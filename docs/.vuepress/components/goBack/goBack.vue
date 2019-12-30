@@ -20,9 +20,7 @@ export default {
         backUrl = url.substring(0, lastSlash);
       }
 
-      console.log(backUrl);
-
-      //window.history.back();
+      window.history.go(backUrl);
     }
   }
 };
