@@ -13,7 +13,8 @@ module.exports = {
         sidebar: 'auto',
         lastUpdated: '上次更新',
         nextLinks: true,
-        prevLinks: true
+        prevLinks: true,
+        smoothScroll: true,
     },
 
     plugins: [
