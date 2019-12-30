@@ -1,13 +1,22 @@
 <template>
   <div class="custom-component-goback">
-    <span class="goback-btn">
+    <span
+      class="goback-btn"
+      onclick="gobackClick"
+    >
       返回上一级
     </span>
   </div>
 </template>
 
 <script>
-export default {};
+export default {
+  methods: {
+    gobackClick() {
+      window.history.back();
+    }
+  }
+};
 </script>
 
 <style>

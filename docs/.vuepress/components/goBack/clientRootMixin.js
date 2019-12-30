@@ -11,15 +11,16 @@ export default {
     methods: {
         update() {
             let exist = false;
+
             // 获取 sidebar
             const sidebar = document.getElementsByClassName('sidebar')[0];
+
+            // 判断 goBack 组件是否已经存在
             sidebar.childNodes.forEach(el => {
-                console.log(el.className)
                 if (el.className === 'custom-component-goback') {
                     exist = true;
                 }
             });
-
             if (exist) return;
 
             // 创建 go-back 组件
@@ -31,4 +32,4 @@ export default {
             sidebar.insertBefore(goBackIns.$el, sidebar.firstChild);
         }
     }
-};
+}
