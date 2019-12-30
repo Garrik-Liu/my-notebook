@@ -12,7 +12,7 @@ export default {
         update() {
             // 获取 sidebar
             const sidebar = document.getElementsByClassName('sidebar')[0];
-            sidebar.children.forEach(el => {
+            sidebar.childNodes.forEach(el => {
                 console.log(el);
             });
             // 创建 go-back 组件
