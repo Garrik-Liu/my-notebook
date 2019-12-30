@@ -11,15 +11,6 @@
 
 <script>
 export default {
-  data() {
-    return {
-      previousUrl = '',
-    }
-  },
-  beforeUpdate() {
-    console.log(123);
-    console.log(window.location.href);
-  },
   methods: {
     gobackClick() {
       const url = window.location.href;
