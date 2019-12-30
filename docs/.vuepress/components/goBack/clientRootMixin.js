@@ -10,15 +10,14 @@ export default {
     },
     methods: {
         update() {
-            console.log(456);
             // 获取 sidebar
             const sidebar = document.getElementsByClassName('sidebar')[0];
-            console.log(sidebar);
             // 创建 go-back 组件
             const goBackTemp = Vue.extend(goBack);
             const goBackIns = new goBackTemp();
+            // 挂载组件
             goBackIns.$mount();
-            console.log(goBackIns.$el)
+            // 插入组件到侧边栏之前
             sidebar.insertBefore(goBackIns.$el, sidebar.firstChild);
         }
     }
