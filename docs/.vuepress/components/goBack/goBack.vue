@@ -11,19 +11,23 @@
 
 <script>
 export default {
+  data() {
+    return {
+      previousUrl = '',
+    }
+  },
+  beforeUpdate() {
+    console.log(123);
+    console.log(window.location.href);
+  },
   methods: {
     gobackClick() {
-      console.log(123);
       const url = window.location.href;
       const lastSlash = url.lastIndexOf("/");
       let backUrl = url;
       if (lastSlash !== -1) {
         backUrl = url.substring(0, lastSlash);
       }
-
-      console.log("url", url);
-      console.log("backUrl", backUrl);
-      console.log("lastSlash", lastSlash);
 
       //window.history.go(backUrl);
     }
