@@ -10,7 +10,11 @@ export default {
     },
     methods: {
         update() {
-            console.log(123);
+            // 获取 sidebar
+            const sidebar = document.getElementsByClassName('sidebar')[0];
+            // 创建 go-back 组件
+            const goBack = Vue.extend(goBack);
+            sidebar.insertBefore(goBack, sidebar.firstChild);
         }
     }
 };
