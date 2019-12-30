@@ -2,7 +2,7 @@ import Vue from "vue";
 import goBack from './goBack.vue';
 
 export default {
-    data() {
+    data: function() {
         return {
             previousUrl: '',
         },
