@@ -10,14 +10,15 @@ export default {
     },
     methods: {
         update() {
-            console.log(123);
+            console.log(456);
             // 获取 sidebar
             const sidebar = document.getElementsByClassName('sidebar')[0];
             console.log(sidebar);
             // 创建 go-back 组件
-            const goBackInstance = Vue.extend(goBack);
-            console.log(goBackInstance);
-            sidebar.insertBefore(goBackInstance, sidebar.firstChild);
+            const goBackTemp = Vue.extend(goBack);
+            const goBackIns = new goBackTemp();
+            console.log(goBackIns)
+            sidebar.insertBefore(goBackIns, sidebar.firstChild);
         }
     }
 };
