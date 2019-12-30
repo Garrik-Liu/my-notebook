@@ -13,12 +13,11 @@
 export default {
   methods: {
     gobackClick() {
-      const url = window.location.href;
-      const lastSlash = url.lastIndexOf("/");
-      let backUrl = url;
-      if (lastSlash !== -1) {
-        backUrl = url.substring(0, lastSlash);
-      }
+      const pathname = window.location.pathname;
+      pathname.split("/").forEach(name => {
+        console.log(name);
+        console.log("\n");
+      });
 
       //window.history.go(backUrl);
     }
