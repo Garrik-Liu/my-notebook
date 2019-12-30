@@ -20,6 +20,10 @@ export default {
         backUrl = url.substring(0, lastSlash);
       }
 
+      console.log("url", url);
+      console.log("backUrl", backUrl);
+      console.log("lastSlash", lastSlash);
+
       window.history.go(backUrl);
     }
   }
