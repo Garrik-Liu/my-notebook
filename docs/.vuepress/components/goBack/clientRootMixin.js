@@ -2,10 +2,10 @@ import Vue from "vue";
 import goBack from './goBack.vue';
 
 export default {
-    data: function() {
+    data() {
         return {
             previousUrl: '',
-        },
+        };
     },
     updated() {
         if (this.previousUrl === '') this.previousUrl = window.location.href;
