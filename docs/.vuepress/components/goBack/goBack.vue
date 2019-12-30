@@ -2,7 +2,7 @@
   <div class="custom-component-goback">
     <span
       class="goback-btn"
-      onclick="gobackClick"
+      @click="gobackClick"
     >
       返回上一级
     </span>
