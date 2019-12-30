@@ -13,6 +13,7 @@
 export default {
   methods: {
     gobackClick() {
+      console.log(123);
       window.history.back();
     }
   }
@@ -29,6 +30,7 @@ export default {
 }
 
 .goback-btn {
+  user-select: none;
   cursor: pointer;
   color: #3eaf7c;
   font-size: 1.25em;
