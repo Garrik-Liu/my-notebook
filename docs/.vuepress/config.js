@@ -11,9 +11,15 @@ module.exports = {
             { text: '主页', link: '/' },
         ],
         sidebar: 'auto',
+        lastUpdated: '上次更新',
+        nextLinks: true,
+        prevLinks: true
     },
 
     plugins: [
+        ['@vuepress/back-to-top', true],
+        ['@vuepress/medium-zoom', true],
+        ['@vuepress/last-updated', true],
         [
             'vuepress-plugin-container',
             {
