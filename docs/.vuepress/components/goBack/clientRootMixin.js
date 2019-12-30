@@ -15,9 +15,9 @@ export default {
             const sidebar = document.getElementsByClassName('sidebar')[0];
             console.log(sidebar);
             // 创建 go-back 组件
-            const goBack = Vue.extend(goBack);
-            console.log(goBack);
-            sidebar.insertBefore(goBack, sidebar.firstChild);
+            const goBackInstance = Vue.extend(goBack);
+            console.log(goBackInstance);
+            sidebar.insertBefore(goBackInstance, sidebar.firstChild);
         }
     }
 };
