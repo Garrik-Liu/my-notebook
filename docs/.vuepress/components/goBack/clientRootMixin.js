@@ -2,7 +2,15 @@ import Vue from "vue";
 import goBack from './goBack.vue';
 
 export default {
+    data() {
+        return {
+            previousUrl: '',
+        },
+    },
     updated() {
+        if (this.previousUrl === '') this.previousUrl = window.location.href;
+        console.log(456);
+        console.log(this.previousUrl);
         // 等待 dom 加载完成之后执行
         this.$nextTick(() => {
             this.update();
