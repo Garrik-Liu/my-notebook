@@ -17,8 +17,9 @@ export default {
             // 创建 go-back 组件
             const goBackTemp = Vue.extend(goBack);
             const goBackIns = new goBackTemp();
-            console.log(goBackIns)
-            sidebar.insertBefore(goBackIns, sidebar.firstChild);
+            goBackIns.$mount();
+            console.log(goBackIns.$el)
+            sidebar.insertBefore(goBackIns.$el, sidebar.firstChild);
         }
     }
 };
