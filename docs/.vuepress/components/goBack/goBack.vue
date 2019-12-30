@@ -1,5 +1,5 @@
 <template>
-  <div class="custom-component">
+  <div class="custom-component-goback">
     <span class="goback-btn">
       返回上一级
     </span>
@@ -11,7 +11,7 @@ export default {};
 </script>
 
 <style>
-.custom-component {
+.custom-component-goback {
   font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
     Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
   margin-left: 1.3rem;

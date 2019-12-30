@@ -13,7 +13,9 @@ export default {
             // 获取 sidebar
             const sidebar = document.getElementsByClassName('sidebar')[0];
             sidebar.childNodes.forEach(el => {
-                console.log(el);
+                if (el.className === 'custom-component-goback') {
+                    return;
+                }
             });
             // 创建 go-back 组件
             const goBackTemp = Vue.extend(goBack);
