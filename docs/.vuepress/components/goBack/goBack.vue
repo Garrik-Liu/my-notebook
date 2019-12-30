@@ -13,6 +13,7 @@
 export default {
   methods: {
     gobackClick() {
+      console.log(123);
       const url = window.location.href;
       const lastSlash = url.lastIndexOf("/");
       let backUrl = url;
