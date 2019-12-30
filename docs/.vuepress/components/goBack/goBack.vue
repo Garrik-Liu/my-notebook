@@ -1,7 +1,7 @@
 <template>
   <div class="custom-component">
     <span class="goback-btn">
-      返回
+      返回上一级
     </span>
   </div>
 </template>
@@ -14,7 +14,7 @@ export default {};
 .custom-component {
   font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
     Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
-  margin-left: 1.25rem;
+  margin-left: 1.3rem;
   margin-top: 10px;
   margin-bottom: -20px;
 }
@@ -22,7 +22,7 @@ export default {};
 .goback-btn {
   cursor: pointer;
   color: #3eaf7c;
-  font-size: 1.5em;
+  font-size: 1.25em;
   font-weight: 700;
   line-height: 1.7;
 }
