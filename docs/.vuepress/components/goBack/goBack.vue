@@ -13,8 +13,16 @@
 export default {
   methods: {
     gobackClick() {
-      console.log(123);
-      window.history.back();
+      const url = window.location.href;
+      const lastSlash = url.lastIndexOf("/");
+      let backUrl = url;
+      if (lastSlash !== -1) {
+        backUrl = url.substring(0, lastSlash);
+      }
+
+      console.log(backUrl);
+
+      //window.history.back();
     }
   }
 };
