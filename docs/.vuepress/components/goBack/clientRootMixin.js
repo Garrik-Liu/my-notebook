@@ -10,13 +10,18 @@ export default {
     },
     methods: {
         update() {
+            let exist = false;
             // 获取 sidebar
             const sidebar = document.getElementsByClassName('sidebar')[0];
             sidebar.childNodes.forEach(el => {
+                console.log(el.className)
                 if (el.className === 'custom-component-goback') {
-                    return;
+                    exist = true;
                 }
             });
+
+            if (exist) return;
+
             // 创建 go-back 组件
             const goBackTemp = Vue.extend(goBack);
             const goBackIns = new goBackTemp();
