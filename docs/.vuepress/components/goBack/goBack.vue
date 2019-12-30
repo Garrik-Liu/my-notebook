@@ -1,8 +1,8 @@
 <template>
   <div class="custom-component">
-    <button class="goback-btn">
+    <span class="goback-btn">
       返回
-    </button>
+    </span>
   </div>
 </template>
 
@@ -14,14 +14,19 @@ export default {};
 .custom-component {
   font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
     Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+  margin-left: 1.25rem;
+  margin-bottom: -20px;
 }
 
 .goback-btn {
-  width: 3em;
-  height: 1.5em;
-  color: inherit;
+  cursor: pointer;
+  color: #3eaf7c;
   font-size: 1.1em;
   font-weight: 700;
   line-height: 1.7;
+}
+
+.goback-btn:hover {
+  color: #3eaf7c;
 }
 </style>
