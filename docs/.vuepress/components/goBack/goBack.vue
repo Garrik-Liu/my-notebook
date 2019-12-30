@@ -15,18 +15,19 @@ export default {};
   font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
     Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
   margin-left: 1.25rem;
+  margin-top: 10px;
   margin-bottom: -20px;
 }
 
 .goback-btn {
   cursor: pointer;
   color: #3eaf7c;
-  font-size: 1.1em;
+  font-size: 1.5em;
   font-weight: 700;
   line-height: 1.7;
 }
 
 .goback-btn:hover {
-  color: #3eaf7c;
+  color: #72cda4;
 }
 </style>
