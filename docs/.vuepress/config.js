@@ -58,8 +58,8 @@ module.exports = {
         [
             'vuepress-plugin-clean-urls',
             {
-                normalSuffix: '/',
-                indexSuffix: '/',
+                normalSuffix: '',
+                indexSuffix: '',
                 notFoundPath: '/404.html',
             },
         ],
