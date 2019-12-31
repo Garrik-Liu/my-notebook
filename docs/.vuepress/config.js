@@ -55,5 +55,13 @@ module.exports = {
                 after: () => '</details>\n',
             },
         ],
+        [
+            'vuepress-plugin-clean-urls',
+            {
+                normalSuffix: '/',
+                indexSuffix: '/',
+                notFoundPath: '/404.html',
+            },
+        ],
     ],
 }
