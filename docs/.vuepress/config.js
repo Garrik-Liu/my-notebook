@@ -21,7 +21,7 @@ module.exports = {
     },
 
     plugins: [
-        require('./components/goBack'), ['@vuepress/back-to-top', true],
+        ['@vuepress/back-to-top', true],
         ['@vuepress/medium-zoom', true],
         ['@vuepress/last-updated', true],
         [

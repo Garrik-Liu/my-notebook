@@ -15,11 +15,7 @@ export default {
     previousUrl: ""
   },
   methods: {
-    gobackClick() {
-      console.log(123);
-      console.log(this.previousUrl);
-      if (this.previousUrl !== "") //window.history.go(this.previousUrl);
-    }
+    gobackClick() {}
   }
 };
 </script>
