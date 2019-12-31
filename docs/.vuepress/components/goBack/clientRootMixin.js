@@ -12,8 +12,6 @@ export default {
         if (this.currentUrl !== '') this.previousUrl = this.currentUrl;
         this.currentUrl = window.location.href;
 
-        console.log(this.previousUrl);
-
         // 等待 dom 加载完成之后执行
         this.$nextTick(() => {
             this.update();

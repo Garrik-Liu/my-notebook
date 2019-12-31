@@ -16,6 +16,7 @@ export default {
   },
   methods: {
     gobackClick() {
+      console.log(this.previousUrl);
       if (this.previousUrl !== "") window.history.go(this.previousUrl);
     }
   }
