@@ -11,15 +11,12 @@
 
 <script>
 export default {
+  props: {
+    previousUrl: ""
+  },
   methods: {
     gobackClick() {
-      const pathname = window.location.pathname;
-      pathname.split("/").forEach(name => {
-        console.log(name);
-        console.log("\n");
-      });
-
-      //window.history.go(backUrl);
+      if (this.previousUrl !== "") window.history.go(this.previousUrl);
     }
   }
 };
