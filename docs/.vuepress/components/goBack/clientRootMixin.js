@@ -34,7 +34,9 @@ export default {
             const goBackTemp = Vue.extend(goBack);
             const goBackIns = new goBackTemp();
             goBackIns.previousUrl = this.previousUrl;
-            // 挂载组件
+            console.log('this.previousUrl: ', this.previousUrl)
+            console.log('goBackIns.previousUrl: ', goBackIns.previousUrl)
+                // 挂载组件
             goBackIns.$mount();
             // 插入组件到侧边栏之前
             sidebar.insertBefore(goBackIns.$el, sidebar.firstChild);
