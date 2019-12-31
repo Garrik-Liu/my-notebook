@@ -19,7 +19,7 @@ module.exports = {
         nextLinks: true,
         prevLinks: true,
         smoothScroll: true,
-        defaultTheme: 'dark',
+        defaultTheme: 'light',
         postcss: {
             plugins: [
                 require('css-prefers-color-scheme/postcss'),
