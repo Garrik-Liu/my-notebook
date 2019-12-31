@@ -2,6 +2,7 @@ module.exports = {
     title: 'Garrik 的笔记',
     description: '这里是 Garrik 的前端笔记本',
     base: '/my-notebook/',
+    theme: 'default-prefers-color-scheme',
     markdown: {
         lineNumbers: false,
     },
@@ -18,6 +19,13 @@ module.exports = {
         nextLinks: true,
         prevLinks: true,
         smoothScroll: true,
+        defaultTheme: 'dark',
+        postcss: {
+            plugins: [
+                require('css-prefers-color-scheme/postcss'),
+                require('autoprefixer')
+            ]
+        }
     },
 
     plugins: [
