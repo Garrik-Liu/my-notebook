@@ -34,6 +34,7 @@
         "node-less": "^1.0.0",
         "vuepress-plugin-clean-urls": "^1.1.1",
         "vuepress-plugin-container": "^2.1.2",
+        "vuepress-plugin-mathjax": "^1.2.8",
         "vuepress-theme-default-prefers-color-scheme": "^1.0.3"
     }
 }
