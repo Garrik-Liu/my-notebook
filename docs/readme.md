@@ -21,10 +21,6 @@ home: true
 - [Express 笔记](/后端开发/Express/readme.md)
 - [模板引擎](/后端开发/模板引擎/readme.md)
 
-## 运营
-
-- [运营笔记](/运营/readme.md)
-
 ## 图形
 
 - [Canvas 笔记](/图形/canvas/readme.md)
@@ -45,6 +41,14 @@ home: true
 ## 网络
 
 - [HTTP](/网络/http/readme.md)
+
+## 运营
+
+- [运营笔记](/运营/readme.md)
+
+## 数学
+
+- [离散数学](/数学/离散数学)
 
 ## 其他
 
