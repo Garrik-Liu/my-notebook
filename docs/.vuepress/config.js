@@ -64,6 +64,14 @@ module.exports = {
             },
         ],
         [
+            'vuepress-plugin-container',
+            {
+                type: 'details-open',
+                before: info => `<details open="open" class="custom-block details"><summary>${info}</summary>\n`,
+                after: () => '</details>\n',
+            },
+        ],
+        [
             'vuepress-plugin-mathjax',
             {
                 target: 'svg',
