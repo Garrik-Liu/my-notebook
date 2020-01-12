@@ -21,6 +21,10 @@ home: true
 - [Express 笔记](/后端开发/Express/readme.md)
 - [模板引擎](/后端开发/模板引擎/readme.md)
 
+## 算法
+
+- [《算法导论》笔记](/算法/笔记-算法导论/readme.md)
+
 ## 图形
 
 - [Canvas 笔记](/图形/canvas/readme.md)
