@@ -8,6 +8,8 @@
 
 ## Servlet 快速入门
 
+#### 创建 service
+
 - 在项目目录中 `JavaResource/src` 下，创建一个包名称为 `com.xxxx.servlet`；
 - 在包中创建一个 class 文件，名为 `FirstServlet.java`；
 - 在该 class 中实现 Servlet 接口，也就是实现它没有完成的方法：
@@ -29,7 +31,22 @@
 
 ![2020-1-22-22-36-7.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-1-22-22-36-7.png)
 
-## 反射
+#### init, service, destory 调用时机
+
+- **init**：
+  - 默认，第一次接收到请求访问的时候创建对象，调用此方法；
+  - 对象被创建完后，会被缓存。之后接收请求，就不调用此方法了；
+  - 通过配置可以设置在服务器启动时创建对象，调用此方法：
+    - 通过 `<load-on-startup>` 来让服务器启动时创建 servlet 对象；
+    - 中间的数字，是创建的优先级；
+    - ![2020-1-24-13-16-31.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-1-24-13-16-31.png)
+- **service**：
+  - 每次接收到请求的时候被调用；
+- **destory**：
+  - 当 servel 销毁前被调用；
+  - 服务器关系，servlet 销毁；
+
+## 反射机制
 
 ### 类的加载
 
@@ -68,9 +85,9 @@
 - 内省：在运行时能够获取 JavaBean 当中的属性名称和 get 和 set 方法；
 - **反射**：
 
-  - Java 反射机制是在运行状态中，对于任意的一个类，都能知道这个类的所有属性和方法；
-  - 对于任意一个对象，都能够调用它的任意一个方法和属性；
-  - **这种动态获取的信息以及动态调用对象的方法的功能被称为“反射机制”**；
+  - Java 反射机制是在运行状态中，对于任意的一个类，拿到字节码之后，都能访问这个类的所有属性和方法；
+  - 通过字节码还能创建对象；
+  - **这种动态获取信息以及动态调用对象的方法的功能被称为“反射机制”**；
   - 要想使用反射，必须获取字节码文件；
 
 - 获取字节码文件：
@@ -79,3 +96,37 @@
   - 静态属性 class；
   - Class 类中静态方法 `forName()`；
   - ![2020-1-22-23-19-31.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-1-22-23-19-31.png)
+
+### “反射机制” 实践
+
+#### 通过字节码创建对象
+
+先创建一个类：
+
+![2020-1-23-0-15-32.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-1-23-0-15-32.png)
+
+然后用字节码去创建对象：
+
+![2020-1-23-0-11-52.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-1-23-0-11-52.png)
+
+#### 获取字段，设置字段
+
+**获取公共字段**：
+
+- `getField()` 方法返回一个 Field 对象，该对象反射类中指定的 public 字段；
+- `set()` 方法来为指定的对象，设置对应字段的值；
+
+![2020-1-23-0-17-5.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-1-23-0-17-5.png)
+
+**获取私有字段**：
+
+- `getDeclaredField()` 方法返回一个 Field 对象，该对象反射类中指定的已声明字段；
+- `setAccessible()` 方法让私有字段变得允许访问；
+
+![2020-1-23-0-28-2.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-1-23-0-28-2.png)
+
+#### 获取方法，执行方法
+
+![2020-1-23-0-38-7.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-1-23-0-38-7.png)
+
+### Tomcat 反射加载 Servlet
