@@ -9,7 +9,7 @@ sidebar: false
 - [Java 入门]()
 - [Java 面向对象]()
 - [MySQL]()
-- [JDBC]()
+- [JDBC](./Java基础/JDBC.md)
 
 ## Java Web
 
