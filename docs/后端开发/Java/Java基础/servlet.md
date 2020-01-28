@@ -263,3 +263,7 @@ web.xml 中 Servlet 对应的 url 匹配方式有三种：
 Java 项目中创建数据表的映射：
 
 ![2020-1-26-17-12-31.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-1-26-17-12-31.png)
+
+创建 HTML 页面：
+
+![2020-1-26-17-42-27.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-1-26-17-42-27.png)
