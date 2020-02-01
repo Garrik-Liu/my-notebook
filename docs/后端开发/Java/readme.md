@@ -8,6 +8,7 @@ sidebar: false
 
 - [Java 入门]()
 - [Java 面向对象]()
+- [Java 集合](./Java基础/集合.md)
 - [MySQL]()
 - [JDBC](./Java基础/JDBC.md)
 

@@ -491,6 +491,8 @@
 
 ### 使用泛型
 
+- 上面结果集处理器，返回 List 类型对象；
+- 但是我们希望可以自己设定要返回的类型；
 - 我们还可以用“泛型”来改写上面代码；
 - 声明接口时定义返回类型为 T：
   ![2020-1-27-0-59-32.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-1-27-0-59-32.png)
@@ -531,3 +533,36 @@
 ![2020-1-27-23-23-20.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-1-27-23-23-20.png)
 
 ### 用内省重构代码
+
+## DBUtils
+
+#### 什么是 DBUtils
+
+- DBUtils 是 Apache 编写的数据库操作工具；
+- 封装了对 JDBC 的操作，简化了 JDBC 操作；
+
+#### QueryRunner
+
+- `QueryRunnder(DataSorce ds)`：创建连接；
+- `Update(String sql, Object...obj)`：执行更新；
+- `query(String sql, ResultSetHandler<T> rsh, Object...params)`：执行查询；
+
+#### ResultHandler
+
+- `query(sql, new BeanHandler<Student>(Student.class), params)`：把查询到结果封装成一个指定对象；
+- `query(sql, new BeanListHandler<Student>(Student.class))`：把查询结果封装成一个指定对象集合；
+- `qr.query(sql, new ScalarHandler())`：查询单个值，返回一个 Long 类型
+- `qr.query(sql, new MapListHandler())`：把查询结果封装成一个 Map 集合
+- `query(sql, new ColumnListHandler("列名"))`：查询指定的列
+
+#### 使用 DBUtils 改写代码
+
+引入 jar 包，并且编译一下（Build Path）。
+
+![2020-1-31-14-46-48.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-1-31-14-46-48.png)
+
+在 StudentDaoImpl 中，传入数据源到 `QueryRunner`，创建连接。
+
+![2020-1-31-14-54-5.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-1-31-14-54-5.png)
+
+![2020-1-31-14-55-31.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-1-31-14-55-31.png)
