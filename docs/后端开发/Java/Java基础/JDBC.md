@@ -534,6 +534,37 @@
 
 ### 用内省重构代码
 
+![2020-2-1-20-1-34.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-2-1-20-1-34.png)
+
+- 之前的结果集处理器仍旧是可以继续重构的；
+- 该类专门将结果集中的数据封装成一个 Student 对象；
+- 如果我们有多个 domain，就需要多个结果集处理器；
+- 但其实，这些结果集处理器做的都是同一件事：
+  - 把结果集中的每一个数据封装成对象；
+  - 设置对象的属性；
+- 通过**内省**就可以抽象出一个通用的结果集处理器；
+
+规定：
+
+- 数据表中的列名必须和类的属性名一致；
+- 规定数据表中的数据类型必须和类的属性的数据类型匹配；
+
+编写：
+
+![2020-2-1-20-14-50.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-2-1-20-14-50.png)
+
+## 封装成 jar 包
+
+下面看一下如何把刚刚写的通用结果集处理器，打包成一个 jar 包。
+
+exports -> JAR file
+
+![2020-2-1-20-18-35.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-2-1-20-18-35.png)
+
+选择要导出的文件 -> 然后选择要导出的位置 -> Finish
+
+![2020-2-1-20-19-14.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-2-1-20-19-14.png)
+
 ## DBUtils
 
 #### 什么是 DBUtils
@@ -541,14 +572,11 @@
 - DBUtils 是 Apache 编写的数据库操作工具；
 - 封装了对 JDBC 的操作，简化了 JDBC 操作；
 
-#### QueryRunner
+#### 常用方法
 
 - `QueryRunnder(DataSorce ds)`：创建连接；
-- `Update(String sql, Object...obj)`：执行更新；
+- `update(String sql, Object...obj)`：执行更新；
 - `query(String sql, ResultSetHandler<T> rsh, Object...params)`：执行查询；
-
-#### ResultHandler
-
 - `query(sql, new BeanHandler<Student>(Student.class), params)`：把查询到结果封装成一个指定对象；
 - `query(sql, new BeanListHandler<Student>(Student.class))`：把查询结果封装成一个指定对象集合；
 - `qr.query(sql, new ScalarHandler())`：查询单个值，返回一个 Long 类型
@@ -561,8 +589,24 @@
 
 ![2020-1-31-14-46-48.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-1-31-14-46-48.png)
 
+我们先改 `save` 方法。同理其他的 DML 操作也可以用下面的改法。
+
 在 StudentDaoImpl 中，传入数据源到 `QueryRunner`，创建连接。
 
 ![2020-1-31-14-54-5.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-1-31-14-54-5.png)
 
 ![2020-1-31-14-55-31.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-1-31-14-55-31.png)
+
+通过 `updata` 方法来进行操作：
+
+![2020-2-1-20-25-59.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-2-1-20-25-59.png)
+
+下面来改 DQL 操作。
+
+通过 `query` 方法来进行查询：
+
+![2020-2-1-20-29-38.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-2-1-20-29-38.png)
+
+如果查询结果是多个的话，要注意 `query` 方法的参数：
+
+![2020-2-1-20-31-18.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-2-1-20-31-18.png)
