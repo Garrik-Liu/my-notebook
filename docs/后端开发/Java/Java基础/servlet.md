@@ -247,7 +247,6 @@ web.xml 中 Servlet 对应的 url 匹配方式有三种：
   - 到数据库创建一个 “用户表”:
   - 编写 html 登录页面；
   - 创建 LoginServlet；
-  -
 
 ![2020-1-26-17-4-6.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-1-26-17-4-6.png)
 
@@ -267,3 +266,391 @@ Java 项目中创建数据表的映射：
 创建 HTML 页面：
 
 ![2020-1-26-17-42-27.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-1-26-17-42-27.png)
+
+创建 LoginServlet：
+
+- 先创建一个 com.myWeb.login 包；
+- 然后创建 Servlet；
+- 里面只用 `service` 方法就可以了；
+
+![2020-2-1-21-23-51.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-2-1-21-23-51.png)
+
+![2020-2-1-21-27-41.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-2-1-21-27-41.png)
+
+把 Servlet 对应的地址填写到 form 表单中：
+
+![2020-2-1-22-36-0.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-2-1-22-36-0.png)
+
+在编写 LoginServlet 的业务逻辑之前，先引入 JDBC 相关 jar 包：
+
+- dbutils；
+- druid；
+- mysql-connector-java；
+
+![2020-2-1-22-33-41.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-2-1-22-33-41.png)
+
+把之前用过的 JdbcUtil 文件，还有数据库配置文件引入项目。用以连接数据库：
+
+- 注意，因为 resources 目录下的 db.properties 文件，在运行时已经被编译成字节码；
+- 所以我们不能按照硬盘中的路径去获取配置文件；
+- 需要通过这个方法：`JDBCUtil.class.getClassLoader().getResource("db.properties").getPath()`
+
+![2020-2-1-22-12-53.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-2-1-22-12-53.png)
+
+::: details JDBCUtils 代码：
+
+```java
+package com.myWeb.utils;
+
+import java.io.FileInputStream;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Properties;
+
+import javax.sql.DataSource;
+
+import com.alibaba.druid.pool.DruidDataSourceFactory;
+
+public class JDBCUtil {
+  public static DataSource ds = null;
+  static {
+    try {
+      // 读取配置文件
+      Properties p = new Properties();
+      // 获取配置文件字节码路径
+      String db_properties_path = JDBCUtil.class.getClassLoader().getResource("db.properties").getPath();
+      FileInputStream in = new FileInputStream(db_properties_path);
+      p.load(in);
+      // 创建数据源（连接池）
+      // 通过配置文件创建数据源
+      ds = DruidDataSourceFactory.createDataSource(p);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  // 获取数据源
+  public static DataSource getDataSource() {
+    return ds;
+  }
+
+  // 获取连接对象
+  public static Connection getConn() {
+    try {
+      return ds.getConnection();
+    } catch (SQLException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+    return null;
+  }
+
+  public static void close(Connection conn, Statement st, ResultSet rs) {
+    // 释放资源
+    if (rs != null) {
+      try {
+        rs.close();
+      } catch (SQLException e) {
+        e.printStackTrace();
+      }
+    }
+    if (st != null) {
+      try {
+        st.close();
+      } catch (SQLException e) {
+        e.printStackTrace();
+      }
+    }
+    if (conn != null) {
+      try {
+        conn.close();
+      } catch (SQLException e) {
+        e.printStackTrace();
+      }
+    }
+  }
+}
+```
+
+:::
+
+接下来，编写 LoginServlet 的业务逻辑：
+
+- 获取请求参数；
+  - 使用 `request` 对象的 `getParamter` 方法；
+- 使用 dbutils 连接到数据库；
+- 检查用户名和密码是否正确；
+  - 登陆成功，显示用户所有信息；
+  - 登录失败，给出错误信息；
+
+```java
+@WebServlet("/LoginServlet")
+public class LoginServlet extends HttpServlet {
+  protected void service(HttpServletRequest request, HttpServletResponse response)
+      throws ServletException, IOException {
+
+    // 获取请求参数
+    String name = request.getParameter("name");
+    String password = request.getParameter("password");
+    // 使用 dbutils 连接到数据库
+    QueryRunner qr = new QueryRunner(JDBCUtil.getDataSource());
+    // 去数据库进行查询
+    String sql = "SELECT * FROM user WHERE name = ? AND password = ?";
+    User user = null;
+    try {
+      user = qr.query(sql, new BeanHandler<User>(User.class), name, password);
+    } catch (SQLException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+    // 检查用户名和密码是否正确
+    if (user != null) {
+      response.getWriter().write("Login Success\n" + user.getEmail());
+    } else {
+      response.getWriter().write("Login Fail");
+    }
+  }
+}
+
+```
+
+## ServletContext
+
+#### 什么是 ServletContext
+
+- ServletContext 代表一个 web 应用的上下文对象；
+- 里面封装的都是 web 应用相关信息；
+- 一个 ServletContext 对应一个应用；
+- 在服务器一启动的时候就会创建；
+- 在服务器关闭的时候销毁；
+
+#### 获取上下文
+
+- 通过 `init` 方法当中的一个参数 `ServletConfig` 来获取；
+
+![2020-2-2-14-39-11.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-2-2-14-39-11.png)
+
+#### 获取 Web 应用中某一个资源的绝对路径
+
+- 通过 `context.getRealPath("文件名")` 方法去获取路径;
+- 它会将 Web 应用的根目录的绝对路径，和上面的文件名进行拼接；
+
+![2020-2-2-14-43-1.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-2-2-14-43-1.png)
+
+- 因为写在 `src` 目录下的文件会被编译成字节码，所以文件的路径也会改变；
+- 需要使用类加载器，获取字节码文件目录的路径；
+- 然后去字节码文件目录中获取资源的路径；
+
+* 下面 👇 项目中，在 `src` 目录下，和 `com.myWeb.login` 包下分别放了一个 `abc.html` 文件；
+* 代码中，各自展示了两个文件的路径的获取方法；
+
+![2020-2-2-16-40-12.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-2-2-16-40-12.png)
+
+#### ServletContext 是一个域对象
+
+- 什么是域对象：能够存取数据的对象；
+- ServletContext 域对象的作用范围：
+  - 整个 Web 应用；
+  - 所有的 Servlet 都可以用它存取数据；
+  - 数据是可以共享的；
+- 写数据：`setAttribute(String name, Object value)`；
+- 取数据：`getAttribute(String name)`；
+- 删数据：`removeAttribute(String name)`；
+
+```java
+public void init(ServletConfig config) throws ServletException {
+  ServletContext context = config.getServletContext();
+
+  context.setAttribute("name", "Garrik");
+  String name = (String) context.getAttribute("name");
+}
+```
+
+## Response 对象 & Request 对象
+
+![2020-2-2-17-8-55.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-2-2-17-8-55.png)
+
+- 浏览器发送一个请求到 Tomcat 引擎；
+- 引擎找到对应的 Web 应用，并创建 request 对象和 response 对象；
+- 找到应用后，根据应用的 Web.xml 的 url-pattern 的内容创建 Servlet 对象；
+- 之后调用 Servlet 对象的 service 方法，并且把 request 对象和 response 对象传入到方法中；
+- 拿到 response 对象后，根据业务逻辑的需求，可以向其中写一些内容；
+- 写完后，响应被存放到一个 response 缓冲区中；
+- 当方法执行完之后，缓冲区中的数据就会被 Tomcat 取出；
+- 然后 Tomcat 再向其中添加一些服务器相关信息；
+- 之后把所有东西作为响应，返回给浏览器；
+
+### Response 对象
+
+#### 设置响应
+
+![2020-2-2-17-22-45.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-2-2-17-22-45.png)
+
+**设置响应行**：
+
+`response.setState(int code)`
+
+**设置响应头**：
+
+- 添加响应头：
+  - 字符串类型：`addHeader(String name, String value)`
+  - 数值类型：`addIntHeader(String name, Int value)`
+  - 日期类型：`addDateHeader(String name, Date value)`
+- 修改响应头：
+  - 字符串类型：`setHeader(String name, String value)`
+  - 数值类型：`setIntHeader(String name, Int value)`
+  - 日期类型：`setDateHeader(String name, Date value)`
+
+![2020-2-2-17-26-49.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-2-2-17-26-49.png)
+
+**设置响应体**：
+
+- 设置编码格式：
+  - 默认编码格式：
+  - 通过 `setCharacterEncoding("UTF-8")` 方法，来设置编码格式为 “UTF-8”；
+  - 通过 `setHeader("Content-Type", "text/html;charset=UTF-8")` 来告诉浏览器用 UTF-8 编码解析响应；
+  - 上面 👆 两个操作可以简写为：`setContentType("text/html;charset=UTF-8")`
+- 通过 `write` 方法来写：
+  - `response.getWrite().write("要写的内容")`；
+    ![2020-2-2-18-25-31.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-2-2-18-25-31.png)
+- 通过 `OutPutStream` 方法来写：
+  - 通过二进制流的形式来输入，输出文件；
+  - FileInputStream：
+    - `read` 方法读取一个字节；
+    - `read(byte[] b)` 一次读取多个字节，并存到数组 b 中；
+    - `close` 方法停止读取；
+    - 读取全部数据代码：
+      ![2020-2-2-18-36-51.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-2-2-18-36-51.png)
+  - FileOutputStream：
+    - 通过 Response 对象的 `getOutputStream()` 方法获取输出流；
+    - 通过输出流的 `write` 方法来把内容写到缓冲区；
+- 注意，`getWrite()` 和 `getOutputStream()` 不能同时使用；
+
+#### 响应图片
+
+用 OutPutStream 方法来响应一个图片给浏览器。
+
+- 获取资源路径；
+- 创建输入流，读取资源；
+- 通过输出流，把资源写到响应缓冲区；
+
+![2020-2-2-19-51-10.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-2-2-19-51-10.png)
+
+#### 文件下载
+
+需求：把服务器当中的文件下载到电脑中；
+
+- 通过 `<a>` 标签来发送一个 Servlet 请求，把文件名发给服务器；
+- 设置 `Content-Type` 为文件对应的 MIME 类型：
+  - `response.setContentType("MIME 类型")`
+- 设置 `Content-Disposition` 响应头，告诉浏览器以附件的形式去下载文件，而不是自动解析：
+  - `response.setHeader("Content-Disposition", "attachment;filename=文件名")`
+- 通过二进制流的形式，读取文件，然后再写入到缓存区；
+- 之后响应给浏览器；
+
+![2020-2-2-20-16-31.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-2-2-20-16-31.png)
+
+![2020-2-2-20-15-53.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-2-2-20-15-53.png)
+
+#### 重定向
+
+- 什么是重定向：
+  - 去服务器中找 Servlet_1；
+  - Servlet_1 让我去找 Servlet_2；
+  - 于是我再发一个请求到 Servlet_2；
+- 状态码：302；
+- 特点：
+  - 要访问两次服务器；
+  - 浏览器地址栏发生变化；
+- 设置重定向：
+  - 设置状态码：302
+  - 设置响应头：`location: 新地址`
+    ![2020-2-2-17-31-38.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-2-2-17-31-38.png)
+- 封装好的重定向方法：
+  - 通过 `sendRedirect` 方法可以直接设置重定向；
+  - 上面 👆 的代码可以写成：
+  - `response.sendRedirect("/bei/servlet2")`
+- 定时刷新重定向：
+  - 通过响应头 `refresh: 时间;url=新地址` 可以设置多少秒之后，重定向到新地址；
+  - 例如: `response.setHeader("refresh", "3;url=http://www.baidu.com")`
+
+### Request 对象
+
+#### 设置请求
+
+![2020-2-2-20-30-25.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-2-2-20-30-25.png)
+
+**获取请求行**：
+
+- 获取请求方法：`String getMethod()`：
+  - ![2020-2-2-20-37-51.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-2-2-20-37-51.png)
+- 获取请求资源：
+  - `String getRequestURL()`：
+  - `String getRequestURI()`：
+  - ![2020-2-2-20-36-20.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-2-2-20-36-20.png)
+- 获取应用名称：`String getContextPath()`：
+  - ![2020-2-2-20-36-34.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-2-2-20-36-34.png)
+- 获取 GET 请求查询参数：`String getQueryString()`：
+  - ![2020-2-2-20-36-50.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-2-2-20-36-50.png)
+
+**获取请求头**：
+
+- 获取所有的请求头名称：
+  - 获取所有 “请求头名称” 组成的迭代器：
+  - `Enumeration<String> headerNames = request.getHeaderNames()`
+  - 通过 `headerNames.hasMoreElements()` 判断是否指针后面还有元素；
+  - 通过 `headerNames.nextElement()` 将指针移到后一个元素上；
+- 获取指定的请求头内容： - `request.getHeader("请求头名称")`
+
+![2020-2-2-20-47-55.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-2-2-20-47-55.png)
+
+**获取请求体**：
+
+- 获取一个值：`request.getParameter("参数名称")`
+- 获取多个值：`request.getParameterValues("参数名称")`
+- 获取所有请求参数名称：
+  - `Enumeration<String> parameterNames = request.getParameterNames()`
+- 获取所有请求参数：
+  - `Map<String, String[]> parameterMap = request.getParameterMap()`
+
+![2020-2-2-21-7-34.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-2-2-21-7-34.png)
+
+![2020-2-2-21-6-48.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-2-2-21-6-48.png)
+
+**中文请求乱码**：
+
+- 可以通过 `request.setCharacterEncoding("UTF-8")` 来设置请求体的编码格式；
+- 但是这个方法只适用于 POST 请求；
+
+#### 请求转发
+
+**重定向和请求转发的区别**：
+
+- 重定向：
+  - 找到 Servlet_1，通过设置响应，告诉浏览器再次发请求到 Servlet_2；
+  - 总共发送两次请求；
+  - 地址栏会发生变化；
+- 请求转发：
+  - 找到 Servlet_1，之后在 Servlet_1 当中直接转发给 Servlet_2；
+  - 只需要发送一次请求；
+  - 浏览器地址栏不会发生变化；
+
+**实现转发**：
+
+- 通过请求对象获取一个转发器：
+  - `RequestDispatcher disp = request.getRequestDispatcher("/Servlet_2")`
+- 通过转发器进行转发：
+  - `disp.forward(request, response)`
+
+**Request 域对象**：
+
+- 在一次请求过程当中，request 是共享的；
+- 在一个 Servlet 当中设置的参数，转发给另外一个 Servlet 也可以获取到；
+
+下图 👇 中，Servlet_1 中设置的参数，在 Servlet_2 中也可以获取：
+
+![2020-2-2-21-28-9.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-2-2-21-28-9.png)
+
+![2020-2-2-21-28-24.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-2-2-21-28-24.png)
