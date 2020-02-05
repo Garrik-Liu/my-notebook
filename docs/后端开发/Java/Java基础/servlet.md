@@ -522,7 +522,7 @@ public void init(ServletConfig config) throws ServletException {
     - `read(byte[] b)` 一次读取多个字节，并存到数组 b 中；
     - `close` 方法停止读取；
     - 读取全部数据代码：
-      ![2020-2-2-18-36-51.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-2-2-18-36-51.png)
+    - ![2020-2-2-18-36-51.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-2-2-18-36-51.png)
   - FileOutputStream：
     - 通过 Response 对象的 `getOutputStream()` 方法获取输出流；
     - 通过输出流的 `write` 方法来把内容写到缓冲区；
