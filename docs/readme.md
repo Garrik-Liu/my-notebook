@@ -22,6 +22,10 @@ home: true
 - [Express 笔记](/后端开发/Express/readme.md)
 - [模板引擎](/后端开发/模板引擎/readme.md)
 
+## 操作系统
+
+- [操作系统笔记](/操作系统/readme.md)
+
 ## 算法
 
 - [算法笔记](/算法/算法学习/readme.md)
