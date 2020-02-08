@@ -180,8 +180,10 @@
   - Functions
     - http://java.sun.com/jsp/jstl/functions
     - 前缀：fn
-- 把 JSTL 标签库 jar 包引入工程当中：
-  - `<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>`
+- 使用 JSTL:
+  - 把 JSTL 标签库 jar 包引入工程当中：
+    - ![2020-2-5-0-39-8.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-2-5-0-39-8.png)
+  - 在 JSP 文件头部引入标签库 `<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>`
 
 **if 标签**：
 
@@ -208,8 +210,8 @@
 **foreach 标签**：
 
 - 普通循环：
-  ![2020-2-5-0-17-10.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-2-5-0-17-10.png)
+  - ![2020-2-5-0-17-10.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-2-5-0-17-10.png)
 - 遍历字符串集合：
-  ![2020-2-5-0-17-1.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-2-5-0-17-1.png)
+  - ![2020-2-5-0-17-1.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-2-5-0-17-1.png)
 - 遍历对象集合：
-  ![2020-2-5-0-17-39.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-2-5-0-17-39.png)
+  - ![2020-2-5-0-17-39.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-2-5-0-17-39.png)
