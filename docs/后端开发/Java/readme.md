@@ -24,7 +24,7 @@ sidebar: false
 - [监听器 & 过滤器](./Java基础/监听器&过滤器.md)
 - [案例 - 商城后台项目](./Java基础/商城后台项目.md)
 - [Redis](./Java基础/Redis.md)
-- [Maven]()
+- [Maven](./Java基础/maven.md)
 
 ## Java 设计模式
 
