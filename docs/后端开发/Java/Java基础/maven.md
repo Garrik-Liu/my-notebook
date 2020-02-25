@@ -203,3 +203,24 @@ Maven 的标准工程结构如下：
 ![2020-2-24-14-26-45.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-2-24-14-26-45.png)
 
 ## Maven 使用实例
+
+#### Servlet 跳转
+
+- 在刚刚创建的 WebApp 项目中的 `main` 目录下创建一个 `java` 目录；
+- 然后再在 `java` 目录下创建 Package `com.myWeb.servlet`；
+- 之后右键新建一个 Servlet；
+  - 如果你发现右键之后，没有 Servlet 选项。说明 Maven 没有引入 Servlet 依赖；
+  - 找到 pom.xml 文件，进去后右键点击 Generate -> Dependencies；
+    - ![2020-2-24-17-52-34.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-2-24-17-52-34.png)
+  - 然后就可以搜索我们想要的依赖了；
+    - ![2020-2-24-17-53-31.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-2-24-17-53-31.png)
+  - 引入依赖后，问题就解决了；
+- 新建的 Servlet 取名字 MyServlet；
+  - ![2020-2-24-17-55-11.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-2-24-17-55-11.png)
+- 然后开始编写代码；
+- 注意要设置注解中的 `urlPatterns` 参数；
+- 通过 `request.getRequestDispatcher` 方法来将 GET 请求转发给 `haha.jsp` 文件；
+  - ![2020-2-24-18-42-13.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-2-24-18-42-13.png)
+- haha.jsp 就随便写一下就行了；
+  - ![2020-2-24-18-42-41.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-2-24-18-42-41.png)
+- 运行 Tomcat，任务完成；
