@@ -14,7 +14,7 @@ sidebar: false
 - [MySQL]()
 - [JDBC](./Java基础/JDBC.md)
 
-### Java Web
+## Java Web
 
 - [XML]()
 - [Tomcat 服务器](./Java基础/tomcat.md)
@@ -25,6 +25,10 @@ sidebar: false
 - [案例 - 商城后台项目](./Java基础/商城后台项目.md)
 - [Redis](./Java基础/Redis.md)
 - [Maven](./Java基础/maven.md)
+
+### MyBatis
+
+- [MyBatis 入门](./MyBatis/mybatis入门.md)
 
 ## Java 设计模式
 
