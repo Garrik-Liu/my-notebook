@@ -126,7 +126,7 @@ public class MainApp {
 
 ![2020-3-8-19-28-40.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-3-8-19-28-40.png)
 
-## 基础概念
+## Spring 基础概念
 
 #### 轻量级
 
