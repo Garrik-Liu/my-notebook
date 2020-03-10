@@ -1,0 +1,952 @@
+# Spring 入门
+
+## Spring 干什么用的
+
+- Spring 是一个分层的，用于开发 Java EE 应用的**一站式轻量级开源框架**；
+- 以 **Ioc 控制反转** (Inverse of Control) 和 **AOP 切面编程** (Aspect Oriented Programming) 为内核；
+- 提供了**展示层 Spring MVC**，**持久层 Spring JDBC** 以及**业务层事务管理**，等企业级应用技术；
+- Spring 还整合了众多**开源第三方框架和类库**，使之成为了使用最多的轻量级 Java EE 企业应用开源框架；
+
+## Hello Spring
+
+下面 👇 通过一个最简单的 Hello Spring 小项目，来展示一下 Spring 项目的运作流程；
+
+#### 创建项目
+
+- 在 IDEA 里用 Maven 创建我们的项目。这里就不做展示了；
+- 打开 `pom.xml` 文件，添加我们所需的依赖；
+- 这个项目中我们需要：
+  - **spring-core**：核心工具类，其他模块大量使用它；
+  - **spring-context**：Spring 容器；
+
+![2020-3-8-18-18-40.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-3-8-18-18-40.png)
+
+```xml
+<properties>
+    <spring.version>5.1.1.RELEASE</spring.version>
+</properties>
+
+<dependencies>
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-core</artifactId>
+        <version>${spring.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-context</artifactId>
+        <version>${spring.version}</version>
+    </dependency>
+</dependencies>
+```
+
+#### 创建 Spring Bean 配置文件
+
+- 在 `/resources` 目录下创建一个 XML 配置文件 `SpringConfig.xml`（名字无所谓）；
+- 里面写入以下内容：
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <!-- 定义一个 Bean -->
+    <bean id="helloSpring" class="com.garrik.hello.HelloSpring">
+        <property name="name" value="Spring"/>
+    </bean>
+</beans>
+```
+
+- 配置文件中写的内容被称作 『 配置元数据 』。元数据是描述数据的数据；
+- 这些配置元数据，配置了一堆 Java 对象；
+- 可以想象，为了让这些元数据有用，我们需要用一个东西来解析元数据；
+- 在 Spring 中，通过 Spring IoC 容器来解析配置元数据，然后实例化，配置，管理 Java 对象；
+- 这些被 Spring 容器管理的 Java 对象，被称作 Bean 对象；
+- 上面 👆 代码中，通过 `<bean>` 标签定义了一个 Bean 实例：
+  - class 属性，指定了对应的 Bean 类；
+  - id 属性，指定了实例的唯一名称；
+  - property 标签，用于对 Bean 实例中的属性进行复制；
+
+#### 创建 HelloSpring 类
+
+- 在编写 `SpringConfig.xml` 配置文件时，我们定义了一个 Bean 实例。它会对应到一个 Bean 类；
+- 在 `/src/main/java` 目录下创建 `com.garrik.hello` 包，然后创建 `HelloSpring.java` 文件；
+
+```java
+package com.garrik.hello;
+
+public class HelloSpring {
+  private String name;
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void sayHello() {
+    System.out.println("Hello " + getName());
+  }
+}
+```
+
+#### 创建 MainApp.java
+
+- 前面提到，Bean 对象是由 Spring IoC 容器来进行实例化，配置，管理的；
+- 那么我们需要创建 Spring 容器，并且调用由它实例化的 Bean 对象来使用功能；
+- 在 `com.garrik.hello` 包下创建 `MainApp.java` 文件；
+
+```java
+package com.garrik.hello;
+
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+public class MainApp {
+  private static ApplicationContext context;
+
+  public static void main(String[] args) {
+    context = new ClassPathXmlApplicationContext("SpringConfig.xml");
+
+    HelloSpring helloSpring = (HelloSpring) context.getBean("helloSpring");
+    helloSpring.sayHello();
+  }
+}
+```
+
+- `ClassPathXmlApplicationContext()` 方法用来创建 Spring 容器。它会加载 Bean 配置文件，然后创建，初始化所有的 Bean 对象；
+- 通过刚刚创建的 Spring 容器的 `getBean()` 方法，传入 ID 来获取我们想要的 Bean 对象；
+- 然后调用 Bean 对象的方法，来实现我们想要的功能；
+
+#### 运行程序
+
+- 运行 MainApp 这个类，就可以看到 “Hello Spring” 这个输出了；
+
+![2020-3-8-19-28-40.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-3-8-19-28-40.png)
+
+## 基础概念
+
+#### 轻量级
+
+- 轻量级一般就是非入侵性的、所依赖的东西非常少、资源占用非常少、部署简单等等；
+- 简单来说，就是比较容易使用；
+
+#### EJB
+
+- EJB 是的 Enterprise Java Beans 技术的简称, 又被称为企业 Java Beans；
+- 属于 Jave EE 的规范之一；
+- 简单来讲，商业软件中会有很多的业务逻辑。Java EE 规定 开发者需要将业务逻辑从客户端软件中抽取出来，封装在一个组件中，然后让组件运行在一个服务器上。客户端通过网络调用组件，来使用组件提供的服务，并以此实现业务逻辑；
+- 在 Java EE 中，这个封装了业务逻辑的组件就是 EJB 组件；
+- 开发 EJB 组件很繁琐，使用 Spring 可以简化开发；
+
+#### JavaBean
+
+- JavaBean 是遵守 JavaBean API 规范开发的类；
+- 特点：
+  - 是一个 public 公有类；
+  - 提供一个默认的无参构造函数；
+  - 需要被序列化并且实现了 Serializable 接口；
+  - 属性都为 private；
+  - 属性需要有 getter / setter 方法；
+- JavaBean 在 Java EE 开发中，通常用于 “封装数据”；
+- 遵循以上写法的 JavaBean 类，其它程序可以通过反射技术（内省机制）实例化为 JavaBean 对象；
+- 通过反射那些遵循命名规范的 getter / setter 方法。从而可以进行 “保存数据 / 读取数据” 操作；
+
+#### POJO
+
+- POJO （ Plain Ordinary Java Object ），可以称为 “普通 Java 类” 或 “简单 Java 类”；
+- 主要用来指代那些没有遵从特定的 Java 对象模型、约定、或框架（例如：EJB）的 Java 对象；
+- POJO 即不继承自另一个类，也不是一个接口的实现；
+- POJO 类不作为任何特殊的角色被使用；
+- POJO 类里面可以包含 “业务逻辑” 和 “持久化逻辑”；
+- 一个 JavaBean 类可以被看作是 POJO；
+
+#### Bean
+
+- 被 Spring IoC 容器管理的对象，被称作 Bean；
+- 在 Spring 中，可以通过 XML 配置，注解配置，Java 配置，这三种方式配置元数据，即描述数据的数据；
+- Spring IoC 容器通过配置元数据，来进行实例化、配置和管理 Bean 对象；
+- 我们的应用程序由 Bean 对象所构成；
+
+#### 容器
+
+- 从程序设计角度看就是装其他对象的的对象；
+- 在 Spring 中，容器是 Spring 框架的核心，用来管理对象；
+- 容器会创建对象，配置对象，管理对象间的关系，并；
+- 一个 Spring 容器就是某个实现了 org.springframework.context.ApplicationContext 接口的类的实例；
+
+#### Ioc 控制反转
+
+- Ioc (Inversion of Control) 控制反转，也被称为『 依赖注入 』Dependency Injection；
+- IoC 是 Spring 容器的核心；
+
+**举例说明**：
+
+- 假如我们有一个 Movie 类，它代表一个电影；
+- 电影里面有男主角，它由一个男演员去扮演；
+- 假如我们有一个角色 “国王 King”，他由 Tony 来扮演；
+- 在拍的第 150 场戏里面，国王要说话；
+
+**不好的写法**：
+
+```java
+public class Movie {
+  public void scene150() {
+    Actor king = new Tony();
+    king.say("国王说了一些话....");
+  }
+}
+```
+
+- 我们直接在 Movie 类的 `scene150` 方法里，指定了国王就是 Tony；
+- 这样写的话，Movie 类直接和 Tony 类耦合在了一起；
+- 这个角色可能不一定是 Tony 来演，可能换成 Bob 来演；
+- 无论怎么样，只要想换演员，就一定需要改这段代码；
+- 这属于 “面向实现编程”，我们需要改成 “面向接口编程”；
+
+**面向接口的写法**：
+
+```java
+public class Movie {
+  private Actor king;
+
+  public void setKing(Actor actor) {
+    this.king = actor;
+  }
+
+  public void scene150() {
+    king.say("国王说了一些话....");
+  }
+}
+```
+
+- 我们把 king 这个角色，直接抽出来作为 Movie 类的一个私有属性；
+- 通过 setter 方法来设置它；
+- 在 `scene150` 方法中，只需要调用 king 对象的 `say` 方法；
+- 而具体这个 king 对象是谁的实例，Movie 类并不关心；
+
+```java
+public class Director {
+  public void direct() {
+    Moview movie = new Movie();
+    Actor king = new Tony();
+
+    movie.setKing(king);
+    movie.scene150();
+  }
+}
+```
+
+- 然后我们创建一个导演 Director 类；
+- 里面分别实例化 Movie 和 Tony 类；
+- 然后导演设置它们之间的依赖关系；
+
+**通过容器完成依赖关系的注入**：
+
+- 上面 👆 的实现，虽然让 Movie 类和 Tony 类实现了解耦；
+- 但是导演 Director 类里面依然要手动的实例化它们，并且配置它们的依赖关系；
+- 现在导演希望有一个第三方代理机构，可以帮他把这些事情都处理好，它只需要排戏，而具体谁去演，他不需要管；
+- Spring 容器就是这个 “第三方代理机构”；
+- 它通过一堆配置元数据，来帮助完成实例化对象，配置对象，设置对象间的依赖关系，等操作；
+
+这个配置文件如下：
+
+- 里面定义了两个 Bean 对象，分别是 Tony 实例，和 Movie 实例；
+- 然后指定了 Movie 实例的 `king` 属性的值，是 Tony 实例；
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <bean id="tony" class="com.myMovie.Tony" />
+    <bean id="movie" class="com.myMovie.Movie">
+      <property name="king" ref="tony">
+    </bean>
+</beans>
+```
+
+- 把这个配置文件传给 Spring 容器，它会帮你实例化 Bean，然后设置好依赖关系；
+- 你直接从容器中取得准备就绪的 Bean 实例，直接使用就行了；
+
+#### AOP 面向切面编程
+
+- Spring AOP 即 Aspect-oriented programming，面向切面编程；
+- AOP 是软件开发思想发展到了一定阶段的产物，其作为 OOP 面向对象编程的补充；
+- 在开发中，我们经常需要对程序进行，诸如：性能检测，访问控制，日志记录等于具体业务逻辑无关的操作；
+- 这些操作分散在各个类中，很多时候它们的代码都是重复的；
+- 在面向对象编程里，如果多个类中出现了重复代码，会考虑抽象出一个父类，然后把重复代码提取到父类；
+- 但是，因为上述这些代码，都是与业务无关的，但是它们又嵌入到具体的业务逻辑之中；
+
+![2020-3-9-2-29-58.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-3-9-2-29-58.png)
+
+- 上面这段代码里，红色箭头指向的都是性能检测代码；
+- 它们嵌入到了具体的业务逻辑之中，不能简单的抽取出来公用；
+- 但是我们可以看出来，上面性能检测代码，在具体业务代码调用前开始，在业务代码调用完毕后结束；
+- 也就是性能检测的代码的执行位置，是固定的。可以把涉及到性能检测的业务方法，分成三个部分：1 - 开始检测，2 - 执行业务代码，3 - 结束检测；
+- 这被结构称为具有 “**横切**” 性质的；
+- 根据这种思路，我们就可以**在一个类/方法执行的各个阶段**（初始化前/后，方法调用前/后，异常抛出后，等）**插入代码**，以实现想要的功能，同时还能保持业务逻辑的清晰整洁；
+
+## Spring 架构
+
+## Spring 自动扫描 & 自动装配
+
+- 在上面的讲解中，我们一直用 XML 文件去声明并且配置 Bean；
+- 但 Spring 支持自动扫描 Bean 功能；
+- Spring 会自动扫描指定包的 bean；
+
+### 手动配置
+
+- 先展示一下之前手动配置的实现；
+- 假设一个项目里有 DAO 层，和 Service 层；
+- DAO 层，创建包 com.shiyanlou.spring.dao，创建 CustomerDAO.java；
+
+```java
+package com.shiyanlou.spring.dao;
+
+public class CustomerDAO {
+  @Override
+  public String toString(){
+      return "Hello , This is CustomerDAO";
+  }
+}
+```
+
+- Service 层，创建包 com.shiyanlou.spring.services，创建 CustomerService.java；
+
+```java
+package com.shiyanlou.spring.services;
+
+import com.shiyanlou.spring.dao.CustomerDAO;
+
+public class CustomerService {
+  private CustomerDAO customerDAO;
+
+  public void setCustomerDAO(CustomerDAO customerDAO) {
+      this.customerDAO = customerDAO;
+  }
+
+  @Override
+  public String toString() {
+      return "CustomerService [customerDAO=" + customerDAO + "]";
+  }
+}
+```
+
+- 在目录 src/main/resources 创建并配置 SpringCustomer.xml 文件；
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="customerService" class="com.shiyanlou.spring.services.CustomerService">
+        <property name="customerDAO" ref="customerDAO" />
+    </bean>
+
+    <bean id="customerDAO" class="com.shiyanlou.spring.dao.CustomerDAO" />
+
+</beans>
+```
+
+### 自动扫描
+
+- 下面展示一下如何进行自动扫描；
+- 首先，在 CustomerDAO 类和 CustomerService 类上加上注解 `@Component`
+
+```java
+package com.shiyanlou.spring.dao;
+
+import org.springframework.stereotype.Component;
+
+@Component
+public class CustomerDAO
+{
+  @Override
+  public String toString() {
+      return "Hello , This is CustomerDAO";
+  }
+}
+```
+
+```java
+package com.shiyanlou.spring.services;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import com.shiyanlou.spring.dao.CustomerDAO;
+
+@Component
+public class CustomerService
+{
+  @Autowired
+  CustomerDAO customerDAO;
+
+  @Override
+  public String toString() {
+      return "CustomerService [customerDAO=" + customerDAO + "]";
+  }
+}
+```
+
+- 配置文件里去掉刚才定义的一堆 Bean；
+- 加上 `<context:component-scan base-package="com.shiyanlou.spring"/>` 这样就将 Spring 的自动扫描特性引入；
+- `base-package` 属性指定 Spring 去扫描哪个包下面的 Bean；
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context.xsd
+            http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <context:component-scan base-package="com.shiyanlou.spring"/>
+
+</beans>
+```
+
+#### 定义扫描组件名称
+
+- 默认情况下，Spring 把 Bean 类的文件名的第一个字母变成小写，来作为自动扫描组件的名称 ID；
+- 例如：CustomerService 转变为 customerService；
+- 之后你可以通过容器实例的 `getBean` 方法获取到 Bean 实例；
+
+```java
+CustomerService cust = (CustomerService)context.getBean("customerService");
+```
+
+- 但你也可以自定义组件的名称；
+- 首先引入依赖包:
+
+```java
+import org.springframework.stereotype.Service;
+```
+
+- 然后在注解后面加括号，里面写入自定义的名字：
+
+```java
+@Component("cService")
+public class CustomerService
+...
+```
+
+#### 自动扫描组件的注解类型
+
+- 有 4 种注解类型，分别是：
+
+  - `@Component`：表示一个自动扫描 Component；
+  - `@Repository`：表示**持久化层**的 DAO Component；
+  - `@Service`：表示**业务逻辑层**的 Service Component；
+  - `@Controller`：表示**表示层**的 Controller Component；
+
+- 我们可以将所有自动扫描组件都用 `@Component` 注解；
+- `@Repository`、 `@Service`、 `@Controller` 三种注释是为了加强代码的阅读性而创造；
+- 上面例子的 CustomerDAO 就应该用 `@Repository`，CustomerService 就应该用 `@Service`；
+
+#### 自动扫描中过滤组件
+
+- 配置文件中的 `<context:component-scan>` 标签可以被替换成 **`<context:include-filter>`** 用以实现自动扫描过滤；
+- `<context:include-filter>` 里面可以定义一个正则表达式，之后自动扫描时，只会把符合命名规则的类作为 Bean 组件；
+- 这样使用的话，每个类里面也不需要写 `@Component` 注解了；
+- 上面例子的配置文件可以改写成如下：
+
+```xml
+ <beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context.xsd
+            http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <context:component-scan base-package="com.shiyanlou.spring" >
+        <!-- 所有文件名字包含 DAO 和 Service的，都将作为 Bean 组件被注册到 Spring 容器中 -->
+        <context:include-filter type="regex"
+                       expression="com.shiyanlou.spring.dao.*DAO.*" />
+
+        <context:include-filter type="regex"
+                       expression="com.shiyanlou.spring.services.*Service.*" />
+
+    </context:component-scan>
+</beans>
+```
+
+- **`<context:exclude-filter>`** 标签可以定义哪些类，不应该被看作 Bean 组件；
+- 例如：以下配置排除用 @Service 注释过的组件：
+
+```xml
+<context:component-scan base-package="com.shiyanlou.spring" >
+        <context:exclude-filter type="annotation"
+            expression="org.springframework.stereotype.Service" />
+</context:component-scan>
+```
+
+- 例如：以下配置排除包含 DAO 关键字的组件：
+
+```xml
+<context:component-scan base-package="com.shiyanlou.spring" >
+        <context:exclude-filter type="regex"
+            expression="com.shiyanlou.spring.dao.*DAO.*" />
+</context:component-scan>
+```
+
+### 自动装配
+
+- 所谓自动装配，就是将一个 Bean 注入到其他 Bean 的 Property 中；
+- 之前手动配置时，我们通过 `wo` 和 `ref` 属性来实现注入：
+
+```xml
+<bean id="customerService" class="com.shiyanlou.spring.services.CustomerService">
+  <property name="customerDAO" ref="customerDAO" />
+</bean>
+<bean id="customerDAO" class="com.shiyanlou.spring.dao.CustomerDAO" />
+```
+
+#### 5 种自动装配模式
+
+Spring 支持 5 种自动装配模式，如下：
+
+- `no`：默认情况下，不自动装配，通过 `ref` 属性手动设定；
+- `byName`：根据属性的 name 自动装配。如果一个 Bean 组件的名称 ，和另一个 Bean 中的属性的 name 相同，则自动装配这个 Bean 到此属性中；
+- `byType`：根据属性的数据类型（ Type ）自动装配。如果一个 Bean 组件的类型，和另一个 Bean 中属性的数据类型兼容，则自动装配；
+- `constructor`：根据构造函数参数的数据类型，进行 `byType` 模式的自动装配；
+- `autodetect`：如果发现默认的构造函数，用 `constructor` 模式，否则，用 `byType` 模式；
+
+#### byName 示例
+
+- 上面例子中，如果想用 `byName` 方式自动装配，配置文件如下：
+
+```xml
+<bean id="customerService" class="com.shiyanlou.spring.services.CustomerService" autowire="byName">
+</bean>
+<bean id="customerDAO" class="com.shiyanlou.spring.dao.CustomerDAO" />
+```
+
+- 在 customerService 实例中有名称为 “customerDAO” 的属性，那么同名的 customerDAO 实例就会被装配这个属性上；
+- 根据属性名找不到对应的 Bean，那么属性值为 `null`；
+
+#### byType 示例
+
+- 如果用 `byType` 方式装配，Spring 会自动寻找与属性类型相同的 Bean 实例，找到后通过调用属性的 setter 方法将其注入；
+- 但要注意，如果配置文件中有两个类型相同的 Bean 实例，将抛出 `UnsatisfiedDependencyException` 异常；
+
+```xml
+<bean id="customerService" class="com.shiyanlou.spring.services.CustomerService" autowire="byType"></bean>
+<bean id="customerDAO" class="com.shiyanlou.spring.dao.CustomerDAO" />
+<bean id="customerDAO_another" class="com.shiyanlou.spring.dao.CustomerDAO" />
+```
+
+- 所以，一旦选择了 `byType` 类型的自动装配，请确认你的配置文件中每个数据类型定义一个唯一的 Bean；
+
+#### @Autowired 注解
+
+- 也可以通过 `@Autowired` 注解来设置自动装配；
+- `@Autowired` 注解可以写在字段上，或者方法上；
+- `@Autowired` 默认**按类型装配**，默认情况下要求依赖对象必须存在，如果要允许 `null` 值，可以设置它的 `required` 属性为 `false`；
+
+---
+
+- 🌰 例如：上面的 CustomerService 类里面就使用了 `@Autowired` 注解在 `customerDAO` 属性上；
+- 这样 Spring 会自动把另一个类型为 CustomerDAO 的 Bean 实例注入到这个属性中；
+
+```java
+package com.shiyanlou.spring.services;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import com.shiyanlou.spring.dao.CustomerDAO;
+
+@Component
+public class CustomerService
+{
+  @Autowired
+  CustomerDAO customerDAO;
+
+  @Override
+  public String toString() {
+      return "CustomerService [customerDAO=" + customerDAO + "]";
+  }
+}
+```
+
+## Spring JDBC Template
+
+#### 什么是传统 JDBC
+
+- JDBC，全称 Java 数据库连接 (Java Database Connectivity)；
+- JDBC 包含了数据库操作的规范。定义了相关的类，接口，方法， 但是并没有提供具体实现；
+- 各大数据库厂商会提供对 JDBC 的实现；
+- 之前使用传统的 JDBC 访问操作数据库时步骤很繁琐，会出现很多重复的代码；
+- 往往需要经过：『 注册驱动程序 -> 配置数据库信息 -> 创建连接对象 -> 编写 SQL 语句 -> 执行 SQL 语句 -> 断开连接，释放资源 』 等几个步骤；
+
+![2020-3-9-14-59-38.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-3-9-14-59-38.png)
+
+#### 什么是 JDBC Template
+
+- Spring Jdbc Template 正是为了减少上述的麻烦而设计出来；
+- 它是对 JDBC 的一种封装，抽象我们常用的一些方法；
+
+JdbcTemplate 主要提供以下五类方法：
+
+- execute 方法用于执行任何 SQL 语句，一般用于执行 DDL 语句；
+- update 方法用于执行新增、修改、删除等语句；
+- batchUpdate 方法用于执行批处理相关语句；
+- query 方法 & queryForXXX 方法：用于执行查询相关语句；
+- call 方法：用于执行存储过程、函数相关语句；
+
+#### JDBC Template 增操作
+
+- 在 Spring 配置文件中内容如下：
+  - 下面 👇 分别定义了两个 Bean 组件：dataSource 和 jdbcTemplate；
+  - dataSource 实例是数据源，里面定义了与数据库相关的属性的值；
+  - jdbcTemplate 实例内 dataSource 属性的值为这个 dataSource 实例；
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/context
+                           http://www.springframework.org/schema/context/spring-context.xsd">
+
+
+    <context:annotation-config/>
+
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+        <property name="url" value="jdbc:mysql://localhost/jdbc"/>
+        <property name="username" value="root"/>
+        <property name="password" value=""/>
+    </bean>
+
+    <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+</beans>
+```
+
+- 之后通过 Spring 容器的 `getBean("jdbcTemplate")` 方法获取到 jdbcTemplate 实例；
+- 然后就可以用 `UPDATE` 方法执行 SQL 语句了；
+- 第一个参数是 SQL 语句， 第二个参数要传入到 SQL 语句中对应的参数；
+
+```java
+package com.shiyanlou.jdbc;
+
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.jdbc.core.JdbcTemplate;
+
+public class App {
+  private static ApplicationContext context;
+
+  public static void main(String[] args) {
+    context = new ClassPathXmlApplicationContext("SpringBeans.xml");
+
+    // 获取 jdbcTemplate 实例
+    JdbcTemplate jdbcTemplate = (JdbcTemplate) context.getBean("jdbcTemplate");
+    // sql 语句
+    String sql = "insert into student values(?, ?, ?)";
+    // 执行 UPDATE 操作
+    int count = jdbcTemplate.update(sql, new Object[]{ 2, "shiyanlou2", 18 });
+    // 返回结果为影响到的数据行数
+    System.out.println(count);
+  }
+}
+```
+
+## Spring MVC
+
+- Spring 为展现层提供了一个基于 MVC 设计理念的 Web 框架 -- Spring MVC；
+- Spring MVC 通过一套 MVC 注解，让 POJO 类成为处理请求的控制器；
+- Spring MVC 还支持 REST 风格的 URL 请求；
+- Spring MVC 框架围绕 DispatcherServlet 为核心，它负责截获网络请求，并将其分派给对应的处理器进行处理；
+
+### Hello World 示例
+
+下面 👇 来实现一个 Hello World 实例；
+
+#### 项目目录
+
+- 项目目录如下：
+
+![2020-3-9-23-0-26.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-3-9-23-0-26.png)
+
+#### 编写 pom.xml
+
+- 首先在 `pom.xml` 文件里，引入依赖；
+- 并且配置 Jetty 插件；
+
+```xml
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.garrik</groupId>
+    <artifactId>HelloSpring</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>war</packaging>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <spring.version>5.1.1.RELEASE</spring.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context-support</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>3.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet.jsp</groupId>
+            <artifactId>jsp-api</artifactId>
+            <version>2.2</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>jstl</artifactId>
+            <version>1.2</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-maven-plugin</artifactId>
+                <version>9.4.12.v20180830</version>
+                <configuration>
+                    <scanIntervalSeconds>2</scanIntervalSeconds>
+                    <!-- 定义访问路径，localhost:8080/myHello/ -->
+                    <webApp>
+                        <contextPath>/myHello</contextPath>
+                    </webApp>
+                    <httpConnector>
+                        <port>8080</port>
+                    </httpConnector>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+```
+
+#### 编写 hello.jsp 和 index.jsp
+
+- `index.jsp` 作为主页
+
+```html
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+pageEncoding="UTF-8"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>HAHA</title>
+  </head>
+  <body>
+    <h1>主页</h1>
+  </body>
+</html>
+```
+
+- `hello.jsp` 显示出一条 Hello World 标题；
+
+```html
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+pageEncoding="UTF-8"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Hello</title>
+  </head>
+  <body>
+    <h2>Hello World!</h2>
+  </body>
+</html>
+```
+
+#### 编写 web.xml
+
+- 在 web.xml 文件中我们要配置 DispatcherServlet 为一个 Servlet；
+- 它会拦截所有的请求，并给它们分配给对应的处理器；
+- 它有一个参数 `contextConfigLocation`；
+- 我们要给这个参数的值，指定为一个 Spring MVC 配置文件；
+  - 默认会去 WEB-INF 下查找对应的 `[servlet-name]-servlet.xml` 文件，如本例中默认查找的是 `springmvc-servlet.xml`；
+  - 但是我们指定它去找 `/WEB-INF/springmvc-config.xml`；
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+         id="WebApp_ID" version="3.0">
+
+    <display-name>SpringMVCTest</display-name>
+
+    <!-- 配置 Spring MVC DispatchcerServlet 前端控制器 -->
+    <servlet>
+        <servlet-name>springmvc</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <init-param>
+            <!-- contextConfigLocation 是参数名称，该参数的值包含 Spring MVC 的配置文件路径 -->
+            <param-name>contextConfigLocation</param-name>
+            <param-value>/WEB-INF/springmvc-config.xml</param-value>
+        </init-param>
+        <!-- 在 Web 应用启动时立即加载 Servlet -->
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <!-- Servlet 映射声明 -->
+    <servlet-mapping>
+        <servlet-name>springmvc</servlet-name>
+        <!-- 监听当前域的所有请求 -->
+        <url-pattern>/</url-pattern>
+    </servlet-mapping>
+    <!-- 添加 index.jsp 为首页 -->
+    <welcome-file-list>
+        <welcome-file>/WEB-INF/views/index.jsp</welcome-file>
+    </welcome-file-list>
+</web-app>
+```
+
+#### 编写 Spring MVC 配置文件；
+
+- 下面编写 Spring MVC 的配置文件 `WEB-INF/springmvc-config.xml`；
+- 首先我们要配置请求处理器 Controller，它们负责进一步处理请求；
+- 处理器完成业务逻辑的处理后，返回一个 ModelAndView 给 DispatcherServlet，里面包含了 “视图逻辑名” 和 “模型数据信息”；
+- ModelAndView 本是并不是真正的视图对象，我们还需要配置一个 “视图解析器” ViewResolver，去完成视图逻辑名到真正视图对象的解析工作；
+- 得到真实的视图对象 View 后，DispatcherServlet 就用这个 View 对象对 ModelAndView 中的是模型数据进行视图渲染；
+- 然后把结果返回给客户端；
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.2.xsd
+        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.2.xsd">
+
+    <!-- 开启注解 -->
+    <mvc:annotation-driven />
+    <!-- 配置自动扫描的包，完成 Bean 的创建和自动依赖注入的功能 -->
+    <context:component-scan base-package="com.garrik.controller" />
+    <!-- 默认静态资源处理 -->
+    <mvc:default-servlet-handler/>
+    <!-- 配置视图解析器 -->
+    <bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/views/" />
+        <property name="suffix" value=".jsp" />
+    </bean>
+</beans>
+```
+
+#### 编写 Controller
+
+- 在 `com.garrik.controller` 包下面创建 HelloController 类；
+- `@Controller` 注解声明一个类是请求处理器；
+- 在类中的方法上用 `@RequestMapping` 注解来声明 “请求” 和 “处理方法“ 的映射关系；
+
+```java
+package com.garrik.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+/**
+ * Controller 是一个基于注解的控制器
+ * 可以同时处理多个请求动作
+ */
+@Controller
+public class HelloController {
+  /**
+   * RequestMapping 用来映射一个请求和请求的方法
+   * value="/hello" 表示请求由 hello 方法进行处理
+   */
+  @RequestMapping(value="/hello")
+  public String hello() {
+    // 返回一个字符串 " success" 作为视图名称
+    return "hello";
+  }
+}
+```
+
+#### 运行服务器
+
+- 通过 Jetty 插件的 `jetty:run` 指令就可以运行服务器了；
+
+![2020-3-9-23-29-53.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-3-9-23-29-53.png)
+
+- 访问 `http://localhost:8080/myHello/hello` 就可以看到 Hello World 了；
+
+![2020-3-9-23-30-18.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-3-9-23-30-18.png)
+
+## 登录模块实例
+
+下面 👇 通过一个简单的 “论坛登录模块” 项目实例来展现开发 Spring 应用的整体过程：
+
+- 登陆模块，涵盖了持久层数据访问操作，业务层事务管理，和展现层 MVC 等企业应用常见的功能；
+- Spring 提供原生提供『 展示层 Spring MVC 』，『 持久层 Spring JDBC 』 以及『 业务层事务管理 』，等企业级应用开发所需技术；
+- 通过此例，可以迅速了解 Spring 开发应用的整体流程；
+
+### 项目介绍
+
+- 项目主题：论坛登录模块；
+- 项目介绍：
+  - 登录页面提供一个用以输入 “用户名/密码” 的表单；
+  - 用户填写并提交表单后，服务器向数据库查询是否有用户名和密码相匹配的记录；
+  - 如果匹配成功：
+    - 记录用户的成功登陆日志；
+    - 更新用户的最后登录时间和 IP 地址；
+    - 并给用户增加五个登陆积分；
+    - 然后重定向到用户信息页面；
+  - 如果匹配失败：
+    - 返回登录界面，并给出提示；
+
+### 创建数据表
+
+### 建立工程
+
+### 创建 Spring 配置文件
+
+### 持久层
+
+### 业务层
+
+### 展示层
+
+### 运行服务器
