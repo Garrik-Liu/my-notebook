@@ -291,6 +291,33 @@ public class Director {
 
 ## Spring 架构
 
+![2020-3-9-23-42-53.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-3-9-23-42-53.png)
+
+**核心容器**：
+
+- Core 模块：封装了框架依赖的最底层部分，包括资源访问、类型转换及一些常用工具类；
+- Beans 模块：提供了框架的基础部分，包括控制反转（ IOC ）和依赖注入（ DI ）。其中 BeanFactory 是容器核心；
+- Context 模块：以 Core 和 Beans 为基础，集成 Beans 模块功能并添加资源绑定、数据验证、国际化、Java EE 支持、容器生命周期、事件传播等；核心接口是 ApplicationContext；
+- EL 模块：提供强大的表达式语言支持，支持访问和修改属性值，方法调用，支持访问及修改数组、容器和索引器，命名变量，支持算数和逻辑运算，支持从 Spring 容器获取 Bean， 它也支持列表投影、选择和一般的列表聚合等；
+
+AOP 模块： Spring AOP 模块提供了符合 AOP Alliance 规范的面向切面的编程（ aspect-oriented programming ）实现，提供比如日志记录、权限控制、性能统计等和业务逻辑分离的技术，并且能动态的把这些功能添加到需要的代码中；
+
+**数据访问/集成模块**：
+
+- 事务模块：该模块用于 Spring 管理事务，支持编程和声明性的事务管理；
+- JDBC 模块：提供了一个 JDBC 的样例模板，使用这些模板能消除传统冗长的 JDBC 编码，并且使用事务模块来进行事务管理；
+- ORM 模块：提供 “对象-关系” 的持久化框架的无缝集成，包括 Hibernate 、JPA 、 MyBatis 等。而且可以使用 Spring 事务管理，无需额外控制事务；
+- OXM 模块：提供了一个对 Object / XML 映射实现，将 java 对象映射成 XML 数据，或者将 XML 数据映射成 java 对象；
+- JMS 模块：用于 JMS ( Java Messaging Service )，JMS 用于在两个应用程序之间，或分布式系统中发送消息，进行异步通信。JMS 模块提供一套遵循 “发布订阅模式” 的模板用于更加简单的使用 JMS；
+
+**Web / Remoting 模块**：
+
+- Web 模块：提供了基础的 web 功能。例如多文件上传、集成 IoC 容器、远程过程访问（ RMI、Hessian、Burlap ）以及 Web Service 支持，并提供一个 RestTemplate 类来提供方便的 Restful services 访问；
+- Web-Servlet 模块：提供了一个 Spring MVC Web 框架实现。Spring MVC 框架提供了基于注解的请求资源注入、更简单的数据绑定、数据验证等及一套非常易用的 JSP 标签，完全无缝与 Spring 其他技术协作；
+- Web-Struts 模块：提供了与 Struts 无缝集成， Struts1.x 和 Struts2.x 都支持；
+
+**Test 模块**： Spring 支持 Junit 和 TestNG 测试框架，而且还额外提供了一些基于 Spring 的测试功能，比如在测试 Web 框架时，模拟 Http 请求的功能；
+
 ## Spring 自动扫描 & 自动装配
 
 - 在上面的讲解中，我们一直用 XML 文件去声明并且配置 Bean；
