@@ -582,7 +582,7 @@ public class CustomerService
 
 ## Spring JDBC Template
 
-#### 什么是传统 JDBC
+### 什么是传统 JDBC
 
 - JDBC，全称 Java 数据库连接 (Java Database Connectivity)；
 - JDBC 包含了数据库操作的规范。定义了相关的类，接口，方法， 但是并没有提供具体实现；
@@ -592,7 +592,7 @@ public class CustomerService
 
 ![2020-3-9-14-59-38.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-3-9-14-59-38.png)
 
-#### 什么是 JDBC Template
+### 什么是 JDBC Template
 
 - Spring Jdbc Template 正是为了减少上述的麻烦而设计出来；
 - 它是对 JDBC 的一种封装，抽象我们常用的一些方法；
@@ -605,7 +605,7 @@ JdbcTemplate 主要提供以下五类方法：
 - query 方法 & queryForXXX 方法：用于执行查询相关语句；
 - call 方法：用于执行存储过程、函数相关语句；
 
-#### JDBC Template 增操作
+### JDBC Template 增操作
 
 - 在 Spring 配置文件中内容如下：
   - 下面 👇 分别定义了两个 Bean 组件：dataSource 和 jdbcTemplate；
@@ -667,6 +667,8 @@ public class App {
 ```
 
 ## Spring MVC
+
+#### 什么是 Spring MVC
 
 - Spring 为展现层提供了一个基于 MVC 设计理念的 Web 框架 -- Spring MVC；
 - Spring MVC 通过一套 MVC 注解，让 POJO 类成为处理请求的控制器；
