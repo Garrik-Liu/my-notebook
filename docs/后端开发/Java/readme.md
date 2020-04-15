@@ -4,14 +4,11 @@ sidebar: false
 
 # Java 笔记
 
-## Java 速通
+## Java 基础
 
-### Java 基础
-
-- [Java 入门]()
-- [Java 面向对象]()
+- [Java 基础知识](./Java基础/java基础知识.md)
+- [Java 进阶知识](./Java基础/java进阶知识.md)
 - [Java 集合](./Java基础/集合.md)
-- [MySQL]()
 - [JDBC](./Java基础/JDBC.md)
 
 ## Java Web
@@ -54,3 +51,5 @@ sidebar: false
 - [复合模式](./Java设计模式/复合模式.md)
 
 ## Java 详解
+
+## 开发相关
