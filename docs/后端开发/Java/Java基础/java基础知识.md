@@ -1780,6 +1780,8 @@ public void start(int interval, boolena beep) {
 - SuperType 既可以是接口, 也可以是类;
 - 因为构造器的名字必须与类名相同, 匿名类没有名字, 所以不能给它写构造函数;
 
+### 静态内部类
+
 ## 反射
 
 - Java 反射机制是在运行状态中, 能够知道任意一个类所包含的属性和方法;
@@ -1852,21 +1854,6 @@ String className = "Employee";
 Class employeeClass = Class.forName(className);
 
 Constructor ec = employeeClass.getDeclaredConstructor(String.class, int.class);
-
-Employee garrik = (Employee) ec.newInstance("Garrik", 22);
-```
-
-- 如果构造函数是 `private` 的;
-- 可以在调用 `newInstance` 方法之前, 先调用 Constructor 实例的 `setAccessible(true)` 方法;
-- 这样就可以调用私有构造函数了;
-
-```java
-String className = "Employee";
-Class employeeClass = Class.forName(className);
-
-Constructor ec = employeeClass.getDeclaredConstructor(String.class, int.class);
-
-ec.setAccessible(true);
 
 Employee garrik = (Employee) ec.newInstance("Garrik", 22);
 ```
@@ -2024,6 +2011,62 @@ public class ReflectionTest
 ```
 
 :::
+
+### 在运行时使用反射操纵对象
+
+- 通过 `Field` 类的 **`get(obj)`** 方法可以获取实例对象的指定属性的值;
+- `get(obj)` 方法传入的参数为想要访问的对象实例;
+- 如果想要获取的属性是 private, 那么会抛出 IllegalAccessException 异常;
+
+```java
+Employee garrik = new Employee("Garrik");
+Class employeeClass = garrik.getClass();
+Field employeeName = employeeClass.getDeclaredField("name");
+// 把 garrik 实例传入 get 方法
+String garrikName = employeeName.get(garrik);
+```
+
+- 通过 Field 类的 **`set(obj, value)`** 方法可以设置对应实例对象的属性值;
+
+```java
+Employee garrik = new Employee("Garrik");
+Class employeeClass = garrik.getClass();
+Field employeeName = employeeClass.getDeclaredField("name");
+employeeName.set(garrik, "Xiang");
+```
+
+- 如果属性是私有的, 受限于 Java 的访问控制, `set` 和 `get` 都会抛出异常;
+- 如果一个 Java 程序没有受到安全控制器的控制, 可以使用 `setAccessible(true)` 方法来解除限制;
+
+```java
+Employee garrik = new Employee("Garrik");
+Class employeeClass = garrik.getClass();
+Field employeeName = employeeClass.getDeclaredField("name");
+
+employeeName.setAccessible(true);
+
+String garrikName = employeeName.get(garrik);
+```
+
+![2020-04-16-18-17-24](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-04-16-18-17-24.png)
+
+- 通过 Method 类的 **`invoke(obj, ...args)`** 方法可以调用包装在当前 Method 对象中的方法;
+  - 第一个参数是调用这个方法的实例对象, 也就是隐式参数;
+  - 第二个参数就是传入方法的显式参数;
+- 如果调用的是一个静态方法, 第一个参数为 `null`;
+- Method 实例对象通过 Class 实例的 `getMethod(name, ...parameterTypes)` 获取;
+  - 第一个参数是方法的名字;
+  - 因为重载的原因, 可能有多个方法公用一个名字, 想要准确的获得目标方法, 可以在之后提供目标方法的参数类型;
+- 也可以通过 Class 实例的 `getDeclareMethods` 方法获得包含所有方法的数组, 然后在里面进行查找;
+
+```java
+Employee garrik = new Employee();
+Method m = Employee.class.getMethod("raiseSalary", double.class);
+
+m.invoke(garrik, 100);
+```
+
+![2020-04-16-18-25-58](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-04-16-18-25-58.png)
 
 ## 代理 Proxy
 
