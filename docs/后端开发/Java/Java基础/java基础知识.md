@@ -1042,6 +1042,8 @@ private char value[];
 
 ## 继承
 
+### 继承基础
+
 在 Java 中通过关键字 `extends` 来让一个类继承自另一个类.
 
 继承表现了类与类之间的 "is-a" 关系.
@@ -1400,10 +1402,6 @@ String message = "The current position is " + p;
 
 当将一个对象实例传入 `System.out.print()` 方法时, 也会调用这个实例的 `toString` 方法.
 
-### 反射
-
-### 继承的设计技巧
-
 ## 枚举
 
 在现实生活中，经常会有一个变量只有固定几种取值的情况. 例如季节，它只有春夏秋冬 4 个可能的值, 或者一周七天的名称.
@@ -1587,9 +1585,449 @@ public class TestEnum {
 
 ## 接口
 
-## lambda 表达式
+### 什么是接口
+
+在 Java 程序设计中，接口不是类而是对类的一组需求描述，这些类要遵从接口描述的统一格式进行定义。
+
+#### 声明接口
+
+- 使用 `interface` 关键字定义接口;
+- 接口中所有的方法都属于 `public`, 因此声明方法时不需要再提供关键字 `public`;
+
+```java
+public interface Moveable {
+  void move(double x, double y);
+}
+```
+
+#### 接口实现类
+
+- 要将类声明为实现了某个接口, 需要使用 `implements` 关键字;
+- 实现类必须对接口中的所有方法给进行定义;
+
+```java
+public class Car implements Moveable {
+  private double positionX;
+  private double positionY;
+
+  public void move(double x, double y) {
+    positionX = x;
+    positionY = y;
+  }
+}
+```
+
+#### 常量属性
+
+- 接口中可以包含常量属性;
+- 接口中所有的属性都被自动设置为 `public static final` 所以定义时也不需要写这些关键字;
+
+```java
+public interface Moveable {
+  double DISTANCE_LIMIT = 100;
+}
+```
+
+#### 接口扩展
+
+- 接口也可以通过 `extends` 进行扩展;
+- 可以从具有较高通用性的接口, 扩展出较高专用性的接口;
+
+```java
+public interface Powered extends Moveable {
+  double milesPerGallon();
+}
+```
+
+#### 接口类型变量
+
+- 接口并不可以被实例化, 但是可以声明接口类型的变量;
+- 接口类型变量必须引用一个接口实现类的实例对象;
+- 可以使用 `instanceof` 检查一个实例对象是否属于接口实现类;
+
+```java
+Moveable m = new Car();
+
+if(m instanceof Moveable) {
+  ...
+}
+```
+
+#### 接口 vs 抽象类
+
+为什么不使用抽象类, 而非要使用接口?
+
+前面说过, Java 不支持多继承, 一个类只能扩展自另一个类, 不可以是多个类.
+
+但是一个类可以同时实现多个接口, 接口之间用逗号隔开:
+
+```java
+class BlackBear implements OnEarth, NearAttack, FarAttack {}
+```
+
+#### 静态方法
+
+- 在 Java SE 8 版本之中, 允许在接口中添加静态方法.
+- 这么做可以把接口作为一个单例对象来使用, 而不必非要创建一个实现类, 然后再创建类实例.
+- 但是在接口中添加方法也背离了将接口作为抽象规范的初衷.
+
+![2020-04-15-21-12-24](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-04-15-21-12-24.png)
+
+#### 默认方法
+
+- 可以用 `default` 修饰符来给接口中的方法提供默认实现.
+- 在现实类中如果没有给方法提供新的实现, 那么就使用默认实现;
+
+```java
+public interface MouseListener {
+  default void mouseClicked(MouseEvent event) {
+    System.out.println("没有实现点击事件");
+  }
+}
+```
+
+### 接口使用案例
+
+#### Comparator 接口
+
+#### Cloneable 接口
 
 ## 内部类
+
+**内部类** inner class 是定义在另外一个类中的类.
+
+### 声明内部类
+
+- 通过在一个类的内部定义另一个来声明内部类;
+- 内部类方法可以访问该类定义所在的作用域中的数据，包括私有的数据;
+- 内部类所在的类, 被称为 "外部类" outer class;
+
+```java
+public class TalkingClock {
+  private int interval;
+  private boolean beep;
+
+  public TalkingClock(int interval, boolean beep) { ... }
+  public void start() {
+    ActionListener listener = new TimePrinter();
+    Timer t = new Timer(interval, listener);
+    t.start();
+  }
+
+  // 内部类
+  public class TimePrinter implements ActionListener {
+    public void actionPerformed(ActionEvent event) {
+      System.out.println("At the tone, the time is " + new Date());
+      if(beep) {
+        Toolkit.getDefaultToolkit().beep();
+      }
+    }
+  }
+}
+```
+
+### 局部内部类
+
+上面 👆 的内部类使用示例中, 只在 `start()` 方法中使用了 TimePrinter 这个类.
+
+这种情况下, 我们可以把内部类定义在准备使用它的方法中. 这被称为**局部内部类**.
+
+- 局部类不使用 public 和 private 这些修饰符, 因为除了局部类所在方法, 外部不能够访问到它;
+
+```java
+public void start() {
+  class TimePrinter implements ActionListener {
+    public void actionPerformed(ActionEvent event) {
+      System.out.println("At the tone, the time is " + new Date());
+      if(beep) {
+        Toolkit.getDefaultToolkit().beep();
+      }
+    }
+  }
+
+  ActionListener listener = new TimePrinter();
+  Timer t = new Timer(interval, listener);
+  t.start();
+}
+```
+
+### 匿名内部类
+
+如果只需要创建一个内部使用的类实例, 没有必要从头命名一个内部类, 然后再创建实例, 可以直接使用**匿名内部类** anonymous inner class.
+
+```java
+public void start(int interval, boolena beep) {
+  ActionListener listener = new ActionListener {
+    public void actionPerformed(ActionEvent event) {
+      System.out.println("At the tone, the time is " + new Date());
+      if(beep) {
+        Toolkit.getDefaultToolkit().beep();
+      }
+    }
+  }
+
+  Timer t = new Timer(interval, listener);
+  t.start();
+}
+```
+
+上面 👆 代码的意思是, 创建一个实现了 ActionListener 接口的类的实例对象;
+
+创建匿名内部的类的格式通常如下:
+
+![2020-04-16-15-57-12](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-04-16-15-57-12.png)
+
+- SuperType 既可以是接口, 也可以是类;
+- 因为构造器的名字必须与类名相同, 匿名类没有名字, 所以不能给它写构造函数;
+
+## 反射
+
+- Java 反射机制是在运行状态中, 能够知道任意一个类所包含的属性和方法;
+- 并且能够访问和调用任意一个对象实例的属性和方法;
+- 这种动态获取信息和动态调用的能力, 叫做 "反射";
+
+### Class 类
+
+- Java 程序在运行时，Java 运行时系统会对所有的对象进行运行时类型标识;
+- 运行时类型信息记录了每个对象实例所属的类;
+- 用来保存这些类型信息的类是 Class 类;
+- Class 类的实例对象内容是你创建的类的类型信息，比如你创建一个 shapes 类，那么，Java 会生成一个内容是 shapes 的 Class 类的对象;
+- Class 实例对象的作用是, 在程序运行时提供, 或用来获得某个对象的类型信息;
+- 我们在程序中创建的对象实例, 都会有一个字段保存着它对应 Class 对象的引用;
+- Class 类的对象不能像普通类一样，以 `new Class()` 的方式创建，它的对象只能由 JVM 创建，因为这个类没有 你可以访问的 public 构造函数;
+- 当 Java 虚拟机装载类时，Class 类型对象实例自动被 JVM 创建;
+
+![2020-04-16-17-15-29](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-04-16-17-15-29.png)
+
+- 通过类的 **`class`** 常量属性就可以获取到 Class 实例;
+
+```java
+Class employeeClass = Employee.class;
+```
+
+- 通过 Object 类中的 **`getClass()`** 方法可以获取到对象的 Class 类型实例;
+
+```java
+Employee employee = new Employee();
+Class employeeClass = employee.getClass();
+```
+
+- 通过 Class 类的 **`forName(className)`** 静态方法也可以获得对应的类型的 Class 实例;
+- `forName` 方法需要传入, 内容为目标类或接口名称的字符串;
+- 如果传入的字符串, 匹配不到对应的类或接口, 则抛出异常;
+
+```java
+String className = "Employee";
+Class employeeClass = Class.forName(className);
+```
+
+- 因为同种类型的实例对象都引用同一个 Class 实例;
+- 所以可以通过 `==` 判断 Class 实例的方式, 判断对象类型;
+
+```java
+Employee employee = new Employee();
+if(employee.getClass() == Employee.class) {
+  System.out.println("这是一个雇员");
+}
+```
+
+- 使用 Class 实例的 **`newInstance()`** 方法可以动态地创建一个类的实例;
+- 创建出的实例类型为 Object, 需要向下转型, 才能转换成对应类的实例;
+- 但是 `newInstance` 只会调用类的默认的构造函数, 不能向里传递参数;
+- 如果类没有默认的构造函数会抛出异常;
+
+```java
+String className = "Employee";
+Class employeeClass = Class.forName(className);
+Employee employee = (Employee) employeeClass.newInstance();
+```
+
+- 如果想使用自定义的构造函数, 要使用 Constructor 类型实例的 `newInstance()` 方法;
+- Constructor 类代表某个类的构造函数;
+- 通过 Class 实例的 `getDeclaredConstructor()` 方法获取到想要的构造函数对应的 Constructor 实例;
+- `getDeclaredConstructor()` 方法传入的参数为, 构造函数需要接收的参数的 Class 实例;
+
+```java
+String className = "Employee";
+Class employeeClass = Class.forName(className);
+
+Constructor ec = employeeClass.getDeclaredConstructor(String.class, int.class);
+
+Employee garrik = (Employee) ec.newInstance("Garrik", 22);
+```
+
+- 如果构造函数是 `private` 的;
+- 可以在调用 `newInstance` 方法之前, 先调用 Constructor 实例的 `setAccessible(true)` 方法;
+- 这样就可以调用私有构造函数了;
+
+```java
+String className = "Employee";
+Class employeeClass = Class.forName(className);
+
+Constructor ec = employeeClass.getDeclaredConstructor(String.class, int.class);
+
+ec.setAccessible(true);
+
+Employee garrik = (Employee) ec.newInstance("Garrik", 22);
+```
+
+### 利用反射分析类的能力
+
+`java.lang.relfect` 包内用三个类 Field, Method, Constructor, 分别对应描述类的属性, 方法, 和构造器;
+
+`java.lang.relfect` 包内的 Modifier 类对应修饰符;
+
+下面 👇 是和它们相关常用方法:
+
+![2020-04-16-17-48-14](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-04-16-17-48-14.png)
+
+![2020-04-16-17-48-25](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-04-16-17-48-25.png)
+
+![2020-04-16-17-48-38](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-04-16-17-48-38.png)
+
+下面 👇 的代码, 可以打印出一个类的全部信息. 用户输入一个类名, 然后程序输出这个类的所有的方法和构造器的签名, 以及全部的属性名;
+
+::: details 点击展开：
+
+```java
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.Scanner;
+
+public class ReflectionTest
+{
+   public static void main(String[] args)
+   {
+      // read class name from command line args or user input
+      String name;
+      if (args.length > 0) name = args[0];
+      else
+      {
+         Scanner in = new Scanner(System.in);
+         System.out.println("Enter class name (e.g. java.util.Date): ");
+         name = in.next();
+      }
+
+      try
+      {
+         // print class name and superclass name (if != Object)
+         Class cl = Class.forName(name);
+         Class supercl = cl.getSuperclass();
+
+    //获取cl的访问权限修饰符（public，private等）
+         String modifiers = Modifier.toString(cl.getModifiers());
+         if (modifiers.length() > 0) System.out.print(modifiers + " ");
+         System.out.print("class " + name);
+         if (supercl != null && supercl != Object.class) System.out.print(" extends "
+               + supercl.getName());
+
+         System.out.print("\n{\n");
+
+         //打印构造方法
+         printConstructors(cl);
+         System.out.println();
+
+         //打印成员方法
+         printMethods(cl);
+         System.out.println();
+
+         //打印域（成员变量）
+         printFields(cl);
+         System.out.println("}");
+      }
+      catch (ClassNotFoundException e)
+      {
+         e.printStackTrace();
+      }
+      System.exit(0);
+   }
+
+   /**
+    * Prints all constructors of a class
+    * @param cl a class
+    */
+   public static void printConstructors(Class cl)
+   {
+      Constructor[] constructors = cl.getDeclaredConstructors();
+
+      for (Constructor c : constructors)
+      {
+         String name = c.getName();
+         System.out.print("   ");
+
+         String modifiers = Modifier.toString(c.getModifiers());
+         if (modifiers.length() > 0) System.out.print(modifiers + " ");
+         System.out.print(name + "(");
+
+         // print parameter types
+         Class[] paramTypes = c.getParameterTypes();
+         for (int j = 0; j < paramTypes.length; j++)
+         {
+            if (j > 0) System.out.print(", ");
+            System.out.print(paramTypes[j].getName());
+         }
+         System.out.println(");");
+      }
+   }
+
+   /**
+    * Prints all methods of a class
+    * @param cl a class
+    */
+   public static void printMethods(Class cl)
+   {
+      Method[] methods = cl.getDeclaredMethods();
+
+      for (Method m : methods)
+      {
+         Class retType = m.getReturnType();
+         String name = m.getName();
+
+         System.out.print("   ");
+         // print modifiers, return type and method name
+         String modifiers = Modifier.toString(m.getModifiers());
+         if (modifiers.length() > 0) System.out.print(modifiers + " ");
+         System.out.print(retType.getName() + " " + name + "(");
+
+         // print parameter types
+         Class[] paramTypes = m.getParameterTypes();
+         for (int j = 0; j < paramTypes.length; j++)
+         {
+            if (j > 0) System.out.print(", ");
+            System.out.print(paramTypes[j].getName());
+         }
+         System.out.println(");");
+      }
+   }
+
+   /**
+    * Prints all fields of a class
+    * @param cl a class
+    */
+   public static void printFields(Class cl)
+   {
+      Field[] fields = cl.getDeclaredFields();
+
+      for (Field f : fields)
+      {
+         Class type = f.getType();
+         String name = f.getName();
+         System.out.print("   ");
+         String modifiers = Modifier.toString(f.getModifiers());
+         if (modifiers.length() > 0) System.out.print(modifiers + " ");
+         System.out.println(type.getName() + " " + name + ";");
+      }
+   }
+}
+```
+
+:::
+
+## 代理 Proxy
+
+## lambda 表达式
 
 ## 异常
 

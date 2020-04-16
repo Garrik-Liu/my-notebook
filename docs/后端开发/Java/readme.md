@@ -7,13 +7,12 @@ sidebar: false
 ## Java 基础
 
 - [Java 基础知识](./Java基础/java基础知识.md)
-- [Java 进阶知识](./Java基础/java进阶知识.md)
 - [Java 集合](./Java基础/集合.md)
+- [XML]()
 - [JDBC](./Java基础/JDBC.md)
 
 ## Java Web
 
-- [XML]()
 - [Tomcat 服务器](./Java基础/tomcat.md)
 - [Servlet](./Java基础/servlet.md)
 - [Cookie & Session](./Java基础/cookie&session.md)
