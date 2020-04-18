@@ -2525,6 +2525,211 @@ public class Client {
 
 ## 异常
 
+程序在运行时无可避免的会发生错误, 我们应该妥善的处理这些异常, 至少应该能做到以下几点:
+
+- 向用户通告错误;
+- 保存所有的工作结果;
+- 允许用户以妥善的方式退出程序, 或者退回到一种安全状态;
+
+Java 使用一种称为 "**异常处理**" Exception Handing 的错误捕获机制去处理运行时发生的异常;
+
+### 处理错误
+
+**异常处理**的任务就是将程序的控制权从错误发生的地方, 转移到能够处理这种错误的处理器.
+
+一般来说, 程序中的错误大致可以分为:
+
+- **用户输入错误**:
+  - 本应该输入数字, 但是输入了单词;
+- **设备错误**:
+  - 打印机关机了;
+  - 打印机没纸了;
+  - 网断了;
+- **物理限制**:
+  - 磁盘满了, 储存空间用完了;
+- **代码错误**:
+  - 想要访问的数组下标不对;
+  - 在散列表中查找不存的记录;
+  - 错误的调用了方法;
+
+在 Java 中, 如果遇到了异常, 可以**抛出** throw 一个封装了错误信息的实例对象, 同时将程序的控制权交给对应的异常处理器.
+
+#### 异常分类
+
+在 Java 中, 异常对象都是派生于 **Throwable 类**的一个实例;
+
+Java 的异常层次结构如下 👇:
+
+![2020-04-17-22-29-50](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-04-17-22-29-50.png)
+
+- **Error 类**:
+  - 描述了 Java 运行时系统的内部错误, 我们编写的应用程序不应该抛出这种类型的错误;
+  - 如果出现了这种错误, 应该尽可能地使程序安全退出, 除此之外, 也没什么办法了;
+- **Exception 类**:
+  - 对于我们编写程序来说, 需要关注 Exception 类的异常;
+  - 它又派生出两个分支 RuntimeException, IOException;
+- **RuntimeException 类**:
+  - 有程序错误导致的异常属于 RuntimeException;
+  - 也就是开发者写的代码有问题;
+  - 🌰 例如:
+    - 错误的类型转换;
+    - 数组访问越界;
+    - 访问 `null` 指针;
+- **IOException 类**:
+  - 程序本身没问题, 由于 I/O 错误导致的问题属于 IOException;
+  - 🌰 例如:
+    - 试图在文件尾部后面读取数据;
+    - 试图打开一个不存在的文件;
+    - 试图根据字符串查找 Class 实例对象, 但是这个类并不存在;
+
+---
+
+- 所有派生于 Error 类或 RuntimeException 类的异常称为 "**非受查异常**" unchecked;
+- 所有的 IOException 类异常称为 "**受查异常**" checked;
+- 编译器会检查你是否为所有的受查异常都提供了异常处理器;
+- 因为受查异常的发生, 并不取决于你的代码正确与否, 而是取决于外部环境;
+  - 🌰 例如, 如果一件文件根本不存在, 你就打不开它, 即使你的读取文件代码正确;
+  - 如果断网了, 即使你访问网络资源的代码正确, 你也访问不到任何东西;
+
+#### 声明异常
+
+方法应该在其首部声明所有可能抛出的异常;
+
+🌰 例如:
+
+下面 👇 这个方法可能根据给定的 String 参数产生一个 FileinputStream 实例对象, 也可能抛出一个 FileNotFoundException 异常对象;
+
+```java
+public FileInputStream (String name) throws FileNotFoundException
+```
+
+在编写代码时, 不必将所有可能抛出的异常都进行声明;
+
+代码在遇到如下 4 种情况时应该抛出异常:
+
+- 调用一个抛出受查异常的方法;
+- 程序运行过程中发生错误，并且利用 `throw` 语句抛出一个受查异常;
+- 程序出现错误, 抛出非受查异常;
+- Java 虚拟机和运行时库出现的内部错误;
+
+**对于前两种错误, 必须在编写方法时声明异常**. 因为任何一个抛出异常的方法, 都会让当前执行的线程结束, 我们必须要用异常处理器, 对其进行捕获并处理.
+
+但 Java 的内部错误任何代码都有可能抛出, 我们对其无能为力;
+
+非受查异常的发生说明代码写的有问题, 我们应该修改程序, 而不是把它交给异常处理器;
+
+#### 抛出异常
+
+在代码运行时, 如果出现了不正常的情况, 我们可以用 `throw` 关键字抛出一个异常.
+
+具体步骤如下:
+
+- 先找到一个合适的异常类;
+- 然后创建异常实例;
+- 用 `throw` 抛出;
+
+🌰 例如:
+
+```java
+
+String readDate(Scanner in) throws EOFEception {
+  ...
+  while(...) {
+    if(!in.hasNext()) { // EOF encountered
+      if(n < len) {
+        throw new EOFEception(); // 抛出异常实例
+      }
+      ...
+    }
+  }
+  ...
+}
+
+```
+
+下面 👇 罗列出了一些常用的 Java 自带的异常类:
+
+**非受查异常**:
+
+![2020-04-17-23-13-07](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-04-17-23-13-07.png)
+
+**受查异常**:
+
+![2020-04-17-23-13-15](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-04-17-23-13-15.png)
+
+#### 自定义异常类
+
+如果任何标准的异常类都不能满足你的需求, 你可以自己创建异常类.
+
+**自定义异常类是派生自 Exception 类, 或其子类的类**;
+
+🌰 示例:
+
+```java
+
+// 文件名 InsufficientFundsException.java
+import java.io.*;
+
+//自定义异常类，继承Exception类
+public class InsufficientFundsException extends Exception
+{
+  //此处的 amount 用来储存当出现异常（取出钱多于余额时）所缺乏的钱
+  private double amount;
+
+  public InsufficientFundsException(double amount)
+  {
+    this.amount = amount;
+  }
+
+  public double getAmount()
+  {
+    return amount;
+  }
+}
+```
+
+下面 👇 是对这个异常的使用:
+
+```java
+public void withdraw(double amount) throws InsufficientFundsException
+{
+  if(amount <= balance)
+  {
+    balance -= amount;
+  }
+  else
+  {
+    double needs = amount - balance;
+    throw new InsufficientFundsException(needs);
+  }
+}
+```
+
+自定义异常类里可以定义一个接收字符串参数的构造函数, 字符串会作为异常的描述信息;
+
+超类 Throwable 的 `toString` 方法可以打印这个信息, 这在调试时非常有用;
+
+🌰 例如:
+
+```java
+class FileFormatException extends IOException {
+  public FileFormatException() {}
+  public FileFormatException(String errMsg) {
+    super(errMsg);
+  }
+}
+```
+
+下面 👇 是 Throwable 类的常用方法:
+
+![2020-04-17-23-19-44](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-04-17-23-19-44.png)
+
+### 捕获异常
+
+## 断言
+
+## 日志
+
 ## 泛型
 
 ## 集合
