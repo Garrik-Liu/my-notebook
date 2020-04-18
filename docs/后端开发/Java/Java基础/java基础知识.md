@@ -1777,10 +1777,293 @@ public void start(int interval, boolena beep) {
 
 ![2020-04-16-15-57-12](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-04-16-15-57-12.png)
 
+- `new` 运算符后面的不是新创建的类名, 而是 SuperType 的名字;
 - SuperType 既可以是接口, 也可以是类;
+- 如果使用接口名称，则匿名类实现接口。如果使用类名，则匿名类继承自其它类;
 - 因为构造器的名字必须与类名相同, 匿名类没有名字, 所以不能给它写构造函数;
+- 只有 `new` 运算符后面是现有的类名时, 才可能需要传入参数, 参数会传递到现有类的构造函数之中;
+
+🌰 下面 👇 使用匿名类来创建迭代器:
+
+```java
+import java.util.ArrayList;
+import java.util.Iterator;
+
+public class Main {
+  private ArrayList<String> titleList = new ArrayList<>();
+
+  public void addTitle(String title) {
+    titleList.add(title);
+  }
+
+  public void removeTitle(String title) {
+    titleList.remove(title);
+  }
+
+  public Iterator<String> titleIterator() {
+    // An anonymous class
+    Iterator<String> iterator = new Iterator<String>() {
+      int count = 0;
+
+      @Override
+      public boolean hasNext() {
+        return (count < titleList.size());
+      }
+
+      @Override
+      public String next() {
+        return titleList.get(count++);
+      }
+    }; // Anonymous inner class ends here
+
+    return iterator;
+  }
+}
+```
 
 ### 静态内部类
+
+有的时候, 你可能并不需要在内部类中引用外部类对象, 那么你可以把内部类声明为静态的.
+
+静态成员类可以声明为 public，protected，package-level 或 private，以限制其在所在类之外的可访问性;
+
+```java
+class A {
+  // Static member class
+  public static class B {
+    // Body for class B goes here
+  }
+}
+```
+
+使用静态类:
+
+- 静态成员类内部可以访问, 其所在的类的静态成员, 包括私有静态成员;
+- 静态类所在的外部类也可以作为一个, 在所在包 package 之内的额外的命名空间;
+
+🌰 下面 👇 代码展示了静态类使用示例:
+
+```java
+public class Main {
+  public static void main(String[] args) {
+    Car.Tire m = new Car.Tire(17);
+    Car.Tire m2 = new Car.Tire(19);
+
+    Car.Keyboard k = new Car.Keyboard(122);
+    Car.Keyboard k1 = new Car.Keyboard(142);
+
+    System.out.println(m);
+    System.out.println(m2);
+    System.out.println(k);
+    System.out.println(k1);
+  }
+}
+class Car {
+  // Static member class - Monitor
+  public static class Tire {
+    private int size;
+
+    public Tire(int size) {
+      this.size = size;
+    }
+
+    public String toString() {
+      return "Monitor   - Size:" + this.size + "  inch";
+    }
+  }
+
+  // Static member class - Keyboard
+  public static class Keyboard {
+    private int keys;
+
+    public Keyboard(int keys) {
+      this.keys = keys;
+    }
+
+    public String toString() {
+      return "Keyboard  - Keys:" + this.keys;
+    }
+  }
+}
+
+// Monitor   - Size:17  inch
+// Monitor   - Size:19  inch
+// Keyboard  - Keys:122
+// Keyboard  - Keys:142
+```
+
+## lambda 表达式
+
+### 什么是 lambda 表达式
+
+- 在 Java 8 中引入了新特性 Lambda 表达式;
+- Lambda 表达式的主要作用就是**简化部分匿名内部类的写法**;
+- 在使用匿名内部类时, 我们创建了一个实现某个接口的没有名字的类的实例对象, 对象可以被传递给它人, 并在某个时间点被调用;
+- 但是匿名内部类的写法并不简洁, 对于**只有一个抽象方法的接口**, 创建这种接口的匿名内部类对象时, 可以用 Lambda 表达式代替;
+- 只有一个抽象方法的接口叫做**函数式接口**;
+- $λ$ 表达式在数学中的意思是, 带有参数变量的表达式;
+- 可以把 Lambda 表达式看作一个函数, 而不是一个对象;
+
+Lambda 表达式就是一个可以传递的代码块, 格式如下 👇:
+
+```java
+(parameters) -> expression
+
+(parameters) -> {
+  statements;
+}
+```
+
+- 不需要声明参数类型，编译器可以统一识别参数值;
+- 只有一个参数时可以省略圆括号;
+- 如果主体包含了一个语句，就不需要使用大括号;
+- 如果主体只有一个表达式返回值则编译器会自动返回值，大括号需要指定明表达式返回了一个数值;
+
+下面 👇 是一些 🌰 例子:
+
+```java
+// 1. 不需要参数,返回值为 5
+() -> 5
+
+// 2. 接收一个参数 (数字类型), 返回其 2 倍的值
+x -> 2 * x
+
+// 3. 接受 2 个参数 (数字), 并返回他们的差值
+(x, y) -> {
+  return x – y;
+}
+
+// 4. 接收 2 个 int 型整数, 返回他们的和
+(int x, int y) -> x + y
+
+// 5. 接受一个 string 对象, 并在控制台打印
+(String s) -> System.out.print(s)
+```
+
+下面 👇 是用 Lambda 表达式替换匿名内部类的例子:
+
+- 假如有一个只有一个方法的函数式接口 Runnable:
+
+```java
+public interface Runnable {
+    public abstract void run();
+}
+```
+
+- 使用匿名内部类去实现这个接口的类实例, 代码如下:
+
+```java
+new Thread(new Runnable() {
+    @Override
+    public void run() {
+        System.out.println("Hello");
+        System.out.println("Jimmy");
+    }
+}).start();
+```
+
+- 使用 Lambda 表达式, 代码如下:
+
+```java
+new Thread(() -> {
+    System.out.println("Hello");
+    System.out.println("Jimmy");
+}).start();
+```
+
+![2020-04-17-17-37-22](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-04-17-17-37-22.png)
+
+### 方法引用
+
+有时候, 可能已经有现成的方法实现了你想要在 Lambda 表达式里写的操作. 那么你可以直接引用这个现成的方法.
+
+格式如下, 使用 `::` 操作符分割方法名, 和其所属的对象或类;
+
+![2020-04-17-17-48-04](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-04-17-17-48-04.png)
+
+#### 静态方法, 对象的方法
+
+对于引用对象的方法, 或类的静态方法, 上面的表达式与 Lambda 表达式的转换关系如下 👇:
+
+```java
+System.out::println
+
+// 等价于
+
+(x) -> {
+  System.out.println(x);
+}
+```
+
+#### 类的方法
+
+对于这种情况, Lambda 表达式的第一个参数会变成调用方法的实例对象, 也就是方法的隐式参数:
+
+```java
+String::compareToIgnoreCase
+
+// 等价于
+
+(x, y) -> x.compareToIgnoreCase(y);
+```
+
+#### 构造函数
+
+引用构造函数时, `::` 右边的方法名为 `new`:
+
+```java
+n -> new ArrayList(n)
+
+//等价于
+
+ArrayList::new
+```
+
+---
+
+可以看出来在使用引用时, 我们连传入方法的参数都可以省略. 这虽然让代码更加简洁, 但对于不熟悉整体代码的人, 可读性却减低了;
+
+### 变量作用域
+
+通常, 你可能希望能够在 lambda 表达式的代码块中访问外围的方法或变量, 例如:
+
+```java
+public void repeatMessage(String text, int delay) {
+  ActionListener listener = event -> {
+    System.out.println(text);
+    Toolkit.getDefaultToolkit().beep();
+  }
+  new Time(delay, listener).start();
+}
+```
+
+上面 👆 代码中, Lambda 表达式代码块中的 `text` 是 `repeatMessage` 方法的一个参数变量;
+
+这种既不是 Lambda 表达式参数, 也没有在代码块中定义的变量, 叫做 "**自由变量**";
+
+Lambda 表达式会把自由变量的值保存起来, 这被称为**捕获** captured. 这也顺便实现类**闭包** closure.
+
+Lambda 表达式中捕获的变量必须是一个实际上的**最终变量** effectively final. 也就是变量初始化之后, 它的值就不会被改变.
+
+下面 👇 的两种写法都是错误 ❌ 的:
+
+![2020-04-17-18-16-52](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-04-17-18-16-52.png)
+
+![2020-04-17-18-17-06](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-04-17-18-17-06.png)
+
+之所以有这个限制, 是因为 Lambda 表达式被传递给了别人, 它被调用的时机并不是顺序的, 如果能够更改外部的引用的值, 会造成并发的错误.
+
+---
+
+Lambda 表达式的代码块与嵌套它的外部方法有相同的作用域, 所以 Lambda 表达式中, 不可以声明一个与它所在方法的局部变量, 同名的参数或局部变量;
+
+![2020-04-17-18-22-49](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-04-17-18-22-49.png)
+
+Lambda 表达式中的 `this` 同样也就是它所在的方法的 `this`.
+
+![2020-04-17-18-23-52](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-04-17-18-23-52.png)
+
+上面 👆 的 `this` 指向 Application 实例对象, 而不是 ActionListener 实例;
 
 ## 反射
 
@@ -2239,8 +2522,6 @@ public class Client {
   }
 }
 ```
-
-## lambda 表达式
 
 ## 异常
 
