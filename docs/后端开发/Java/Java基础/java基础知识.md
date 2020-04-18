@@ -2726,11 +2726,118 @@ class FileFormatException extends IOException {
 
 ### 捕获异常
 
-## 断言
+- 如果异常发生时没有地方对其进行捕获, 程序就会终止, 并在控制台打印异常信息;
+- 想要捕获一个异常, 需要使用 `try/catch` 语句块;
 
-## 日志
+![2020-04-18-10-23-08](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-04-18-10-23-08.png)
+
+- 在 `catch` 子句中需要声明异常类型;
+- 如果 `try` 代码块中抛出一个类型匹配的异常对象, `catch` 就会捕获这个异常, 并且执行它下面代码块中的代码;
+- 如果 `try` 代码块抛出的异常与 `catch` 子句中的异常类型不匹配, 则直接退出程序, 并在控制台打印异常信息;
+
+![2020-04-18-10-07-58](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-04-18-10-07-58.png)
+
+- 在上面 👆 的 `read` 方法中, 可能会抛出 IOExpection 异常, 但是如何处理异常应该是方法调用者的事情, 我们不应该管, 更好的做法是只用 `throws`声明 `read` 方法可能会抛出异常, 把异常传递给调用者;
+
+![2020-04-18-10-09-04](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-04-18-10-09-04.png)
+
+- 对于我们知道如何处理的异常, 应该使用 `try/catch` 进行捕获, 并处理;
+- 对于不知道如何处理的异常, 应该把异常抛出传递给上一级;
+- ⚠️ 注意, Java 不允许在子类方法的 `throws` 说明符中出现超过超类方法所声明的异常范围;
+  - 如果在子类中, 编写一个覆盖超类的方法, 但是方法又可能抛出超出父类方法声明的异常范围时, 我们就必须在方法中使用 `try/catch` 对异常进行捕获并处理;
+
+#### 捕获多个异常
+
+- 在一个 `try` 语句块后面可以写多个 `catch` 去捕获多个异常;
+
+![2020-04-18-10-36-07](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-04-18-10-36-07.png)
+
+- 同一个 `catch` 子句中也可以捕获多个异常类型;
+- 使用 `|` 操作符来匹配多个异常类型;
+
+![2020-04-18-10-37-10](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-04-18-10-37-10.png)
+
+- 捕获多个异常时, 异常变量隐含为 `final` 变量, 不可以更改异常变量的值;
+
+#### 再次抛出异常
+
+- 在 `catch` 代码块中, 可以再抛出一个异常;
+
+![2020-04-18-10-38-30](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-04-18-10-38-30.png)
+
+#### finally
+
+- 当代码遇到异常, 就会终止程序, 所以剩余的代码也就不会被执行;
+- 如果程序在异常出现之前获取了一些资源, 并且资源需要在程序结束前被回收. 如果出现异常, 程序中途停止, 资源就不会被回收.
+- `finally` 代码块中的代码, 无论 `try` 中是否出现异常, 它都会执行;
+
+```java
+InputStream in = new FileInputStream();
+
+try {
+  ...
+} catch (IOException e) {
+  ...
+} finally {
+  in.close();
+}
+```
+
+- 上面代码中, 无论 `try` 语句块内是否发生异常, `finally` 代码块中的 `in.close()` 都会执行;
+- ⚠️ 注意, 假如 `try` 代码块中包含 `return` 语句. 而方法返回之前, `finally` 代码块会被执行, 如果 `finally` 里面也有 `return` 语句, 那么这个返回值就会覆盖 `try` 里面的返回值;
+
+![2020-04-18-10-46-48](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-04-18-10-46-48.png)
+
+- `finally` 代码块中也是有可能发生异常, 可以通过如下 👇 的写法来同时捕获 `try` 和 `finally` 里面的异常;
+
+![2020-04-18-10-48-29](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-04-18-10-48-29.png)
+
+#### 带资源的 try 语句
+
+上面 👆 同时捕获 `try` 和 `finally` 里面的异常会带来一个问题.
+
+如果 `try` 和 `finally` 代码块里同时出现异常, 那么 `finally` 里面的异常会被抛出, `try` 里面的异常会丢失.
+
+但是一般情况下, 我们可能更加关心 `try` 里面的异常;
+
+通过**带资源的 `try` 语句**可以解决这种问题.
+
+- 带资源的 `try` 语句格式如下 👇:
+
+![2020-04-18-10-54-27](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-04-18-10-54-27.png)
+
+- `try` 后面的括号里可以写多行声明, 每个声明的变量类型必须都是 AutoCloseable 的子类;
+- 每条声明用分号 `;` 隔开;
+- AutoCloseable 接口声明了一个 `close()` 方法;
+  - `void close() throws Exception`;
+- 假设资源属于一个实现了 AutoCloseable 接口的类, 那么就可以写在括号里面了;
+- `try` 代码块退出时, 会自动调用括号中声明的资源实例的 `close` 方法去关闭资源;
+- 这样就不需要在 `finally` 代码块中去关闭资源了;
+
+![2020-04-18-10-59-03](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-04-18-10-59-03.png)
+
+- 如果 `try` 和 `finally` 里面都出现了异常, 那么会抛出 `try` 里面的异常, `finally` 的异常会被抑制;
+
+#### 分析堆栈轨迹
+
+- 堆栈轨迹 stack trace 是一个方法调用过程的列表, 它包含了程序执行过程中方法调用的特定位置;
+
+🌰 例如, 下面是 👇 是递归斐波那契函数的堆栈情况:
+
+![2020-04-18-11-05-04](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-04-18-11-05-04.png)
+
+![2020-04-18-11-03-59](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-04-18-11-03-59.png)
+
+下面 👇 是和异常相关的接口/类里面的常用方法:
+
+![2020-04-18-11-06-16](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-04-18-11-06-16.png)
+![2020-04-18-11-06-54](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-04-18-11-06-54.png)
+
+![2020-04-18-11-07-05](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-04-18-11-07-05.png)
 
 ## 泛型
+
+### 什么是泛型
 
 ## 集合
 
