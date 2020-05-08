@@ -7,9 +7,16 @@ module.exports = {
         lineNumbers: false,
     },
     themeConfig: {
-        nav: [
-            { text: '主页', link: '/' },
-            { text: 'Github', link: 'https://github.com/Garrik-Liu/my-notebook', target: 'blank', rel: '' },
+        nav: [{
+                text: '主页',
+                link: '/'
+            },
+            {
+                text: 'Github',
+                link: 'https://github.com/Garrik-Liu/my-notebook',
+                target: 'blank',
+                rel: ''
+            },
         ],
         sidebar: 'auto',
         collapsable: true,
