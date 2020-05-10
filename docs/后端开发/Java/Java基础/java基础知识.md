@@ -3282,13 +3282,162 @@ for (String s: ls) {
 ![2020-05-09-23-04-09](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-05-09-23-04-09.png)
 ![2020-05-09-23-04-26](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-05-09-23-04-26.png)
 
+#### ListIterator
+
+[🔗 ListIterator 接口 API 文档](http://itmyhome.com/java-api/java/util/ListIterator.html)
+
+List 接口中定义了方法, 用以获取特殊的迭代器 ListIterator, 称为『 列表迭代器 』
+
+除了允许 Iterator 接口提供的正常操作外，该迭代器还允许在遍历时, 向集合中插入/替换元素，以及双向访问。
+
+List 接口还提供了一个方法, 来获取从列表中指定位置开始的列表迭代器。
+
+![2020-05-10-12-37-33](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-05-10-12-37-33.png)
+
+---
+
+ListIterator 接口中的方法 👇:
+
+![2020-05-10-12-38-15](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-05-10-12-38-15.png)
+
 #### ArrayList
 
 [🔗 ArrayList 接口 API 文档](http://itmyhome.com/java-api/java/util/ArrayList.html)
 
+- 集合中元素排列有序, 可以重复;
+- 底层使用数组实现;
+- 增加/删除元素, 速度慢;
+- 使用 `get` 和 `set` 进行随机访问, 速度快;
+- 当容量不够时, 可以自动扩容;
+- ArrayList 线程是不同步的:
+  - 如果多个线程同时访问一个 ArrayList 实例，而其中至少一个线程从结构上修改了列表，那么它必须保持外部同步;
+  - 结构上的修改, 是指任何添加/删除一个或多个元素的操作，或者显式调整底层数组的大小. 仅仅设置元素的值不是结构上的修改;
+  - 因此使用迭代器遍历集合过程中，不可用其他方式修改集合结构，否则会引发异常;
+  - 只能用迭代器自身的 `remove` 或 `add` 方法从结构上对列表进行修改;
+
+```java
+// ArrayList 用法示例
+ArrayList<String> arrayList = new ArrayList<String>();
+
+arrayList.add("Evankaka");
+arrayList.add("sihai");
+arrayList.add("德德");
+arrayList.add("Evankaka");
+arrayList.add("小红");
+// 将索引位置为 2 的对象修改
+arrayList.set(2, "sihai2");
+// 将对象添加到索引位置为 3 的位置
+arrayList.add(3, "好好学java");
+
+// 结果: Evankaka sihai sihai2 好好学java Evankaka 小红
+
+
+// 遍历方法 1
+Iterator<String> it = arrayList.iterator();
+
+while (it.hasNext()) {
+  System.out.println(it.next());
+}
+
+// 遍历方法 2
+for(Object o : arrayList){
+  System.out.println(o);
+}
+
+// 遍历方法 3
+for(int i = 0; i < arrayList.size(); i++){
+  System.out.println(arrayList.get(i));
+}
+
+// 删除元素
+arrayList.remove("Evankaka");
+arrayList.remove(0);
+it = arrayList.iterator();
+
+while (it.hasNext()) {
+  String s = it.next();
+  if(s.equals("好好学java")){
+    it.remove();
+  }
+}
+```
+
 #### LinkedList
 
+[🔗 LinkedList 接口 API 文档](http://itmyhome.com/java-api/java/util/LinkedList.html)
+[🔗 Deque 接口 API 文档](http://itmyhome.com/java-api/java/util/Deque.html)
+
+- 集合元素排列有序, 可重复;
+- 使用『 双向循环链表 』实现;
+- 查询速度慢;
+- 增加/删除元素, 速度快;
+- 和 ArrayList 一样, 线程是不同步的;
+- 除了实现 List 接口外，LinkedList 类还实现了 Deque 接口, 以使得 LinkedList 能够用作堆栈、队列或双端队列;
+
+**LinkedList 基本操作**:
+
+```java
+LinkedList<String> lList = new LinkedList<String>();
+
+// 添加元素
+lList.add("1");
+lList.add("2");
+lList.add("3");
+lList.add("4");
+
+lList.remove(); // 获取并移除此列表的第一个元素
+lList.remove(2); // 获取并移除此列表中指定位置的元素;
+lList.clear(); // 清空列表
+
+// 将 LinkedList 转换成 ArrayList
+ArrayList<String> arrayList = new ArrayList<>(linkedList);
+
+// 将 ArrayList 转换成 LinkedList
+LinkedList<String> linkedList = new LinkedList<>(arrayList);
+```
+
+**LinkedList 实现队列效果**:
+
+```java
+class Queue {
+  private LinkedList list = new LinkedList();
+
+  public void put(Object v) {
+    list.addFirst(v);
+  }
+  public Object get() {
+    return list.removeLast();
+  }
+}
+```
+
+**LinkedList 实现堆栈效果**:
+
+```java
+class StackL {
+  private LinkedList list = new LinkedList();
+
+  public void push(Object v) {
+    list.addFirst(v);
+  }
+
+  public Object pop() {
+    return list.removeFirst();
+  }
+}
+```
+
 #### Vector
+
+[🔗 Vector 接口 API 文档](http://itmyhome.com/java-api/index.html?java/util/List.html)
+
+- Vector 和 ArrayList 相似, 都是基于数组实现的, 有序的, 可以动态扩容的集合类;
+- 但是 Vector 方法调用是线程同步的;
+- 可以允许多个线程同时安全地访问一个 Vector 实例;
+- 但是同步操作需要耗费大量时间, 在性能上会有损耗;
+- 在大多数情况下, 并不需要使用 Vector, ArrayList 就可以了;
+
+⚠️ 更具体的这里先略过.......
 
 ### Set 接口
 
