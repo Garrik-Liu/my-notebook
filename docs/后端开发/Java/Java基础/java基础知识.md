@@ -4332,7 +4332,92 @@ public class Counter {
 
 ```
 
-#### 死锁
+#### 可重入锁 & 死锁
+
+✏️ **可重入锁**: JVM 允许同一个线程重复获取同一个锁，这种能被同一个线程反复获取的锁，就叫做『 可重入锁 』
+
+- 上面 👆 用 `synchronized` 声明的线程锁就是可重入锁;
+
+🌰 下面的代码中, 在一个同步方法中, 调用了另一个同步方法;
+
+- 当在一个线程中调用 Counter 实例的 `add` 方法, 其内部的 `dec` 方法也可以执行. 因为是在同一个线程中;
+
+```java
+public class Counter {
+    private int count = 0;
+
+    public synchronized void add(int n) {
+        if (n < 0) {
+            dec(-n); // 调用另一个同步方法
+        } else {
+            count += n;
+        }
+    }
+
+    public synchronized void dec(int n) {
+        count += n;
+    }
+}
+```
+
+---
+
+✏️ **死锁**: 当两个线程各自持有不同的锁，然后各自试图获取对方手里的锁, 造成了双方无限等待下去，这就是『 死锁 』:
+
+- 死锁发生后，没有任何机制能解除死锁，只能强制结束 JVM 进程;
+- 在编写多线程应用时，要特别注意防止死锁。因为死锁一旦形成，就只能强制结束进程;
+
+```java
+public void add(int m) {
+    synchronized(lockA) { // 获得lockA的锁
+        this.value += m;
+        synchronized(lockB) { // 获得lockB的锁
+            this.another += m;
+        } // 释放lockB的锁
+    } // 释放lockA的锁
+}
+
+public void dec(int m) {
+    synchronized(lockB) { // 获得lockB的锁
+        this.another -= m;
+        synchronized(lockA) { // 获得lockA的锁
+            this.value -= m;
+        } // 释放lockA的锁
+    } // 释放lockB的锁
+}
+```
+
+- 对于上述代码，线程 1 和线程 2 如果分别执行 `add()` 和 `dec()` 方法时:
+  - 线程 1：进入 `add()`，获得 `lockA`;
+  - 线程 2：进入 `dec()`，获得 `lockB`;
+- 之后:
+  - 线程 1：准备获得 `lockB`，失败，等待中;
+  - 线程 2：准备获得 `lockA`，失败，等待中;
+- 这就造成了死锁;
+
+**想要避免死锁, 线程获取锁的顺序要一致**. 上面 👆 的例子可以改写成:
+
+```java
+public void add(int m) {
+    synchronized(lockA) { // 获得lockA的锁
+        this.value += m;
+        synchronized(lockB) { // 获得lockB的锁
+            this.another += m;
+        } // 释放lockB的锁
+    } // 释放lockA的锁
+}
+
+public void dec(int m) {
+    synchronized(lockA) { // 获得lockA的锁
+        this.value -= m;
+        synchronized(lockB) { // 获得lockB的锁
+            this.another -= m;
+        } // 释放lockB的锁
+    } // 释放lockA的锁
+}
+```
+
+#### wait & notify
 
 ### 线程池
 
