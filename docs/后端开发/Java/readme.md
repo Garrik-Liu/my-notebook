@@ -7,20 +7,19 @@ sidebar: false
 ## Java 基础
 
 - [Java 基础知识](./Java基础/java基础知识.md)
-- [Java 集合](./Java基础/集合.md)
-- [XML]()
+- [Java 进阶知识](./Java基础/java进阶知识.md)
 - [JDBC](./Java基础/JDBC.md)
 
 ## Java Web
 
-- [Tomcat 服务器](./Java基础/tomcat.md)
-- [Servlet](./Java基础/servlet.md)
-- [Cookie & Session](./Java基础/cookie&session.md)
-- [JSP](./Java基础/jsp.md)
-- [监听器 & 过滤器](./Java基础/监听器&过滤器.md)
-- [案例 - 商城后台项目](./Java基础/商城后台项目.md)
-- [Redis](./Java基础/Redis.md)
-- [Maven](./Java基础/maven.md)
+- [Tomcat 服务器](./JavaWeb/tomcat.md)
+- [Servlet](./JavaWeb/servlet.md)
+- [Cookie & Session](./JavaWeb/cookie&session.md)
+- [JSP](./JavaWeb/jsp.md)
+- [监听器 & 过滤器](./JavaWeb/监听器&过滤器.md)
+- [案例 - 商城后台项目](./JavaWeb/商城后台项目.md)
+- [Redis](./JavaWeb/Redis.md)
+- [Maven](./JavaWeb/maven.md)
 
 ## Spring
 
