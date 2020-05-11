@@ -3224,7 +3224,7 @@ Collection 接口中定义了如下方法:
 
 [🔗 Iterable 接口 API 文档](http://itmyhome.com/java-api/index.html?java/lang/Iterable.html)
 
-[🔗 Iterator 接口 API 文档](http://itmyhome.com/java-api/index.html?java/util/Iterator.html)
+[🔗 Iterator 类 API 文档](http://itmyhome.com/java-api/index.html?java/util/Iterator.html)
 
 - Collection 接口扩展了 Iterable 接口.
 - Iterable 接口只有一个方法 `iterator`, 它返回一个在一组实例对象上进行迭代的迭代器.
@@ -3284,7 +3284,7 @@ for (String s: ls) {
 
 #### ListIterator
 
-[🔗 ListIterator 接口 API 文档](http://itmyhome.com/java-api/java/util/ListIterator.html)
+[🔗 ListIterator 类 API 文档](http://itmyhome.com/java-api/java/util/ListIterator.html)
 
 List 接口中定义了方法, 用以获取特殊的迭代器 ListIterator, 称为『 列表迭代器 』
 
@@ -3302,7 +3302,7 @@ ListIterator 接口中的方法 👇:
 
 #### ArrayList
 
-[🔗 ArrayList 接口 API 文档](http://itmyhome.com/java-api/java/util/ArrayList.html)
+[🔗 ArrayList 类 API 文档](http://itmyhome.com/java-api/java/util/ArrayList.html)
 
 - 集合中元素排列有序, 可以重复;
 - 底层使用数组实现;
@@ -3364,7 +3364,7 @@ while (it.hasNext()) {
 
 #### LinkedList
 
-[🔗 LinkedList 接口 API 文档](http://itmyhome.com/java-api/java/util/LinkedList.html)
+[🔗 LinkedList 类 API 文档](http://itmyhome.com/java-api/java/util/LinkedList.html)
 [🔗 Deque 接口 API 文档](http://itmyhome.com/java-api/java/util/Deque.html)
 
 - 集合元素排列有序, 可重复;
@@ -3429,7 +3429,7 @@ class StackL {
 
 #### Vector
 
-[🔗 Vector 接口 API 文档](http://itmyhome.com/java-api/index.html?java/util/List.html)
+[🔗 Vector 类 API 文档](http://itmyhome.com/java-api/index.html?java/util/List.html)
 
 - Vector 和 ArrayList 相似, 都是基于数组实现的, 有序的, 可以动态扩容的集合类;
 - 但是 Vector 方法调用是线程同步的;
@@ -3441,10 +3441,329 @@ class StackL {
 
 ### Set 接口
 
+[🔗 Set 接口 API 文档](http://itmyhome.com/java-api/index.html?java/util/Set.html)
+
+- Set 是元素不重复，排列无顺序的集合;
+- 主要有如下实现类:
+  - HashSet;
+  - LinkedHashSet;
+  - TreeSet;
+
+![2020-05-10-19-09-39](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-05-10-19-09-39.png)
+
+#### HashSet
+
+[🔗 HashSet 类 API 文档](http://itmyhome.com/java-api/java/util/HashSet.html)
+
+- 底层使用 Hash 表实现;
+- 添加/删除/访问元素的速度快;
+- 在将对象添加进 HashSet 集合中前, 会调用对象实例的 `hashCode` 方法来计算出哈希值;
+  - 如果想添加自定义的对象, 就要在定义类时重写 `hashCode` 方法;
+  - 同样的对象实例, 调用 `hashCode` 方法的结果相同;
+
+![2020-05-10-18-57-26](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-05-10-18-57-26.png)
+
+- 根据算出的哈希值, 再计算出要在集合中储存位置的下标, 如果下标位置为空, 就直接储存;
+- 如果已经被占, 就将要储存的元素, 与已有元素进行 `equals` 比较, 如果相同, 就不存了. 如果不同, 就存到下标位置对应的链表中;
+
+![2020-05-10-19-02-34](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-05-10-19-02-34.png)
+
+📚 **利用 HashSet 来存取自定义对象实例**:
+
+```java
+public class Person {
+  // 属性
+  private String name;
+  private int age;
+
+  // 构造方法
+  public Person() {
+      super();
+
+  }
+  public Person(String name, int age) {
+      super();
+      this.name = name;
+      this.age = age;
+  }
+
+  // 要让哈希表存储不重复的元素，就必须重写hasCode和equals方法
+  @Override
+  public int hashCode() {
+      final int prime = 31;
+      int result = 1;
+      result = prime * result + age;
+      result = prime * result + ((name == null) ? 0 : name.hashCode());
+      return result;
+  }
+  @Override
+  public boolean equals(Object obj) {
+      if (this == obj)
+          return true;
+      if (obj == null)
+          return false;
+      if (getClass() != obj.getClass())
+          return false;
+      Person other = (Person) obj;
+      if (age != other.age)
+          return false;
+      if (name == null) {
+          if (other.name != null)
+              return false;
+      } else if (!name.equals(other.name))
+          return false;
+      return true;
+  }
+}
+```
+
+```java
+// 利用 HashSet 来存取自定义对象 Person
+Set<Person> set = new HashSet<Person>();
+
+set.add(new Person("张三", 12));
+set.add(new Person("李四", 13));
+set.add(new Person("王五", 22));
+set.add(new Person("张三", 12)); // 已经有一个张三了, 这个就不存了
+```
+
+#### TreeSet
+
+[🔗 TreeSet 类 API 文档](http://itmyhome.com/java-api/java/util/TreeSet.html)
+
+- TreeSet 是一个有序集合;
+- 可以以任意顺序将元素存入进去. 但是对集合遍历时, 每个元素会按照排序后的顺序呈现;
+- 使用红黑树实现;
+- 因为存入 TreeSet 集合的元素是有顺序的, 所以元素间必须能够比较;
+  - 存入的对象必须实现了 Comparable 接口;
+  - 或者在创建 TreeSet 实例时, 向构造器中传入实现了 Comparator 接口并重写了 `compare` 方法的实现类实例;
+  - 如果都没有, 则 TreeSet 抛出异常;
+
+📚 下面用两种方式储存自定义对象到 TreeSet:
+
+```java
+public class Person implements Comparable<Person>{
+  // 属性
+  private String name;
+  private int age;
+
+  // 构造方法
+  public Person() {
+      super();
+
+  }
+  public Person(String name, int age) {
+      super();
+      this.name = name;
+      this.age = age;
+  }
+
+  ...
+
+  // 比较规则是先按照 年龄排序，年龄相等的情况按照年龄排序
+  @Override
+  public int compareTo(Person o) {
+      int result = this.age - o.age;
+      if (result == 0){
+          return this.name.compareTo(o.name);
+      }
+      return result;
+  }
+}
+
+```
+
+```java
+// 利用 TreeSet 来存储自定义类 Person 对象
+TreeSet<Person> treeSet = new TreeSet<Person>();
+
+treeSet.add(new Person("张山1", 20));
+treeSet.add(new Person("张山2", 16));
+treeSet.add(new Person("张山3", 13));
+treeSet.add(new Person("张山4", 17));
+treeSet.add(new Person("张山5", 20));
+```
+
+---
+
+```java
+// 利用 TreeSet 来存储自定义类 Person 对象
+// 创建 TreeSet 对象的时候传入 Comparator 比较器，使用匿名内部类的方式.
+
+TreeSet<Person> treeSet = new TreeSet<Person>(new Comparator<Person>() {
+    @Override
+    public int compare(Person o1, Person o2) {
+        if (o1 == o2){
+            return 0;
+        }
+        int result = o1.getAge() - o2.getAge();
+        if (result == 0){
+            return o1.getName().compareTo(o2.getName());
+        }
+        return result;
+    }
+
+});
+
+treeSet.add(new Person("张山1", 20));
+treeSet.add(new Person("张山2", 16));
+treeSet.add(new Person("张山3", 13));
+treeSet.add(new Person("张山4", 17));
+treeSet.add(new Person("张山5", 20));
+```
+
+#### LinkedHashSet
+
+[🔗 LinkedHashSet 类 API 文档](http://itmyhome.com/java-api/java/util/LinkedHashSet.html)
+
+- 采用哈希表储存, 用双向链表来记录插入顺序;
+- 集合中的元素可以有序地迭代;
+
+![2020-05-10-19-31-20](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-05-10-19-31-20.png)
+
+```java
+LinkedHashSet<Person> set = new LinkedHashSet<Person>();
+
+set.add(new Person("张三", 12));
+set.add(new Person("李四", 13));
+set.add(new Person("王五", 22));
+set.add(new Person("张三", 12));
+
+// 遍历
+for (Person p : set){
+    System.out.println(p);
+}
+
+// 结果:
+// Person [name=张三, age=12]
+// Person [name=李四, age=13]
+// Person [name=王五, age=22]
+```
+
 ### Queue 接口
+
+[🔗 Queue 接口 API 文档](http://itmyhome.com/java-api/java/util/Queue.html)
+
+[🔗 Deque 接口 API 文档](http://itmyhome.com/java-api/java/util/Deque.html)
+
+- 队列集合以 FIFO（先进先出）的方式存储各个元素;
+- Deque 接口支持在两端插入/删除元素, 称作双端队列;
+  - ArrayDeque 类和 LinkedList 类实现了 Deque 接口;
+- Queue 接口中的每种操作都存在两种形式, 操作失败时:
+  - 一种抛出异常;
+  - 另一种返回一个特殊值（null 或 false）
+
+![2020-05-10-20-01-31](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-05-10-20-01-31.png)
+
+#### ArrayDeque
+
+[🔗 ArrayDeque 类 API 文档](http://itmyhome.com/java-api/java/util/ArrayDeque.html)
+
+- 用数组来实现的队列;
+- 在用作堆栈时, 与 LinkedList 相比, 它随机访问性能更好;
+- Stack 类继承自 Vector 类, 因为线程同步的原因, ArrayDeque 访问速度也更快;
+
+#### PriorityQueue
+
+[🔗 PriorityQueue 类 API 文档](http://itmyhome.com/java-api/java/util/PriorityQueue.html)
+
+- 也称为『 优先级队列 』;
+- 实现逻辑是『 堆 』也称『 完全二叉树 』, 具体实现是数组;
+- 可以按照任意顺序插入元素, 但是总是按照排序的顺序进行检索;
+- 无论何时, 调用 `remove` 总会先删除优先级最高的元素;
+- 与 TreeSet 一样, PriorityQueue 既可以保存实现了 Comparable 接口的类对象, 也可以在构造器中直接传入实现了 Comparator 接口并重写了 compare 方法的实现类实例;
+- 使用优先级队列的典型示例是『 任务调度 』, 每一个任务有一个优先级, 任务以随机顺序添加到队列中, 每当启动一个新的任务时, 都将优先级最高的任务从队列中删除.
 
 ### Map 接口
 
-[🔗 Map 接口 API 文档](http://itmyhome.com/java-api/index.html?java/util/Collection.html)
+[🔗 Map 接口 API 文档](http://itmyhome.com/java-api/index.html?java/util/Map.html)
+
+- Map 集合用来存放键值对映射;
+- 通过『 键 』可以快速找到对应的『 值 』;
+
+![2020-05-10-21-06-25](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-05-10-21-06-25.png)
+
+#### HashMap
+
+[🔗 HashMap 类 API 文档](http://itmyhome.com/java-api/java/util/HashMap.html)
+
+- 排列无序, 键不可重复;
+- 基于哈希表实现;
+- 储存自定义对象, 要保证键的唯一性，需要覆盖自定义类的 `hashCode` 方法，和 `equals` 方法;
+
+```java
+HashMap users = new HashMap();
+users.put("11", "张浩太"); // 将学生信息键值对存储到Map中
+users.put("22", "刘思诚");
+users.put("33", "王强文");
+users.put("44", "李国量");
+users.put("55", "王路路");
+
+// 通过 keySet 获得所有键组成的 Set 集合
+Iterator it = users.keySet().iterator();
+while (it.hasNext()) {
+    // 遍历 Map
+    Object key = it.next();
+    Object val = users.get(key);
+}
+
+// 通过 values 获取所有值组成的集合
+Collection<String> vs = users.values();
+Iterator it = vs.iterator();
+while (it.hasNext()) {
+  String value = it.next();
+}
+```
+
+#### TreeMap
+
+[🔗 TreeMap 类 API 文档](http://itmyhome.com/java-api/java/util/TreeMap.html)
+
+- 基于红黑树实现;
+- TreeMap 可以对集合中元素的键进行排序;
+- 和 TreeSet 一样原理，需要让存储在键位置的对象实现 Comparable 接口，重写 `compareTo` 方法;
+- 或者在创建 TreeMap 实例时, 向构造器中传入实现了 Comparator 接口并重写了 `compare` 方法的实现类实例;
+
+```java
+Map<String, Integer> map = new TreeMap<>();
+map.put("orange", 1);
+map.put("apple", 2);
+map.put("pear", 3);
+
+// apple, orange, pear
+```
+
+```java
+public class Main {
+  public static void main(String[] args) {
+    Map<Person, Integer> map = new TreeMap<>(new Comparator<Person>() {
+      public int compare(Person p1, Person p2) {
+        return p1.name.compareTo(p2.name);
+      }
+    });
+
+    map.put(new Person("Tom"), 1);
+    map.put(new Person("Bob"), 2);
+    map.put(new Person("Lily"), 3);
+    for (Person key : map.keySet()) {
+      System.out.println(key);
+    }
+
+    // {Person: Bob}, {Person: Lily}, {Person: Tom}
+  }
+}
+
+class Person {
+  public String name;
+
+  Person(String name) {
+    this.name = name;
+  }
+
+  public String toString() {
+    return "{Person: " + name + "}";
+  }
+}
+```
 
 ## 并发
