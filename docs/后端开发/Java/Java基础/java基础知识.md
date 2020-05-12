@@ -4964,54 +4964,65 @@ public static void main(String[] args) throws Exception {
 
 #### 使用 ThreadLocal
 
-在开发应用时, 我们可能会需要在一个线程中，将一些数据传递到很多方法中, 这些方法共享这些数据:
+Java 中的 `ThreadLocal` 类允许我们创建只能被同一个线程读写的 **线程局部变量**。
 
-- 🌰 例如, 全局配置, 用户信息, 等等.
+因此，如果一段代码含有一个 `ThreadLocal` 变量的引用，即使两个线程同时执行这段代码，它们也无法访问到对方的 `ThreadLocal` 变量。
 
 ```java
-public void process(User user) {
-    checkPermission(user);
-    doWork(user);
-    saveStatus(user);
-    sendResponse(user);
-}
+private ThreadLocal myThreadLocal = new ThreadLocal();
 ```
 
-给每个方法都增加一个 `user` 参数非常麻烦. Java 标准库提供了一个特殊的 `ThreadLocal` 类，它可以让一个对象在一个线程中被共享;
+只需要实例化 `ThreadLocal` 对象一次，并且也不需要知道它是被哪个线程实例化。虽然所有的线程都能访问到这个 `ThreadLocal` 实例，但是每个线程却只能访问到自己通过调用 `ThreadLocal` 的 `set()` 方法设置的值。
 
-`ThreadLocal` 实例通常总是以静态字段初始化如下：
+通过 `get()` 方法可以获取存入的值.
 
 ```java
-static ThreadLocal<User> threadLocalUser = new ThreadLocal<>();
+String threadLocalValue = (String) myThreadLocal.get();
+```
 
-void processUser(user) {
-  try {
-      threadLocalUser.set(user);
-      step1();
-      step2();
-  } finally {
-      threadLocalUser.remove();
+可以创建一个指定泛型类型的 `ThreadLocal` 对象，这样我们就不需要每次对使用 `get()` 方法返回的值作强制类型转换了。
+
+```java
+private ThreadLocal<String> myThreadLocal = new ThreadLocal<>();
+```
+
+我们可以通过创建一个 `ThreadLocal` 的子类并且重写 `initialValue()` 方法，来为一个 `ThreadLocal` 对象指定一个初始值。
+
+```java
+private ThreadLocal<String> myThreadLocal = new ThreadLocal<>() {
+  @Override
+  protected String initialValue() {
+      return "This is the initial value";
   }
-}
+};
 ```
 
-通过设置一个 User 实例关联到 ThreadLocal 中，在移除之前，该线程中所有方法都可以随时获取到该 User 实例：
+🌰 下面是一个完整的例子:
 
 ```java
-void step1() {
-    User u = threadLocalUser.get();
-    log();
-    printUser();
-}
+public class ThreadLocalExample {
+  public static class MyRunnable implements Runnable {
+    private ThreadLocal threadLocal = new ThreadLocal();
 
-void log() {
-    User u = threadLocalUser.get();
-    println(u.name);
-}
+    @Override
+    public void run() {
+      threadLocal.set((int) (Math.random() * 100D));
 
-void step2() {
-    User u = threadLocalUser.get();
-    checkUser(u.id);
+      try {
+        Thread.sleep(2000);
+      } catch (InterruptedException e) {}
+
+      System.out.println(threadLocal.get());
+    }
+  }
+
+  public static void main(String[] args) {
+    MyRunnable sharedRunnableInstance = new MyRunnable();
+    Thread thread1 = new Thread(sharedRunnableInstance);
+    Thread thread2 = new Thread(sharedRunnableInstance);
+    thread1.start();
+    thread2.start();
+  }
 }
 ```
 
