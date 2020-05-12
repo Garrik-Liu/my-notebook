@@ -4101,6 +4101,86 @@ t.setDaemon(true);
 t.start();
 ```
 
+#### 实现 Runnable 接口
+
+[🔗 Runnable 接口 API 文档](http://itmyhome.com/java-api/java/lang/Runnable.html)
+
+上面 👆 我们通过创建继承了 Thread 的对象实例, 来创建一个新线程;
+
+我们还可以通过让一个类实现 Runnable 接口, 来让这个类的实例能够创建一个新线程, 并且执行其内部的代码;
+
+Runnable 接口内部只有一个 `run` 方法, 它没有返回值, 使用 Runnable 的实现类实例创建一个线程时，在线程中会执行类实例的 `run` 方法。
+
+因为 Java 只能单继承，因此如果是采用继承 Thread 的方法，那么在以后进行代码重构的时候就无法继承别的类了。
+
+有经验的程序员往往都会选择实现 Runnable 接口来进行多线程编程.
+
+其次，如果一个类继承 Thread，则不适合资源共享。但是如果实现了 Runable 接口的话，则很容易的实现资源共享。
+
+🌰 下面来看一下 Thread 和 Runnable 它们使用上的区别:
+
+```java
+public class TestThread extends Thread {
+    private int count = 5;
+    private String name;
+
+    public testThread(String name) {
+        this.name = name;
+    }
+
+    public void run() {
+        for (int i = 0; i < 5; i++) {
+            System.out.println(name + "运行  count= " + count--);
+            try {
+                sleep((int) Math.random() * 10);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+}
+
+public class main {
+    public static void main(String[] args) {
+        TestThread mTh1 = new TestThread("A");
+        TestThread mTh2 = new TestThread("B");
+        mTh1.start();
+        mTh2.start();
+    }
+}
+```
+
+上面 👆 创建了两个 TestThread 类实例, 它们内部的属性属于各自的实例;
+
+改成用 Runnable 接口实现类来写, 就可以很轻松做到资源共享:
+
+```java
+public class TestRunnable implements Runnable {
+    private int count = 15;
+
+    @Override
+    public void run() {
+        for (int i = 0; i < 5; i++) {
+            System.out.println(Thread.currentThread().getName() + "运行  count= " + count--);
+            try {
+                Thread.sleep((int) Math.random() * 10);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+}
+
+public class main {
+    public static void main(String[] args) {
+        TestRunnable mTh = new TestRunnable();
+        new Thread(mTh).start();
+        new Thread(mTh).start();
+        new Thread(mTh).start();
+    }
+}
+```
+
 ### 线程同步
 
 当多个线程同时运行时，线程的调度由操作系统决定，程序本身无法决定。因此，任何一个线程都有可能在任何指令处被操作系统暂停，然后在某个时间段后继续执行。
@@ -4419,11 +4499,525 @@ public void dec(int m) {
 
 #### wait & notify
 
+在上面 👆, 我们用 `synchronized` 解决了多线程竞争的问题, 也就是多个线程同时访问一个实例对象, 谁先谁后的问题.
+
+但是 `synchronized` 并没有解决 **多线程协调** 的问题。
+
+🌰 例如, 下面是一个任务队列, 里面用 `addTask` 方法添加任务, `getTask` 方法获取任务:
+
+```java
+class TaskQueue {
+    Queue<String> queue = new LinkedList<>();
+
+    public synchronized void addTask(String s) {
+        this.queue.add(s);
+    }
+
+    public synchronized String getTask() {
+        while (queue.isEmpty()) {
+          // 任务队列为空, 等待任务
+        }
+        return queue.remove();
+    }
+}
+```
+
+- 上面 👆 代码设想的功能是:
+  - `getTask()` 内部先判断队列是否为空，如果为空，就循环等待;
+  - 直到另一个线程调用 `addTask()` 往队列中放入了一个任务，`while` 循环退出，返回列表中的添加的任务;
+- 但实际上 `while()` 循环永远不会退出。因为线程在执行 `while()` 循环时，已经在 `getTask()` 入口获取了 `this` 锁;
+- 其他线程根本无法调用 `addTask()`，因为 `addTask()` 执行条件也是获取 `this` 锁。
+
+想要实现的 **多线程协调运行** 的原则就是：
+
+- 当条件不满足时，线程进入等待状态;
+- 当条件满足时，线程被唤醒，继续执行任务;
+
+```java
+public synchronized String getTask() {
+    while (queue.isEmpty()) {
+        // 释放this锁:
+        this.wait();
+        // 重新获取this锁
+    }
+    return queue.remove();
+}
+```
+
+- `wait()` 方法必须在当前获取的锁对象上调用;
+  - 上面 👆 代码中获取的是 `this` 锁，因此调用 `this.wait()`;
+- 调用 `wait()` 方法后，线程进入等待状态, `wait()` 方法不会返回，直到将来某个时刻，线程从等待状态被其他线程唤醒后，`wait()` 方法才会返回，然后继续执行下一条语句;
+- `wait()` 方法调用时，会释放 `synchronized` 块获得的锁，`wait()` 方法返回后，线程又会重新试图获得锁;
+
+在调用 `wait()` 方法的锁对象上调用 `notify()` 方法让等待的线程被重新唤醒;
+
+```java
+public synchronized void addTask(String s) {
+    this.queue.add(s);
+    this.notify(); // 唤醒在this锁等待的线程
+}
+```
+
+- 在往队列中添加了任务后，线程立刻对 `this` 锁对象调用 `notify()` 方法，这个方法会唤醒一个正在 `this` 锁等待的线程;
+
+可能有多个线程都在等待, 这时 `notify()` 只会唤醒其中一个, 具体哪个依赖操作系统，有一定的随机性;
+
+使用 `notifyAll()` 将唤醒所有当前正在等待的线程;
+
+```java
+public synchronized void addTask(String s) {
+    this.queue.add(s);
+    this.notifyAll();
+}
+```
+
+#### 使用 ReentrantLock
+
+从 Java 5 开始，引入了一个高级的处理并发的 `java.util.concurrent` 包，它提供了大量更高级的并发功能，能大大简化多线程程序的编写.
+
+`java.util.concurrent.locks` 包提供的 `ReentrantLock` 用于替代 `synchronized` 加锁
+
+🌰 先看一个 `synchronized` 版本:
+
+```java
+public class Counter {
+    private int count;
+
+    public void add(int n) {
+        synchronized(this) {
+            count += n;
+        }
+    }
+}
+```
+
+可以使用 `ReentrantLock` 替换成:
+
+```java
+public class Counter {
+    private final Lock lock = new ReentrantLock();
+    private int count;
+
+    public void add(int n) {
+        lock.lock();
+        try {
+            count += n;
+        } finally {
+            lock.unlock();
+        }
+    }
+}
+```
+
+- 因为 `synchronized` 是 Java 语言层面提供的语法，所以我们不需要考虑异常;
+- 而 `ReentrantLock` 是 Java 代码实现的锁，我们就必须先获取锁，然后在 `finally` 中正确释放锁;
+- 和 `synchronized` `一样，ReentrantLock` 是可重入锁, 一个线程可以多次获取同一个锁;
+
+和 `synchronized` 不同的是，`ReentrantLock` 可以尝试获取锁：
+
+```java
+if (lock.tryLock(1, TimeUnit.SECONDS)) {
+    try {
+        ...
+    } finally {
+        lock.unlock();
+    }
+}
+```
+
+- 上述代码在尝试获取锁的时候，最多等待 1 秒。如果 1 秒后仍未获取到锁，`tryLock()` 返回 `false`
+- 使用 `ReentrantLock` 比直接使用 `synchronized` 更安全，线程在 `tryLock()` 失败的时候不会导致死锁;
+
+---
+
+`synchronized` 可以配合 `wait` 和 `notify` 实现线程在条件不满足时等待，条件满足时唤醒.
+
+`ReentrantLock` 中使用 `Condition` 对象来实现 `wait` 和 `notify` 的功能。
+
+```java
+class TaskQueue {
+    private final Lock lock = new ReentrantLock();
+    private final Condition condition = lock.newCondition();
+    private Queue<String> queue = new LinkedList<>();
+
+    public void addTask(String s) {
+        lock.lock();
+        try {
+            queue.add(s);
+            condition.signalAll();
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    public String getTask() {
+        lock.lock();
+        try {
+            while (queue.isEmpty()) {
+                condition.await();
+            }
+            return queue.remove();
+        } finally {
+            lock.unlock();
+        }
+    }
+}
+```
+
+- Condition 对象实例从 `Lock` 实例的 `newCondition()`返回，这样才能获得一个绑定了 `Lock` 实例的 `Condition` 实例;
+- Condition 提供的 `await()`、`signal()`、`signalAll()` 原理和 `synchronized` 锁对象的 `wait()`、`notify()`、`notifyAll()` 是一致的，并且其行为也是一样的;
+- 和 `tryLock()` 类似，`await()` 可以在等待指定时间后，如果还没有被其他线程唤醒，可以自己醒来;
+  - 🌰 `condition.await(1, TimeUnit.SECOND)`
+
+#### 使用 Concurrent 集合
+
+👆 前面已经通过 `ReentrantLock` 和 `Condition` 实现了一个线程安全的任务队列 `TaskQueue`.
+
+在实际开发中, 我们并不需要自己去实现. Java 标准库的 `java.util.concurrent` 包提供的线程安全的集合`ArrayBlockingQueue`。
+
+除此之外, 针对 List、Map、Set、Deque 等，`java.util.concurrent` 包也提供了对应的并发集合类:
+
+![2020-05-11-19-52-47](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-05-11-19-52-47.png)
+
+所有的同步和加锁的逻辑都在集合内部实现, 所以这些并发集合与使用非线程安全的集合类完全相同.
+
+```java
+Map<String, String> map = new ConcurrentHashMap<>();
+// 在不同的线程读写:
+map.put("A", "1");
+map.put("B", "2");
+map.get("A", "1");
+```
+
 ### 线程池
+
+创建线程需要花费操作系统资源（线程资源，栈空间等），频繁
+创建和销毁大量线程需要消耗大量时间。
+
+可以设想, 我们创建一组线程, 当有任务需要线程时, 就分配给它一个, 等他用完再还回来, 而不是销毁. 这样要比每次有任务就创建一个新线程, 然后用完就销毁, 要高效的多.
+
+这种能接收大量小任务并进行分发处理的就是『 **线程池** 』
+
+- 线程池内部维护了若干个线程，没有任务的时候，这些线程都处于等待状态;
+- 如果有新任务，就分配一个空闲线程执行;
+- 如果所有线程都处于忙碌状态，新任务要么放入队列等待，要么增加一个新线程进行处理;
+
+---
+
+Java 标准库提供了 `ExecutorService` 接口表示线程池. Java 标准库提供的几个常用实现类有：
+
+- **FixedThreadPool**：线程数固定的线程池；
+- **CachedThreadPool**：线程数根据任务动态调整的线程池；
+- **SingleThreadExecutor**：仅单线程执行的线程池。
+
+创建这些线程池的方法都被封装到 `Executors` 这个类中.
+
+🌰 例子, 下面创建了一个有 4 个线程的 `FixedThreadPool` 线程池:
+
+```java
+import java.util.concurrent.*;
+
+public class Main {
+    public static void main(String[] args) {
+        // 创建一个固定大小的线程池:
+        ExecutorService es = Executors.newFixedThreadPool(4);
+        for (int i = 0; i < 6; i++) {
+            es.submit(new Task("" + i));
+        }
+        // 关闭线程池:
+        es.shutdown();
+    }
+}
+
+class Task implements Runnable {
+    private final String name;
+
+    public Task(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public void run() {
+        System.out.println("start task " + name);
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+        }
+        System.out.println("end task " + name);
+    }
+}
+
+/*
+结果:
+  start task 1
+  start task 3
+  start task 0
+  start task 2
+  end task 1
+  end task 3
+  end task 2
+  end task 0
+  start task 4
+  start task 5
+  end task 4
+  end task 5
+*/
+```
+
+- 一次性放入 6 个任务，由于线程池只有固定的 4 个线程，因此，前 4 个任务会同时执行，等到有线程空闲后，才会执行后面的两个任务;
+- 线程池在程序结束的时候要关闭:
+  - `shutdown()` 方法关闭线程池的时候，它会等待正在执行的任务先完成，然后再关闭;
+  - `shutdownNow()` 会立刻停止正在执行的任务;
+  - `awaitTermination()` 则会等待指定的时间让线程池关闭;
+
+#### 使用 Future
+
+在执行多个任务的时候，使用 Java 标准库提供的线程池是非常方便的。我们提交的任务只需要实现 Runnable 接口，就可以让线程池去执行.
+
+但 Runnable 接口有个问题，它的方法没有返回值。如果任务需要一个返回结果，那么只能保存到变量，还要提供额外的方法读取，非常不便。
+
+所以，Java 标准库还提供了一个 Callable 接口，和 Runnable 接口比，它多了一个返回值.
+
+并且 Callable 接口是一个泛型接口，可以返回指定类型的结果。
+
+```java
+class Task implements Callable<String> {
+    public String call() throws Exception {
+        return longTimeCalculation();
+    }
+}
+```
+
+现在的问题是，如何获得异步执行的结果？
+
+`ExecutorService.submit()` 返回了一个 Future 类型对象，它代表一个未来能获取结果的对象.
+
+```java
+ExecutorService executor = Executors.newFixedThreadPool(4);
+// 定义任务:
+Callable<String> task = new Task();
+// 提交任务并获得Future:
+Future<String> future = executor.submit(task);
+// 从Future获取异步执行返回的结果:
+String result = future.get(); // 可能阻塞
+```
+
+在某个时刻调用 Future 对象的 `get()` 方法，就可以获得异步执行的结果:
+
+- 在调用 `get()` 时，如果异步任务已经完成，我们就直接获得结果;
+- 如果异步任务还没有完成，那么 `get()` 会阻塞，直到任务完成后才返回结果;
+
+一个实现了 `Future<V>` 接口的类表示一个未来可能会返回的结果，它定义的方法有：
+
+- `get()`：获取结果（可能会等待）
+- `get(long timeout, TimeUnit unit)`：获取结果，但只等待指定的时间；
+- `cancel(boolean mayInterruptIfRunning)`：取消当前任务；
+- `isDone()`：判断任务是否已完成;
+
+#### 使用 CompletableFuture
+
+前面说, 使用 `Future` 类型实例的 `get` 方法获取异步结果, 可能会造成阻塞.
+
+从 Java 8 开始引入了 `CompletableFuture`，它针对 `Future` 做了改进，可以传入回调对象，当异步任务完成或者发生异常时，自动调用回调方法.
+
+```java
+public class Main {
+  public static void main(String[] args) throws Exception {
+    // 创建异步执行任务:
+    CompletableFuture<Double> cf = CompletableFuture.supplyAsync(() -> {
+      return fetchPrice();
+    });
+
+    // 如果执行成功:
+    cf.thenAccept((result) -> {
+        System.out.println("price: " + result);
+    });
+
+    // 如果执行异常:
+    cf.exceptionally((e) -> {
+        e.printStackTrace();
+        return null;
+    });
+
+    // 主线程不要立刻结束，否则 CompletableFuture 默认使用的线程池会立刻关闭:
+    Thread.sleep(200);
+  }
+
+  static Double fetchPrice() {
+    try {
+        Thread.sleep(100);
+    } catch (InterruptedException e) {
+    }
+    if (Math.random() < 0.3) {
+        throw new RuntimeException("fetch price failed!");
+    }
+    return 5 + Math.random() * 20;
+  }
+}
+```
+
+CompletableFuture 更强大的功能是，多个 CompletableFuture 可以**串行执行**.
+
+🌰 例如，定义两个 CompletableFuture:
+
+- 第一个 CompletableFuture 根据证券名称查询证券代码;
+- 第二个 CompletableFuture 根据证券代码查询证券价格;
+
+```java
+public class Main {
+  public static void main(String[] args) throws Exception {
+    // 第一个任务:
+    CompletableFuture<String> cfQuery = CompletableFuture.supplyAsync(() -> {
+        return queryCode("中国石油");
+    });
+
+    // cfQuery成功后继续执行下一个任务:
+    CompletableFuture<Double> cfFetch = cfQuery.thenApplyAsync((code) -> {
+        return fetchPrice(code);
+    });
+
+    // cfFetch成功后打印结果:
+    cfFetch.thenAccept((result) -> {
+        System.out.println("price: " + result);
+    });
+
+    // 主线程不要立刻结束，否则CompletableFuture默认使用的线程池会立刻关闭:
+    Thread.sleep(2000);
+  }
+
+  static String queryCode(String name) {
+    try {
+        Thread.sleep(100);
+    } catch (InterruptedException e) {
+    }
+    return "601857";
+  }
+
+  static Double fetchPrice(String code) {
+    try {
+        Thread.sleep(100);
+    } catch (InterruptedException e) {
+    }
+    return 5 + Math.random() * 20;
+  }
+}
+```
+
+除了串行执行外，多个 CompletableFuture 还可以**并行执行**。
+
+🌰 例如，同时从新浪和网易查询证券代码，只要任意一个返回结果，就进行下一步查询价格，查询价格也同时从新浪和网易查询，只要任意一个返回结果:
+
+```java
+public static void main(String[] args) throws Exception {
+    // 两个CompletableFuture执行异步查询:
+    CompletableFuture<String> cfQueryFromSina = CompletableFuture.supplyAsync(() -> {
+        return queryCode("中国石油", "https://finance.sina.com.cn/code/");
+    });
+    CompletableFuture<String> cfQueryFrom163 = CompletableFuture.supplyAsync(() -> {
+        return queryCode("中国石油", "https://money.163.com/code/");
+    });
+
+    // 用anyOf合并为一个新的CompletableFuture:
+    CompletableFuture<Object> cfQuery = CompletableFuture.anyOf(cfQueryFromSina, cfQueryFrom163);
+
+    // 两个CompletableFuture执行异步查询:
+    CompletableFuture<Double> cfFetchFromSina = cfQuery.thenApplyAsync((code) -> {
+        return fetchPrice((String) code, "https://finance.sina.com.cn/price/");
+    });
+    CompletableFuture<Double> cfFetchFrom163 = cfQuery.thenApplyAsync((code) -> {
+        return fetchPrice((String) code, "https://money.163.com/price/");
+    });
+
+    // 用anyOf合并为一个新的CompletableFuture:
+    CompletableFuture<Object> cfFetch = CompletableFuture.anyOf(cfFetchFromSina, cfFetchFrom163);
+
+    // 最终结果:
+    cfFetch.thenAccept((result) -> {
+        System.out.println("price: " + result);
+    });
+    // 主线程不要立刻结束，否则CompletableFuture默认使用的线程池会立刻关闭:
+    Thread.sleep(200);
+  }
+
+  static String queryCode(String name, String url) {
+      System.out.println("query code from " + url + "...");
+      try {
+          Thread.sleep((long) (Math.random() * 100));
+      } catch (InterruptedException e) {
+      }
+      return "601857";
+  }
+
+  static Double fetchPrice(String code, String url) {
+      System.out.println("query price from " + url + "...");
+      try {
+          Thread.sleep((long) (Math.random() * 100));
+      } catch (InterruptedException e) {
+      }
+      return 5 + Math.random() * 20;
+  }
+}
+```
+
+- `anyOf()` 可以实现“任意个 CompletableFuture 只要一个成功”;
+- `allOf()` 可以实现“所有 CompletableFuture 都必须成功”
+
+#### 使用 ThreadLocal
+
+在开发应用时, 我们可能会需要在一个线程中，将一些数据传递到很多方法中, 这些方法共享这些数据:
+
+- 🌰 例如, 全局配置, 用户信息, 等等.
+
+```java
+public void process(User user) {
+    checkPermission(user);
+    doWork(user);
+    saveStatus(user);
+    sendResponse(user);
+}
+```
+
+给每个方法都增加一个 `user` 参数非常麻烦. Java 标准库提供了一个特殊的 `ThreadLocal` 类，它可以让一个对象在一个线程中被共享;
+
+`ThreadLocal` 实例通常总是以静态字段初始化如下：
+
+```java
+static ThreadLocal<User> threadLocalUser = new ThreadLocal<>();
+
+void processUser(user) {
+  try {
+      threadLocalUser.set(user);
+      step1();
+      step2();
+  } finally {
+      threadLocalUser.remove();
+  }
+}
+```
+
+通过设置一个 User 实例关联到 ThreadLocal 中，在移除之前，该线程中所有方法都可以随时获取到该 User 实例：
+
+```java
+void step1() {
+    User u = threadLocalUser.get();
+    log();
+    printUser();
+}
+
+void log() {
+    User u = threadLocalUser.get();
+    println(u.name);
+}
+
+void step2() {
+    User u = threadLocalUser.get();
+    checkUser(u.id);
+}
+```
 
 ## 相关参考
 
-[Java 文档](http://itmyhome.com/java-api/overview-summary.html)
-[教程 - java T point](https://www.javatpoint.com/java-tutorial)
-[廖雪峰的 Java 教程](https://www.liaoxuefeng.com/wiki/1252599548343744)
-[书籍 - Java 核心技术 卷 1](https://book.douban.com/subject/26880667/)
+- [Java 文档](http://itmyhome.com/java-api/overview-summary.html)
+- [教程 - java T point](https://www.javatpoint.com/java-tutorial)
+- [廖雪峰的 Java 教程](https://www.liaoxuefeng.com/wiki/1252599548343744)
+- [书籍 - Java 核心技术 卷 1](https://book.douban.com/subject/26880667/)
