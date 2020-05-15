@@ -8,11 +8,7 @@ module.exports = {
         extendMarkdown: (md) => {
             // 使用更多的 markdown-it 插件!
             md.use(require("markdown-it-ins"));
-            md.use(require("markdown-it-attrs"), {
-                leftDelimiter: "{",
-                rightDelimiter: "}",
-                allowedAttributes: [], // empty array = all attributes are allowed
-            });
+            md.use(require("markdown-it-attrs"));
             md.use(require("markdown-it-mark"));
         },
     },

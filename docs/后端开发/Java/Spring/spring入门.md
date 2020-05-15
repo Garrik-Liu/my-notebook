@@ -6,7 +6,7 @@
 
 ++test++
 
-**hahahaha**{.c-r}
+**hahahaha**{class=c-r}
 
 - Spring 是一个分层的，用于开发 Java EE 应用的**一站式轻量级开源框架**；
 - 以 **Ioc 控制反转** (Inverse of Control) 和 **AOP 切面编程** (Aspect Oriented Programming) 为内核；
