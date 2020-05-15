@@ -2,10 +2,6 @@
 
 ## Spring 干什么用的
 
-==**test**==
-
-++**test**++
-
 - Spring 是一个分层的，用于开发 Java EE 应用的**一站式轻量级开源框架**；
 - 以 **Ioc 控制反转** (Inverse of Control) 和 **AOP 切面编程** (Aspect Oriented Programming) 为内核；
 - 提供了**展示层 Spring MVC**，**持久层 Spring JDBC** 以及**业务层事务管理**，等企业级应用技术；
