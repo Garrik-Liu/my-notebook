@@ -711,7 +711,7 @@ Spring 提供了 **`p-`** 命名空间，作为 `<property>` 元素的替代方�
 
 通过注解我们可以省去写一堆显示的配置，Spring 可以自动去发现 Bean；
 
-通过在类的上面加上 `@Component` 注解，Spring 就会把这个类当做一个 Bean 处理；
+通过在类的上面加上 **`@Component` 注解**，Spring 就会把这个类当做一个 Bean 处理；
 
 ```java
 package soundsystem;
@@ -730,9 +730,9 @@ public class SgtPeppers implements CompactDisc {
 }
 ```
 
-但是组件扫描默认是不启用的。我们还需要显式配置一下 Spring， 从而命令它去寻找带有 @Component 注解的类，并为其创建 bean。
+但是组件扫描默认是不启用的。我们还需要显式配置一下 Spring， 从而命令它去寻找带有 `@Component` 注解的类，并为其创建 bean。
 
-在 XML 配置文件中，可以使用 Spring context 命名空间的元素。来进行配置：
+在 XML 配置文件中，可以使用 Spring `context` 命名空间里的元素。来进行配置：
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -749,15 +749,22 @@ public class SgtPeppers implements CompactDisc {
 </beans>
 ```
 
-上面的配置表明，Spring 会扫描 soundsystem 包下面的所有类；
+上面的配置表明，Spring 会扫描 `soundsystem` 包下面的所有类:
+
+- `<context:component-scan>` 标签让 Spring 容器去自动扫描指定包及其子包下面的 Java 类文件;
+- `base-package` 指明想要让 Spring 扫描的包;
 
 ---
 
-Spring 应用上下文中所有的 bean 都会给定一个 ID。在前面的例子中，尽管我们没有明确地为 SgtPeppersbean 设置 ID，但 Spring 会根据类名为其指定一个 ID。
+**所有的 Bean 都会给定一个 ID**:
 
-具体来讲，这个 bean 所给定的 ID 为 sgtPeppers，也就是将类名的第一个字母变为小写。
+- **默认情况下, Spring 会将类名的第一个字母变为小写, 来将其作为 Bean 的名称**;
+- **通过给 `@Component` 注解赋值, 可以设置自定义的名称**;
 
-如果想为这个 bean 设置不同的 ID，你所要做的就是将期望的 ID 作为值传递给 @Component 注解。
+🌰 以前面 👆 的 SgtPeppers 类为例:
+
+- 默认情况下, Bean 的名称为 `sgtPeppers`.
+- 也可以自行设置名称:
 
 ```java
 @Componet("lonelyHeartsClub")
@@ -768,9 +775,9 @@ public class SgtPeppers implements CompactDisc {
 
 #### @Autowired 自动装配
 
-自动装配就是让 Spring 自动满足 bean 依赖的一种方法，在满足依赖的过程中，会在 Spring 应用上下文中寻找匹配某个 bean 需求的其他 bean。
+通过使用 **`@Autowired` 注解**可以声明当前 Bean 所需要的依赖;
 
-为了声明要进行自动装配，我们可以借助 Spring 的 @Autowired 注解。
+**Spring 在检测到 `@Autowired` 注解后, 会去 Spring 容器中寻找匹配的 Bean, 然后自动装配进其中**.
 
 ```java
 package soundsystem;
@@ -793,9 +800,13 @@ public class CDPlayer implements MediaPlayer {
 }
 ```
 
-它的构造器上添加了 @Autowired 注解，这表明当 Spring 创建 CDPlayerbean 的时候，会通过这个构造器来进行实例化并且会传入一个可设置给 CompactDisc 类型的 bean，将一个 CompactDisc 注入到 CDPlayer 之中。
+- 在构造器上添加了 `@Autowired` 注解;
+- 这表明当 Spring 调用构造器创建 `CDPlayerbean` 的时候，会在 Spring 容器中搜寻一个类型为 `CompactDisct` 的 Bean;
+- 并把它作为参数传入到构造器中;
 
-@Autowired 注解不仅能够用在构造器上，还能用在属性的 Setter 方法上。
+---
+
+**`@Autowired` 注解不仅能够用在构造器上，还能用在属性的 Setter 方法上**。
 
 ```java
 @Autowired
@@ -804,11 +815,19 @@ public void setCompactDisc(CompactDisc cd){
 }
 ```
 
-Setter 方法并没有什么特殊之处。@Autowired 注解可以用在类的任何方法上。假设 CDPlayer 类有一个 insertDisc() 方法， 那么 @Autowired 能够像在 setCompactDisc() 上那样，发挥完全相同的作用：
+Setter 方法并没有什么特殊之处。`@Autowired` 注解可以用在类的任何方法上。假设 CDPlayer 类有一个 `insertDisc()` 方法， 那么 `@Autowired` 能够像在 `setCompactDisc()` 上那样，发挥完全相同的作用：
 
-假如有且只有一个 bean 匹配依赖需求的话，那么这个 bean 将会被装配进来。如果没有匹配的 bean，那么在应用上下文创建的时候，Spring 会抛出 一个异常。为了避免异常的出现，你可以将 @Autowired 的 required 属性设置为 false：
+---
 
-将 required 属性设置为 false 时，Spring 会尝试执行自动装配，但是如果没有匹配的 bean 的话，Spring 将会让这个 bean 处于未装配的状态。未装配的参数的值为 null。
+假如有且只有一个 Bean 匹配依赖需求的话，那么这个 Bean 将会被装配进来。
+
+**如果没有匹配的 Bean，那么在应用上下文创建的时候，Spring 会抛出一个异常**。
+
+**为了避免异常的出现，你可以将 `@Autowired` 的 `required` 属性设置为 `false`**：
+
+- 将 `required` 属性设置为 `false` 时，Spring 会尝试执行自动装配;
+- 如果没有匹配的 Bean 的话，Spring 将会让这个 Bean 处于未装配的状态;
+- 未装配的参数的值为 `null`;
 
 ```java
 @Autowired(required=false)
@@ -817,29 +836,32 @@ public CDPlayer(CompactDisc cd) {
 }
 ```
 
-如果有多个 bean 都能满足依赖关系的话，Spring 将会抛出一个异常，表明没有明确指定要选择哪个 bean 进行自动装配。
+**如果有多个 Bean 都能满足依赖关系的话，Spring 将会抛出一个异常**，表明没有明确指定要选择哪个 bean 进行自动装配。在第 3 章中，会进一步讨论『 自动装配中的歧义性 』
 
 ### Java 类配置
 
-尽管在很多场景下通过组件扫描和自动装配实现 Spring 的自动化配置，但有时候自动化配置的方案行不通，因此需要明确配置 Spring。
+尽管在很多场景下通过『 组件扫描 』和『 自动装配 』实现 Spring 的自动化配置，但**有时候自动化配置的方案行不通**，因此需要明确配置 Spring。
 
-比如说，你想要将第三方库中的组件装配到你的应用中，在这种情况下，是没有办法在它的类上添加 @Component 和 @Autowired 注解的，因此就不能使用自动化装配的方案了。
+- 🌰 比如说，你想要将第三方库中的组件装配到你的应用中，但你是没有办法在第三方的类上添加 `@Component` 和 `@Autowired` 注解的，因此就不能使用自动化装配的方案了。
 
-在进行显式配置的时候，有两种可选方案：Java 和 XML。在这节中，我们将会学习如何使用 Java 配置。
+---
 
-在进行显式配置时，JavaConfig 是更好的方案， 因为它更为强大、类型安全并且对重构友好。为它就是 Java 代码， 就像应用程序中的其他 Java 代码一样。
+在进行显式配置的时候，有两种可选方案：Java 和 XML。在这节中，前面已经说了 XML 配置方法, 下面 👇 将如何使用 Java 配置:
 
-但与其他的 Java 类不同的是，JavaConfig 是配置代码。这意味着它不应该包含任何业务逻辑，JavaConfig 也不应该侵入到业务逻辑代码之中。
+#### Java 配置就是将配置规则写在一个 Java 类里:
 
-尽管不是必须的，但通常会将 JavaConfig 放到单独的包中，使它与其他的应用程序逻辑分离开来。
+- 在进行显式配置时，`JavaConfig` 是更好的方案， 因为它更为强大、类型安全并且对重构友好。为它就是 Java 代码， 就像应用程序中的其他 Java 代码一样;
+- 但与其他的 Java 类不同的是，JavaConfig 是配置代码。这意味着它不应该包含任何业务逻辑，JavaConfig 也不应该侵入到业务逻辑代码之中;
+- 尽管不是必须的，但通常会将 JavaConfig 放到单独的包中，使它与其他的应用程序逻辑分离开来;
 
 #### @Configuration 注解 & @Bean 注解
 
-通过 `@Configuration` 注解表明这个类是一个配置类。
+通过 **`@Configuration` 注解**表明这个类是一个配置类。
 
-要在 JavaConfig 中声明 bean，我们需要编写一个方法，这个方法会创建所需类型的实例，然后给这个方法添加 `@Bean` 注解。
+要在 JavaConfig 中声明 Bean，我们需要编写一个方法，这个方法会创建 Bean 实例:
 
-@Bean 注解会告诉 Spring 这个方法将会返回一个对象，该对象要注册为 Spring 应用上下文中的 bean。方法体中包含了最终产生 bean 实例的逻辑。
+- 在方法上面加 **`@Bean` 注解**, 表明方法将会返回一个对象实例，该对象要注册为 Spring 容器中的 Bean;
+- 方法体中包含了创建 Bean 实例的具体逻辑;
 
 ```java
 import org.spingframework.context.annotation.Configuration;
@@ -853,7 +875,10 @@ public class CDPlayerConfig {
 }
 ```
 
-默认情况下，bean 的 ID 与带有 @Bean 注解的方法名是一样的。在本例中，bean 的名字将会是 sgtPeppers。如果你想为其设置成一个不同的名字的话，可以通过 name 属性指定一个不同的名字。
+默认情况下，Bean 的 ID 名称与带有 `@Bean` 注解的方法名是一样的:
+
+- 🌰 在本例中，Bean 的名字将会是 `sgtPeppers`;
+- 如果你想为其设置成一个不同的名字的话，可以通过 `name` 属性指定一个不同的名字;
 
 ```java
 @Bean(name="lonelyHeartsClubBand")
@@ -862,7 +887,11 @@ public CompactDisc sgtPeppers() {
 }
 ```
 
-在这个使用了 @Bean 的注解中方法中，你可以自由地编写创建 Bean 实例的逻辑。比方说，在一组 CD 中随机选择一个 CompactDisc 来播放：
+---
+
+在这个使用了 `@Bean` 的注解中方法中，你可以自由地编写创建 Bean 实例的逻辑。
+
+🌰 比方说，在一组 CD 中随机选择一个 `CompactDisc` 来播放：
 
 ```java
 @Bean
@@ -882,7 +911,9 @@ public CompactDisc randomBeatlesCD() {
 
 #### 在 JavaConfig 中装配 Bean
 
-在 JavaConfig 中装配 bean 的最简单方式就是引用创建 bean 的方法。例如，下面就是一种声明 CDPlayer 的可行方案：
+在 JavaConfig 中装配 Bean 的最直接方式就是**引用创建 Bean 的方法**。
+
+🌰 例如，下面就是一种声明 CDPlayer 的可行方案：
 
 ```java
 @Bean
@@ -891,7 +922,8 @@ public CDPlayer cdPlayer() {
 }
 ```
 
-上面代码中，看似是调用了 `sgtPeppers()` 方法，但是并不是每次 `sgtPeppers()` 都实际被调用了，并创建一个新的实例返回。因为 `sgtPeppers()` 方法上添加了 `@Bean` 注解， Spring 将会拦截所有对它的调用，并返回已经创建好的 Bean 实例。
+- 上面代码中，看似是调用了 `sgtPeppers()` 方法，但是并不是每次 `sgtPeppers()` 都实际被调用了，并创建一个新的实例返回;
+- 因为 `sgtPeppers()` 方法上添加了 `@Bean` 注解， Spring 将会拦截所有对它的调用，并返回已经创建好的 Bean 实例;
 
 ```java
 @Bean
@@ -905,9 +937,12 @@ public CDPlayer anotherCDPlayer() {
 }
 ```
 
-上面两次调用 `sgtPeppers()` 返回的实例是同一个实例。默认情况下，Spring 中的 bean 都是单例的。
+- 上面两次调用 `sgtPeppers()` 返回的实例是同一个实例;
+- 默认情况下，Spring 容器中的 Bean 都只有一个实例;
 
-可以看到，通过调用方法来引用 bean 的方式有点令人困惑。其实还有一种理解起来更为简单的方式：
+---
+
+通过调用方法来引用 Bean 的方式有点令人困惑。还有一种理解起来更为简单的方式, 即**通过参数传入 Bean**:
 
 ```java
 @Bean
@@ -916,9 +951,10 @@ public CDPlayer cdPlayer(CompactDisc compactDisc) {
 }
 ```
 
-在这里，cdPlayer() 方法请求一个 CompactDisc 作为参数。当 Spring 调用 cdPlayer() 创建 CDPlayerbean 的时候，它会自动装配一个 CompactDisc 到配置方法之中。
+- 在这里，`cdPlayer()` 方法请求一个 `CompactDisc` 类型的参数;
+- 当 Spring 调用 `cdPlayer()` 创建 `CDPlayerbean` 的时候，它会自动装配一个类型为 `CompactDisc` 的 Bean 到配置方法之中;
 
-我们在这里使用 CDPlayer 的构造器实现了 DI 功能，如果你想通过 Setter 方法注入 CompactDisc 的话，那么代码看起来应该是这样的：
+上面 👆 使用 CDPlayer 的构造器进行的依赖注入，如果你想通过 Setter 方法注入 `CompactDisc` 的话，那么代码看起来应该是这样的：
 
 ```java
 @Bean
@@ -931,7 +967,7 @@ public CDPlayer cdPlayer(CompactDisc compactDisc) {
 
 #### @ComponentScan 注解
 
-通过在配置类之上使用 @ComponentScan 注解可以指定自动扫描包下面的 Bean。
+通过在配置类之上使用 **`@ComponentScan` 注解**可以指定自动扫描包下面的 Bean:
 
 ```java
 @Configuration
@@ -939,11 +975,9 @@ public CDPlayer cdPlayer(CompactDisc compactDisc) {
 public class CDPlayerConfig { }
 ```
 
-在 @ComponentScan 的 basePackages 属性中可以指明想要扫描包的名称。
-
-如果没有为 @ComponentScan 设置任何属性。这意味着，按照默认规则，它会以配置类所在的包作为基础包。
-
-如果你想扫描多个包，可以将 basePackages 属性设置为一个数组：
+- 在 `@ComponentScan` 的 `basePackages` 属性中可以指明想要扫描包的名称;
+- 如果没有为 `@ComponentScan` 设置任何属性。按照默认规则，它会以配置类所在的包作为基础包;
+- 如果你想扫描多个包，可以将 `basePackages` 属性设置为一个数组;
 
 ```java
 @Configuration
@@ -951,7 +985,7 @@ public class CDPlayerConfig { }
 public class CDPlayerConfig { }
 ```
 
-也可以省略 basePackages，简写成：
+- 也可以省略 `basePackages`，简写成：
 
 ```java
 @ComponentScan("soundsystem")
@@ -965,7 +999,7 @@ public class CDPlayerConfig { }
 
 #### 在配置类中引入其他配置
 
-假设我们有两个配置类，通过 @import 注解可以将一个配置类导入另一个配置类中：
+假设我们有两个配置类，通过 **`@import` 注解可以将一个配置类导入另一个配置类中**：
 
 ```java
 import org.springframework.context.annotation.Bean;
@@ -983,7 +1017,7 @@ public class CDPlayerConfig {
 }
 ```
 
-一个更好的方法是，创建一个更高级别的 SoundSystemConfig，在这个类中使用 @Import 将两个配置类组合在一起：
+一个更好的方法是，创建一个更高层的 `SoundSystemConfig` 类，在这个类中使用 `@Import` 将两个配置类组合在一起：
 
 ```java
 import org.springframework.context.annotation.Configuration;
@@ -995,7 +1029,9 @@ public class CDPlayerConfig {
 }
 ```
 
-通过 @ImportResource 注解可以引入 XML 配置文件：
+---
+
+通过 **`@ImportResource` 注解可以引入 XML 配置文件**：
 
 ```java
 import org.springframework.context.annotation.Configuration;
@@ -1012,9 +1048,9 @@ public class SoundSystemConfig {
 
 #### 在 XML 中引入其他配置
 
-使用 `<import>` 元素可以导入其他的 XML 配置文件。
+**使用 `<import>` 元素可以导入其他的 XML 配置文件**。
 
-使用 `<bean>` 元素将配置类导入到 XML 配置中。
+**使用 `<bean>` 元素可以将 JavaConfig 配置类导入到 XML 配置中**。
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -1032,6 +1068,582 @@ public class SoundSystemConfig {
 ```
 
 ## 高级装配
+
+上面 👆 讲解了 Spring 中基础的 Bean 装配方法. 下面来进一步讲解 Bean 装配相关的高级技术:
+
+### 环境 & profile
+
+在开发过程中, 我们通常会定义很多个环境, 例如开发环境, 生产环境, 测试环境, 等等. 在不同的环境想要使用的 Bean 会有所不同.
+
+最直接解决方案是, 每个环境单独创建一份配置, 然后切换环境时, 更改配置, 重新构建应用, 然后再运行. 但是这样很麻烦, 而且容易产生 BUG.
+
+在 3.1 版本中，**Spring 引入了 Bean Profile 的功能**. 通过将不同的 Bean 定义到与环境对应的 Profile 中. 在应用部署时, 激活指定的 Profile, 只有处于激活状态的 Profile 下的 Bean 会被创建.
+
+#### 在配置类中配置 Profile
+
+在 Java 配置中，可以将 **`@Profile` 注解应用到类级别上**, 用来告诉 Spring 配置类中的 Bean 只有在指定的 Profile 激活时才会创建:
+
+```java
+import javax.sql.DataSource;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
+
+@Configuration
+@Profile("dev")
+public class DataSourceConfig {
+
+  @Bean(destroyMethod = "shutdown")
+  public DataSource dataSource() {
+    return new EmbeddedDatabaseBuilder()
+        .setType(EmbeddedDatabaseType.H2)
+        .addScript("classpath:schema.sql")
+        .addScript("classpath:test-data.sql")
+        .build();
+  }
+}
+```
+
+- 上面 👆 代码告诉 Spring 这个配置类中的 Bean 只有在 `dev` Profile 激活时才会创建;
+
+---
+
+从 Spring 3.2 版本开始, **`@Profile` 注解也可以应用到方法上**. 这样可以把针对不同 Profile 的 Bean 放到同一个配置类之中:
+
+```java
+import javax.sql.DataSource;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
+import org.springframework.jndi.JndiObjectFactoryBean;
+
+@Configuration
+public class DataSourceConfig {
+
+  @Bean(destroyMethod = "shutdown")
+  @Profile("dev")
+  public DataSource embeddedDataSource() {
+    return new EmbeddedDatabaseBuilder()
+        .setType(EmbeddedDatabaseType.H2)
+        .addScript("classpath:schema.sql")
+        .addScript("classpath:test-data.sql")
+        .build();
+  }
+
+  @Bean
+  @Profile("prod")
+  public DataSource jndiDataSource() {
+    JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
+    jndiObjectFactoryBean.setJndiName("jdbc/myDS");
+    jndiObjectFactoryBean.setResourceRef(true);
+    jndiObjectFactoryBean.setProxyInterface(javax.sql.DataSource.class);
+    return (DataSource) jndiObjectFactoryBean.getObject();
+  }
+}
+```
+
+- 只有当规定的 Profile 激活时，相应的 Bean 才会被创建;
+
+#### 在 XML 中配置 Profile
+
+可以在根 `<beans>` 元素中嵌套定义 `<beans>` 元素, 通过 `profile` 属性执行它们各自对应的 Profile 环境:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+  xmlns:jee="http://www.springframework.org/schema/jee" xmlns:p="http://www.springframework.org/schema/p"
+  xsi:schemaLocation="
+    http://www.springframework.org/schema/jee
+    http://www.springframework.org/schema/jee/spring-jee.xsd
+    http://www.springframework.org/schema/jdbc
+    http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
+    http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+  <beans profile="dev">
+    <jdbc:embedded-database id="dataSource" type="H2">
+      <jdbc:script location="classpath:schema.sql" />
+      <jdbc:script location="classpath:test-data.sql" />
+    </jdbc:embedded-database>
+  </beans>
+
+  <beans profile="prod">
+    <jee:jndi-lookup id="dataSource"
+      lazy-init="true"
+      jndi-name="jdbc/myDatabase"
+      resource-ref="true"
+      proxy-interface="javax.sql.DataSource" />
+  </beans>
+</beans>
+```
+
+- 在运行时, 只有激活的 Profile 对应的 `<beans>` 下面的 Bean 会被创建;
+
+#### 激活 Profile
+
+Spring 依靠 **`spring.profiles.active`** 和 **`spring.profiles.default`** 属性来判断当前哪个 Profile 是被激活的:
+
+- 如果设置了 `spring.profiles.active` 属性，那么它的值就是激活的 Profile;
+- 如果没有设置 `spring.profiles.active` 属性的话，那 Spring 将会查找 `spring.profiles.default` 的值;
+- 如果 `spring.profiles.active` 和 `spring.profiles.default` 均没有设置的话，那就没有激活的 Profile，因此只会创建那些没有定义在 Profile 中的 Bean;
+
+---
+
+有多种方式来设置这两个属性：
+
+- 作为 DispatcherServlet 的初始化参数；
+- 作为 Web 应用的上下文参数；
+- 作为 JNDI 条目；
+- 作为环境变量；
+- 作为 JVM 的系统属性；
+- 在集成测试类上，使用 `@ActiveProfiles` 注解设置;
+
+这里介绍如何使用 DispatcherServlet 的参数将 `spring.profiles.default` 设置为开发环境的 Profile.
+
+🌰 例如，在 Web 应用中，设置 `spring.profiles.default` 的 `web.xml` 文件会如下所示:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="2.5"
+         xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee
+           http://xmlns.jcp.org/xml/ns/javaee/web-app_2_5.xsd" >
+
+  <context-param>
+    <param-name>contextConfigLocation</param-name>
+    <param-value>/WEB-INF/spring/root-context.xml</param-value>
+  </context-param>
+
+  <context-param>
+    <param-name>spring.profiles.default</param-name>
+    <param-name>dev</param-name>
+  </context-param>
+
+  <listener>
+    <listener-class>
+      org.springframework.web.context.ContextLoaderListener
+    </listener-class>
+  </listener>
+
+  <servlet>
+    <servlet-name>appServlet</servlet-name>
+    <servlet-class>
+      org.springframework.web.servlet.DispatcherServlet
+    </servlet-class>
+    <init-param>
+      <param-name>spring.profile.default</param-name>
+      <param-value>dev</param-value>
+    </init-param>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>appServlet</servlet-name>
+    <url-pattern>/</url-pattern>
+  </servlet-mapping>
+
+</web-app>
+```
+
+- 直接运行代码, 默认就是开发环境;
+- 当应用程序部署到 QA、生产或其他环境之中时，负责部署的人根据情况使用系统属性、环境变量或 JNDI 设置 `spring.profiles.active` 即可;
+
+---
+
+在 `spring.profiles.active` 和 `spring.profiles.default` 中，Profile 使用的都是复数形式。
+
+这意味着, **可以同时激活多个 Profile**，这可以通过列出多个 Profile 名称，并以逗号分隔来实现。
+
+#### 声明测试时的 Profile
+
+当运行集成测试时，通常会希望采用与生产环境相同的配置进行测试。如果配置中的 bean 定义在了 profile 中，那么在运行测试时，我们就需要有一种方式来启用合适的 profile.
+
+Spring 提供了 `@ActiveProfiles` 注解，我们可以使用它来指定运行测试时要激活哪个 profile。
+
+```java
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes={PersistenceTestConfig.class})
+@ActiveProfile("dev")
+public class PersistenceTest {
+  ...
+}
+```
+
+### 条件化的 Bean
+
+上面 👆 使用 Profile 机制来实现基于 Profile 激活状态来进行条件化地创建 Bean.
+
+Spring 4.0 中提供了一种更通用, 更灵活的机制来实现条件化的 Bean 定义.
+
+Spring 4 引入了一个新的 **`@Conditional` 注解**，它可以用到带有 `@Bean` 注解的方法上。 如果给定的条件计算结果为 `true`，就会创建这个 Bean，否则的话，这个 Bean 会被忽略。
+
+🌰 例如，假设有一个名为 MagicBean 的类，我们希望只有设置了 `magic` 环境属性的时候，Spring 才会实例化这个类:
+
+```java
+@Bean
+@Conditioal(MagicExistsCondition.class)
+public MagicBean magicBean() {
+  return new MagicBean();
+}
+```
+
+可以看到，`@Conditional` 中给定了一个 Class，它指明了『 条件 』. 在本例中，也就是 MagicExistsCondition。
+
+`@Conditional` 将会通过 `Condition` 接口的实现类进行条件对比:
+
+```java
+public interface Condition {
+  boolean matches(ConditionContext ctxt, AnnotatedTypeMetadata metadata);
+}
+```
+
+- 设置给 `@Conditional` 的类可以是任意实现了 `Condition` 接口的类型;
+- 实现这个接口只需提供 `matches()` 方法的实现即可;
+- 如果 `matches()` 方法返回 `true`，那么就会创建带有 `@Conditional` 注解的 Bean。如果 `matches()` 方法返回 `false`，将不会创建这些 Bean;
+
+```java
+import org.springframework.context.annotation.Condition;
+import org.springframework.context.annotation.ConditionContext;
+import org.springframework.core.env.Environment;
+import org.springframework.core.type.AnnotatedTypeMetadata;
+
+public class MagicExistsCondition implements Condition {
+
+  @Override
+  public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
+    Environment env = context.getEnvironment();
+    return env.containsProperty("magic");
+  }
+}
+```
+
+- 在 `matches` 方法汇总, 通过给定的 `ConditionContext` 对象进而得到 `Environment` 对象，并使用这个对象检查环境中是否存在名为 `magic` 的环境属性;
+
+---
+
+`matches` 方法的第一个参数类型为 `ConditionContext`.
+
+**`ConditionContext` 是一个接口**, 大致如下所示：
+
+```java
+public interface ConditionContext {
+  BeandefinitionRegistry getRegistry();
+  ConfigurationListableBeanFactory getBeanFactory();
+  Environment getEnvironment();
+  ResourceLoader getResourceLoader();
+  ClassLoader getClassLoader();
+}
+```
+
+通过 `ConditionContext`，我们可以做到如下几点：
+
+- 借助 `getRegistry()` 返回的 `BeanDefinitionRegistry` 检查 bean 定义；
+- 借助 `getBeanFactory()` 返回的 `ConfigurableListableBeanFactory` 检查 bean 是否存在，甚至探查 bean 的属性；
+- 借助 `getEnvironment()` 返回的 `Environment` 检查环境变量是否存在以及它的值是什么；
+- 读取并探查 `getResourceLoader()` 返回的 `ResourceLoader` 所加载的资源；
+- 借助 `getClassLoader()` 返回的 `ClassLoader` 加载并检查类是否存在。
+
+---
+
+`matches` 方法的第二个参数, `AnnotatedTypeMetadata` 则能够让我们检查带有 `@Bean` 注解的方法上还有什么其他的注解.
+
+`AnnotatedTypeMetadata` 也是一个接口。它如下所示：
+
+```java
+public interface AnnotatedTypeMetadata {
+  boolean isAnnotated(String annotationType);
+  Map<String, Object> getAnnotationAttributes(String annotationType);
+  Map<String, Object> getAnnotationAttributes(String annotationType, boolean classValuesAsString);
+  MultiValueMap<String, Object> getAllAnnotationAttributes(String annotationType);
+  MultiValueMap<String, Object> getAllAnnotationAttributes(String annotationType, boolean classValuesAsString);
+}
+```
+
+- `isAnnotated()` 方法能够判断带有 `@Bean` 注解的方法是不是还有其他特定的注解;
+
+### 处理自动装配的歧义性
+
+- 在进行自动装配 Bean 时, 仅有一个 Bean 匹配所需的结果时，自动装配才是有效的;
+- **如果有多个 Bean 能够匹配结果的话，这种歧义性会阻碍 Spring 自动装配**;
+- Spring 会抛出 NoUniqueBeanDefinitionException 异常;
+
+虽然在现实开发中, 基本上每个类型是会实例化一个 Bean 对象, 但当确实发生歧义性的时候，Spring 提供了多种可选方案来解决这样的问题.
+
+#### 指明首选的 Bean
+
+在声明 Bean 的时候，通过将其中一个可选的 Bean **设置为首选 Bean 能够避免自动装配时的歧义性**:
+
+- 当遇到歧义性的时候，Spring 将会使用首选的 Bean.
+- 但注意, 会引起歧义的 Bean 中, 只能有一个 Bean 设置为首选.
+
+通过 **`@Primary` 注解**声明首选 Bean:
+
+```java
+// 和 @Component 注解一起使用, 用于自动扫描
+@Component
+@Primary
+public class IceCream implements Dessert { ... }
+```
+
+```java
+// 和 @Bean 注解一起使用, 用于 Java 配置类
+@Bean
+@Primary
+public Dessert iceCream() {
+  return new IceCream();
+}
+```
+
+在 XML 配置中, `<bean>` 元素有一个 `primary` 属性用于设置首选 Bean:
+
+```xml
+<bean id="iceCream" class="com.desserteater.IceCream" primary="true" />
+```
+
+#### 限定自动装配的 Bean
+
+Spring 的限定符能够在所有可选的 Bean 上进行缩小范围的操作，最终能够达到只有一个 Bean 满足所规定的限制条件.
+
+如果将所有的限定符都用上后依然存在歧义性，那么你可以继续使用更多的限定符来缩小选择范围。
+
+通过 **`@Qualifier` 注解**来使用限定符.
+
+🌰 下面就是一个最简单的示例, 它表示只有带 `iceCream` 限定符的 Bean 可以注入进来:
+
+```java
+@Autowired
+@Qualifier("iceCream")
+public void setDessert(Dessert dessert) {
+  this.dessert = dessert;
+}
+```
+
+- 默认情况下, 如果没有给 Bean 指定限定符, Bean 自带一个与自己 ID 名称相同的限定符;
+- 所以, Spring 会将一个类名为 `IceCream` 的实例作为参数注入进去;
+
+**创建自定义的限定符**:
+
+上面 👆 的 `setDessert()` 方法上所指定的限定符与要注入的 Bean 的名称是紧耦合的. 对类名称的任意改动都会导致限定符失效。
+
+在类上添加 `@Qualifier` 注解可以为其创建自定义的限定符:
+
+```java
+@Component
+@Qualifier("cold")
+public class IceCream implements Dessert { ... }
+```
+
+- 在这种情况下，`cold` 限定符分配给了 IceCreambean。因为它没有耦合类名，因此你可以随意重构 IceCream 的类名，而不必担心会破坏自动装配;
+- 在注入的地方，只要引用 `cold` 限定符就可以了;
+
+```java
+@Autowired
+@Qualifier("cold")
+public void setDessert(Dessert dessert) {
+  this.dessert = dessert;
+}
+```
+
+这时, 如果有其他的 Bean 也具有相同的 `@Qualifier("cold")` 限定符的话, 那么歧义性又会产生.
+
+解决方案就是继续在 Bean 上加限定符, 直到将可选范围缩小到只有一个 Bean 满足需求.
+
+但是, **Java 不允许在同一个条目上重复出现相同类型的多个注解**。我们这里可以通过**创建自定义的注解**来解决:
+
+```java
+@Target({ElementType.CONSTRUCTOR, ElementType.FIELD,
+         ElementType.METHOD, ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@Qualifier
+public @interface Cold { }
+```
+
+```java
+@Target({ElementType.CONSTRUCTOR, ElementType.FIELD,
+         ElementType.METHOD, ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@Qualifier
+public @interface Creamy { }
+```
+
+上面 👆 分别创建了 `@Cold` 和 `@Creamy` 注解, 通过在定义时添加 `@Qualifier` 注解，它们就具有了 `@Qualifier` 注解的特性。它们本身实际上就成为了限定符注解.
+
+下面 👇 通过给 Bean 加上自定义的注解, 就可以更进一步地对其进行限定了:
+
+```java
+@Component
+@Cold
+@Creamy
+public class IceCream implements Dessert { ... }
+```
+
+```java
+@Component
+@Cold
+@Fruity
+public class Popsicle implements Dessert { ... }
+```
+
+```java
+@Autowired
+@Cold
+@Creamy
+public void setDessert(Dessert dessert) {
+  this.dessert = dessert;
+}
+```
+
+- `setDessert` 方法需要注入一个具有 `@Cold` 和 `@Creamy` 限定的 Bean 作为参数;
+- IceCream 和 Popsicle 都有 `@Cold` 限定;
+- 但是只有 IceCream 符合 `@Creamy` 限定;
+- 通过使用必要的限定符注解进行任意组合，从而将可选范围缩小到只有一个 Bean 满足需求;
+- 通过限定符, 实现了被注入的 Bean 和 Setter 方法的解耦, 任意满足限定条件的 Bean 都可以被注入, 而不是写死的;
+- 在这个例子中, IceCream 是唯一能够匹配条件的 Bean, 而不是我们在代码中强制指定的;
+
+### Bean 的作用域
+
+在默认情况下，**Spring 应用上下文中所有 bean 都是作为以单例的形式创建的**。也就是说，不管给定的一个 bean 被注入到其他 bean 多少次，每次所注入的都是同一个实例.
+
+但是, 如果被传入到多个 Bean 的对象是易变的, 在其他 Bean 中修改传入进来的对象, 可能造成另外一个依赖此对象的 Bean 发生错误.
+
+在这种情况下, 重用 Bean 是不安全的. 因为对象会被污染，稍后重用的时候会出现意想不到的问题。
+
+**Spring 允许通过定义 Bean 的作用域, 来指定 Bean 实例创建的模式**.
+
+---
+
+Spring 定义了多种**作用域**，可以基于这些作用域创建 Bean:
+
+- 单例（Singleton）：在整个应用中，只创建 Bean 的一个实例。
+- 原型（Prototype）：每次注入或者通过 Spring 应用上下文获取的时候，都会创建一个新的 Bean 实例。
+- 会话（Session）：在 Web 应用中，为每个会话创建一个 Bean 实例。
+- 请求（Rquest）：在 Web 应用中，为每个请求创建一个 Bean 实例。
+
+使用 @Scope 注解可以设置 Bean 的作用域:
+
+```java
+@Component
+@Scop(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+public class Notepad { ... }
+```
+
+- 使用 `ConfigurableBeanFactory` 类的 `SCOPE_PROTOTYPE` 常量设置了原型作用域;
+- 也可以使用 `@Scope("prototype")`，但是使用 `SCOPE_PROTOTYPE` 常量更加安全并且不易出错;
+
+---
+
+在 JavaConfig 配置类中使用方法也是一样:
+
+```java
+@Bean
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+public Notepad notepad() {
+  return new Notepad();
+}
+```
+
+---
+
+使用 XML 来配置的话，可以使用 `<bean>` 元素的 `scope` 属性来设置作用域:
+
+```xml
+<bean id="notepad" class="com.myapp.Notepad" scope="prototype" />
+```
+
+#### 会话/请求作用域 & 作用域代理
+
+在开发 Web 应用时, 通常会创建针对当前会话/请求的实例.
+
+🌰 例如, 我们在购物网站中, 创建一个购物车实例. 应当是每个用户会话独享一个购物车实例. 不可能让所有的用户都共享一个购物车实例. 也不可能用原型作用域, 在每次注入购物车 Bean 时都重新创建一个实例.
+
+```java
+@Component
+@Scope(value=WebApplicationContext.SCOPE_SESSION,
+       proxyMode=ScopedProxyMode.INTERFACES)
+public ShoppingCart cart() { ... }
+```
+
+- 将 `value` 设置成了 `WebApplicationContext 中的 SCOPE_SESSION` 常量, 这会告诉 Spring 为 Web 应用中的每个会话创建一个实例;
+- `@Scope` 同时还有一个 `proxyMode` 属性，它被设置成了 `ScopedProxyMode.INTERFACES`;
+
+---
+
+**`proxyMode` 属性**解决了将会话或请求作用域的 Bean 注入到单例 Bean 中所遇到的问题:
+
+假设我们要将 ShoppingCart 注入到单例 StoreService 的 Setter 方法中:
+
+```java
+@Component
+public class StoreService {
+  @Autowired
+  public void setShoppingCart(ShoppingCart shoppingCart) {
+    this.shoppingCart = shoppingCart;
+  }
+}
+```
+
+- 因为 `StoreService` 是一个单例的 Bean，会在 Spring 应用上下文加载的时候创建;
+- 当它创建的时候，Spring 会试图将 `ShoppingCart` 注入到 `setShoppingCart()` 方法中;
+- 但是 `ShoppingCart` 是会话作用域的，此时并不存在。直到某个用户进入系统，创建了会话之后，才会出现 `ShoppingCart` 实例;
+
+- 而且, 每个用户会话都有一个 `ShoppingCart` 实例, 我们并不想让 Spring 注入某个固定的 `ShoppingCart` 实例到 `StoreService` 中;
+- 我们希望的是当 `StoreService` 处理购物车功能时，它所使用的 `ShoppingCart` 实例恰好是当前会话所对应的那一个;
+
+设置了 `proxyMode` 属性后, Spring 并不会将实际的 ShoppingCart 实例注入到 StoreService 中， 而是 **Spring 会注入一个 ShoppingCart 的代理**.
+
+当 StoreService 调用 ShoppingCart 的方法时，代理会对其进行懒解析并将调用委托给会话作用域内真正的 ShoppingCart.
+
+![2020-05-19-19-02-21](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-05-19-19-02-21.png)
+
+**`ScopedProxyMode.INTERFACES`** 属性值, 表明这个代理要实现 ShoppingCart 接口，并将调用委托给真正的实现类对象;
+
+如果 ShoppingCart 是一个具体的类的话, 要将 proxyMode 属性设置为 **`ScopedProxyMode.TARGET_CLASS`**，以此来表明要以生成目标类扩展的方式创建代理。
+
+#### 在 XML 中声明作用域代理
+
+在 XML 配置中, 要设置代理模式，我们需要使用 Spring `aop` 命名空间的 `<aop:scoped-proxy>` 元素.
+
+在使用之前先在 XML 配置中声明 Spring 的 `aop` 命名空间：
+
+```java
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:aop="http://www.springframework.org/schema/aop"
+  xsi:schemaLocation="
+    http://www.springframework.org/schema/aop
+    http://www.springframework.org/schema/beans/spring-aop.xsd
+    http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd" >
+    ...
+</beans>
+```
+
+下面展示了如何在 XML 中为会话/请求作用域的 Bean, 设置作用域代理:
+
+```xml
+<bean id="cart" class="com.myapp.ShoppingCart" scope="session">
+  <aop:scoped-proxy />
+</bean>
+```
+
+`<aop:scoped-proxy>` 默认创建目标类的代理. 通过将 `proxy-target-class` 属性设置为 `false`，可以要求它生成基于接口的代理:
+
+```java
+<bean id="cart" class="com.myapp.ShoppingCart" scope="session">
+  <aop:scoped-proxy proxy-target-class="false" />
+</bean>
+```
+
+### 运行时值注入
 
 ## 面向切面 AOP
 
