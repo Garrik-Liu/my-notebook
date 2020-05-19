@@ -2,24 +2,78 @@
 
 ## Spring 介绍
 
+Spring 框架是以简化 Java EE 应用程序的开发为目标而创建的开源框架。
+
+为了降低 Java 开发的复杂性，Spring 采取了以下 4 种关键策略：
+
+- **基于 POJO 的轻量级和最小侵入性编程**；
+- **通过依赖注入和面向接口实现松耦合**；
+- **基于切面和惯例进行声明式编程**；
+- **通过切面和模板减少样板式代码**。
+
+### POJO & Bean
+
+Spring 是一个非侵入式的轻量级框架. Spring 不会强迫你实现 Spring 规范的接口或继承 Spring 规范的类.
+
+在基于 Spring 构建的应用中，开发者所写的类通常没有任何痕迹表明你使用了 Spring, 最多就是使用 Spring 的注解.
+
+✏️ **POJO** （ Plain Ordinary Java Object ），可以称为 “普通 Java 类” 或 “简单 Java 类”:
+
+- 指那些没有遵从特定的 Java 对象模型、约定的 Java 对象;
+- 它们不继承自另一个类, 也不实现任何接口;
+- 就是最普通的 Java 类.
+
+### 依赖注入
+
+在实际开发中, 经常需要靠一堆类相互之间进行协作来完成特定的业务逻辑.
+
+一个类中会需要依赖其他的类. 按照传统的做法，每个对象负责管理它所依赖的对象. 这会导致类与类之间的高耦合.
+
+🌰 例如, 下面的代码中, `DamselRescuingKnight` 内部就依赖一个 `RescueDamselQuest` 类:
+
+```java
+public class DamselRescuingKnight implements Knight {
+
+  private RescueDamselQuest quest;
+
+  public DamselRescuingKnight() {
+    this.quest = new RescueDamselQuest();
+  }
+
+  public void embarkOnQuest() {
+    quest.embark();
+  }
+}
+```
+
+通过『 依赖注入 』，对象的依赖关系将由系统中负责协调各对象的第三方组件在创建对象的时候进行设定。对象无需自行创建或管理它们的依赖关系.
+
+![2020-05-18-15-35-13](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-05-18-15-35-13.png)
+
+依赖注入使得类与类之间变得『 松耦合 』
+
 ### 面向切面
 
-面向切面编程（aspect-oriented programming，AOP）允许你把遍布应用各处的功能分离出来形成可重用的组件。
+**面向切面编程**（aspect-oriented programming，AOP）允许你把遍布应用各处的重复的功能, 抽离出来形成可重用的组件。
 
-系统由许多不同的组件组成，每一个组件各负责一块特定功能。除了实现自身核心的功能之外，这些组件还经常承担着额外的职责。诸如日志、事务管理和安全这样的系统服务。
+系统由许多不同的组件组成，每一个组件各负责一块特定功能。除了实现自身核心的功能之外，这些组件还经常承担着额外的职责。诸如日志、事务管理和安全这样的『 系统服务 』。
 
-这些系统服务经常融入到自身具有核心业务逻辑的组件中去，这些系统服务通常被称为横切关注点，因为它们会跨越系统的多个组件。
+这些系统服务经常融入到自身具有核心业务逻辑的组件中去，这些系统服务通常被称为『 **横切关注点** 』，因为它们会跨越系统的多个组件。
 
 这些融入在业务逻辑之中的系统服务，加重了代码的复杂性：
 
-- 实现系统关注点功能的代码将会重复出现在多个组件中，如果你要改变这些关注点的逻辑，必须修改各个模块中的相关实现。即使你把这些关注点抽象为一个独立的模块，其他模块只是调用它的方法，但方法的调用还是会重复出现在各个模块中。
-- 组件会因为那些与自身核心业务无关的代码而变得混乱。
+- 实现系统服务的代码将会重复出现在多个组件中，如果你要改变这些关注点的逻辑，必须修改各个模块中的相关实现。即使你把这些关注点抽象为一个独立的模块，其他组件只是调用它的方法，但方法的调用还是会重复出现在各个组件中。
+- 各个组件, 因为这些与自身核心业务无关的系统服务而变得混乱。
 
-AOP 能够使这些服务模块化，并以声明的方式将它们应用到它们需要影响的组件中去。所造成的结果就是这些组件会具有更高的内聚性并且会更加关注自身的业务
+下图 👇 展示这种系统功能散步在各个模块中时的情况:
+
+![2020-05-18-18-43-34](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-05-18-18-43-34.png)
+
+**AOP 能够使这些服务模块化，并以声明的方式将它们应用到它们需要影响的组件中去**。所造成的结果就是这些组件会具有更高的内聚性并且会更加关注自身的业务
 
 我们可以把切面想象为覆盖在很多组件之上的一个外壳。应用是由那些实现各自业务功能的模块组成的。借助 AOP，可以使用各种功能层去包裹核心业务层。
 
-AOP 使得安全、事务和日志关注点等系统级服务与核心业务逻辑相分离。
+![2020-05-18-18-46-04](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-05-18-18-46-04.png)
 
 🌰 举例：
 
@@ -231,60 +285,60 @@ public Employee getEmployeeById(long id) {
 
 ### Spring 容器
 
-上面展示了在基于 XML 的配置文件中如何配置 bean 和切面，但这些文件是如何加载的呢？它们被加载到哪里去了？
+上面展示了在基于 XML 的配置文件中如何配置 Bean 和切面，但这些文件是如何加载的呢？它们被加载到哪里去了？
 
-在基于 Spring 的应用中，你的应用对象生存于 Spring 容器（container）中。容器是 Spring 框架的核心。Spring 容器使用 DI 管理构成应用的组件。
+在基于 Spring 的应用中，你的应用对象生存于 Spring 容器（container）中。**容器是 Spring 框架的核心, 它通过 DI 来管理构成应用的各个 Bean 对象**
 
-Spring 容器负责创建对象，装配它们，配置它们并管理它们的整个生命周期，从生存到死亡。
+Spring 容器负责创建对象，装配它们，配置它们并管理它们的整个生命周期.
 
 Spring 容器并不是只有一个。Spring 自带了多个容器实现，可以归为两种不同的类型：
 
-- bean 工厂（由 org.springframework.beans.factory.BeanFactory 接口定义）是最简单的容器，提供基本的 DI 支持。
-- 应用上下文（由 org.springframework.context.ApplicationContext 接口定义）基于 BeanFactory 构建，并提供应用框架级别的服务，
+- **Bean 工厂**（由 `org.springframework.beans.factory.BeanFactory` 接口定义）是最简单的容器，提供基本的 DI 支持。
+- **应用上下文**（由 `org.springframework.context.ApplicationContext` 接口定义）基于 `BeanFactory` 构建，并提供应用框架级别的服务，
 
-我们可以在 bean 工厂和应用上下文之间任选一种，但 bean 工厂对大多数应用来说往往太低级了，在开发中我们多数选用应用上下文；
+我们可以在 bean 工厂和应用上下文之间任选一种，但 Bean 工厂对大多数应用来说往往太底层了，在开发中我们多数选用应用上下文；
 
 ---
 
 Spring 自带了多种类型的应用上下文。下面罗列的几个是你最有可能遇到的：
 
-- AnnotationConfigApplicationContext：从一个或多个基于 Java 的配置类中加载 Spring 应用上下文。
-- AnnotationConfigWebApplicationContext：从一个或多个基于 Java 的配置类中加载 Spring Web 应用上下文。
-- ClassPathXmlApplicationContext：从类路径下的一个或多个 XML 配置文件中加载上下文定义，把应用上下文的定义文件作为类资源。
-- FileSystemXmlapplicationcontext：从文件系统下的一 个或多个 XML 配置文件中加载上下文定义。
-- XmlWebApplicationContext：从 Web 应用下的一个或多个 XML 配置文件中加载上下文定义。
+- `AnnotationConfigApplicationContext`：从一个或多个基于 Java 的配置类中加载 Spring 应用上下文。
+- `AnnotationConfigWebApplicationContext`：从一个或多个基于 Java 的配置类中加载 Spring Web 应用上下文。
+- `ClassPathXmlApplicationContext`：从类路径下的一个或多个 XML 配置文件中加载上下文定义，把应用上下文的定义文件作为类资源。
+- `FileSystemXmlapplicationcontext`：从文件系统下的一个或多个 XML 配置文件中加载上下文定义。
+- `XmlWebApplicationContext`：从 Web 应用下的一个或多个 XML 配置文件中加载上下文定义。
 
 🌰 示例：
 
-下面展示了使用 ClassPathXmlApplicationContext 从应用的类路径下加载配置文件，然后创建应用上下文：
+下面展示了使用 `ClassPathXmlApplicationContext` 从应用的类路径下加载配置文件，然后创建应用上下文：
 
 ```java
 ClassPathXmlApplicationContext.java
 ApplicationContext context = new ClassPathXmlApplicationContext("knight.xml");
 ```
 
-应用上下文准备就绪之后，我们就可以调用上下文的 getBean() 方法从 Spring 容器中获取 bean。
+应用上下文准备就绪之后，我们就可以调用上下文的 `getBean()` 方法从 Spring 容器中获取 Bean 对象。
 
 ### Bean 的生命周期
 
-在传统的 Java 应用中，实例的生命周期很简单。使用 Java 关键字 new 进行类的实例化，然后该实例就可以使用了。一旦该实例不再被使用，则由 Java 自动进行垃圾回收。
+在传统的 Java 应用中，实例的生命周期很简单。使用 Java 关键字 `new` 进行类的实例化，然后该实例就可以使用了。一旦该实例不再被使用，则由 Java 自动进行垃圾回收。
 
-相比之下，Spring 容器中的 bean 的生命周期就显得相对复杂多了。下图展示了 bean 装载到 Spring 应用上下文中的一个典型的生命周期过程：
+相比之下，Spring 容器中的 bean 的生命周期就显得相对复杂多了。下图展示了 Bean 装载到 Spring 应用上下文中的一个典型的生命周期过程：
 
 ![2020-3-25-15-45-21.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-3-25-15-45-21.png)
 
 在 bean 准备就绪之前，bean 工厂执行了若干启动步骤：
 
-1. Spring 对 bean 进行实例化；
-2. Spring 将值和 bean 的引用注入到 bean 对应的属性中；
-3. 如果 bean 实现了 BeanNameAware 接口，Spring 将 bean 的 ID 传递给 setBeanName()方法；
-4. 如果 bean 实现了 BeanFactoryAware 接口，Spring 将调用 setBeanFactory() 方法，将 BeanFactory 容器实例传入；
-5. 如果 bean 实现了 ApplicationContextAware 接口，Spring 将调用 setApplicationContext() 方法，将 bean 所在的应用上下文的引用传入进来；
-6. 如果 bean 实现了 BeanPostProcessor 接口，Spring 将调用它们的 postProcessBefore-Initialization() 方法；
-7. 如果 bean 实现了 InitializingBean 接口，Spring 将调用它们的 afterPropertiesSet() 方法。类似地，如果 bean 使用 initmethod 声明了初始化方法，该方法也会被调用；
-8. 如果 bean 实现了 BeanPostProcessor 接口，Spring 将调用它们的 postProcessAfter-Initialization() 方法；
+1. Spring 对 Bean 进行实例化；
+2. Spring 将值和对其他 Bean 的引用注入到 Bean 对应的属性中；
+3. 如果 bean 实现了 `BeanNameAware` 接口，Spring 将 bean 的 ID 传递给 `setBeanName()` 方法；
+4. 如果 bean 实现了 `BeanFactoryAware` 接口，Spring 将调用 `setBeanFactory()` 方法，将 `BeanFactory` 容器实例传入；
+5. 如果 bean 实现了 `ApplicationContextAware` 接口，Spring 将调用 `setApplicationContext()` 方法，将 bean 所在的应用上下文的引用传入进来；
+6. 如果 bean 实现了 `BeanPostProcessor` 接口，Spring 将调用它们的 `postProcessBefore-Initialization()` 方法；
+7. 如果 bean 实现了 `InitializingBean` 接口，Spring 将调用它们的 `afterPropertiesSet()` 方法。类似地，如果 bean 使用 `initmethod` 声明了初始化方法，该方法也会被调用；
+8. 如果 bean 实现了 `BeanPostProcessor` 接口，Spring 将调用它们的 `postProcessAfter-Initialization()` 方法；
 9. 此时，bean 已经准备就绪，可以被应用程序使用了，它们将一直驻留在应用上下文中，直到该应用上下文被销毁；
-10. 如果 bean 实现了 DisposableBean 接口，Spring 将调用它的 destroy() 接口方法。
+10. 如果 bean 实现了 `DisposableBean` 接口，Spring 将调用它的 `destroy()` 接口方法。
 
 ### Spring 模块
 
@@ -340,31 +394,23 @@ Spring 框架关注于通过 DI、AOP 和消除样板式代码来简化企业级
 
 ## 装配 Bean
 
-任何一个成功的应用都是由多个为了实现某一个业务目标而相互协作的组件构成的。这些组件必须彼此了解，并且相互协作来完成工作。
+创建对象实例之间依赖关系的行为称为『 **装配** wiring 』，这也是依赖注入（DI）的本质。
 
-创建应用对象之间关联关系的传统方法（通过构造器或者查找）通常会导致结构复杂的代码，这些对象所做的事情超出了它应该做的范围，导致代码很难被复用也很难进行单元测试。
+下面 👇 介绍使用 Spring 装配 Bean 的基础知识:
 
-在 Spring 中，对象无需自己查找或创建与其所关联的其他对象。相反，容器负责把需要相互协作的对象引用赋予各个对象。例如，一个订单管理组件需要信用卡认证组件，但它不需要自己创建信用卡认证组件。订单管理组件只需要它需要使用信用卡认证组件，容器就会主动赋予它一个信用卡认证组件。
+作为开发人员，你需要告诉 Spring 要创建哪些 Bean 并且如何将其装配在一起。在 Spring 中装配 bean 有多种方式。这里介绍一下配置 Spring 容器最常见的三种方法：
 
-创建应用对象之间协作（依赖）关系的行为通常称为装配（wiring），这也是依赖注入（DI）的本质。
+- **在 XML 中进行显式配置**;
+- **在 Java 中进行显式配置**;
+- **通过注解, 进行自动装配**;
 
-下面 👇 介绍使用 Spring 装配 bean 的基础知识。
+可以多种配置方法组合使用.
 
----
-
-作为开发人员，你需要告诉 Spring 要创建哪些 bean 并且如何将其装配在一起。在 Spring 中装配 bean 有多种方式。这里介绍一下配置 Spring 容器最常见的三种方法：
-
-- 在 XML 中进行显式配置。
-- 在 Java 中进行显式配置。
-- 通过注解，进行自动装配。
-
-在很多场景下，选择哪种方案很大程度上就是个人喜好的问题，你尽可以选择自己最喜欢的方式。Spring 的配置风格是可以互相搭配的，大多时候在一个项目中，通常多种配置方式穿插使用；
-
-即便如此，我的建议是尽可能地使用注解配置的机制。显式配置越少越好。
+> 建议: 尽可能地使用注解配置的机制。显式配置越少越好。
 
 ### XML 配置
 
-下面是一个 XML 配置示例：
+👇 下面是一个 XML 配置示例：
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -379,24 +425,26 @@ Spring 框架关注于通过 DI、AOP 和消除样板式代码来简化企业级
 
 在配置文件的顶部声明多个 XML 模式（XSD）文件，这些文件定义了配置 Spring 的 XML 元素。
 
-用来装配 bean 的最基本的 XML 元素包含在 spring-beans 模式之中，在上面这个 XML 文件中，它被定义为根命名空间。是该模式中的一个元素，它是所有 Spring 配置文件的根元素。
+用来装配 Bean 的最基本的 XML 元素 `<beans>` 包含在 spring-beans 模式之中，在上面这个 XML 文件中，它被定义为根命名空间。是该模式中的一个元素，它是所有 Spring 配置文件的根元素。
 
-要在基于 XML 的 Spring 配置中声明一个 bean，我们要使用 springbeans 模式中的一个元素：`<bean>`
+要在基于 XML 的 Spring 配置中声明一个 bean，我们要使用 spring-beans 模式中的一个元素：`<bean>`
 
 ```xml
 <bean id="compactDisc" class="soundsystem.SgtPeppers" />
 ```
 
-- 这里声明了一个很简单的 bean，创建这个 bean 的类通过 class 属性来指定的，并且要使用全限定的类名。
-- 通过 id 属性给 bean 设置一个你自己选择的名字。
+- 这里声明了一个很简单的 Bean，创建这个 Bean 的类通过 `class` 属性来指定的，并且要使用++全限定的类名++。
+- 通过 `id` 属性可以给 Bean 设置一个名字;
 
-在向其他的 Bean 中注意这个 Bean 的时候，会有多种可选的配置方案和风格。
+---
+
+在向其他的 Bean 中注入这个 Bean 的时候，会有多种可选的配置方案和风格:
 
 #### 构造器注入
 
-假设有一个 CDPlayer bean ，它有一个接受 CompactDisc 类型的构造器。
+假设有一个 CDPlayer Bean ，它有一个接受 CompactDisc 类型的构造器。
 
-一种方法是通过 `<constructor-arg>` 元素进行构造器注入。
+一种方法是通过 **`<constructor-arg>`** 元素进行构造器注入:
 
 ```xml
 <bean id="cdPlayer" class="soundsystem.CDPlayer">
@@ -406,7 +454,14 @@ Spring 框架关注于通过 DI、AOP 和消除样板式代码来简化企业级
 
 当 Spring 遇到这个 `<bean>` 元素时，它会创建一个 CDPlayer 实例。`<constructor-arg>` 元素会告知 Spring 要将一个 ID 为 compactDisc 的 bean 引用传递到 CDPlayer 的构造器中。
 
-作为替代的方案，你也可以使用 Spring 的 `c-` 命名空间。`c-` 命名空间是在 Spring 3.0 中引入的，它是在 XML 中更为简洁地描述构造器参数的方式。要使用它的话，必须要在 XML 的顶部声明其模式。
+---
+
+作为替代的方案，你也可以使用 Spring 的 **`c-`** 命名空间:
+
+- `c-` 命名空间是在 Spring 3.0 中引入的;
+- 它是在 XML 中更为简洁地描述构造器参数的方式;
+
+要使用它的话，必须要在 XML 文件的顶部声明其模式;
 
 ```java
 <?xml version="1.0" encoding="UTF-8"?>
@@ -429,15 +484,23 @@ Spring 框架关注于通过 DI、AOP 和消除样板式代码来简化企业级
 
 ![2020-3-25-17-5-42.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-3-25-17-5-42.png)
 
-属性名以 `c:` 开头，也就是命名空间的前缀。接下来就是要装配的构造器参数名，在此之后是 `-ref`，这是一个命名的约定，它会告诉 Spring，正在装配的是一个 bean 的引用，这个 bean 的名字是 `compactDisc`。
+- 属性名以 `c:` 开头，也就是命名空间的前缀;
+- 接下来就是要装配的构造器参数名;
+- 在此之后是 `-ref` + Bean 名字，这是一个命名的约定，它会告诉 Spring，装配进来的是一个 Bean 的引用，这个 Bean 的名字是 `compactDisc`;
 
-也可以参数的名称替换成参数的索引。
+---
+
+也可以参数的名称替换成『 参数的索引 』:
 
 ```xml
 <bean id="cdPlayer" class="soundsystem.CDPlayer" c:_0-ref="compactDisc" />
 ```
 
-上面展示了如何将对象的引用装配到依赖于它们的其他对象之中。但有时候，我们需要做的只是用一个字面量值来配置对象。
+---
+
+👆 上面展示了如何将对象的引用装配到依赖于它们的其他对象之中。
+
+但有时候，我们需要做的只是用一个字面量值来配置对象。
 
 ```xml
 <bean id="compactDisc" class="soundsystem.BlankDisc">
@@ -446,9 +509,9 @@ Spring 框架关注于通过 DI、AOP 和消除样板式代码来简化企业级
 </bean>
 ```
 
-这一次我们没有使用 `ref` 属性来引用其他的 bean，而是使用了 `value` 属性，通过该属性表明给定的值要以字面量的形式注入到构造器之中。
+通过 **`value`** 属性传入一个基本类型的值到构造器中。
 
-如果要使用 c- 命名空间的话，那配置代码如下；
+如果要使用 `c-` 命名空间的话，那配置代码如下；
 
 ```xml
 <bean id="compactDisc" class="soundsystem.BlankDisc"
@@ -458,7 +521,9 @@ Spring 框架关注于通过 DI、AOP 和消除样板式代码来简化企业级
 
 装配字面量与装配引用的区别在于属性名中去掉了 `-ref` 后缀。
 
-有时候我们需要给构造器传入的参数的是 `null`。通过以下配置来实现：
+---
+
+有时候我们需要给构造器传入的参数的是 **`null`**。通过以下配置来实现：
 
 ```xml
 <bean id="compactDisc" class="soundsystem.BlankDisc">
@@ -490,7 +555,12 @@ Spring 框架关注于通过 DI、AOP 和消除样板式代码来简化企业级
 </bean>
 ```
 
-`<list>` 元素是 `<constructor-arg>` 的子元素，这表明一个包含值的 java.util.List 列表将会传递到构造器中。其中，`<value>` 元素用来指定列表中的每个元素。我们也可以使用 `<ref>` 元素替代 `<value>`，实现 bean 引用列表的装配。
+- `<list>` 元素是 `<constructor-arg>` 的子元素，将一个 `java.util.List` 类型的列表传入到构造器中;
+- `<value>` 元素用来声明列表中的基本类型值元素;
+
+使用 `<ref>` 元素声明值为 Bean 对象引用的元素:
+
+- `bean` 属性指定对应的 Bean 的名字;
 
 ```xml
 <bean id="beatlesDiscography"
@@ -507,7 +577,7 @@ Spring 框架关注于通过 DI、AOP 和消除样板式代码来简化企业级
 </bean>
 ```
 
-假如集合的类型是 java.util.Set，所有重复的值都会被忽略掉，存放顺序也不会得以保证。配置如下：
+使用 `<set>` 元素声明 `java.util.Set` 类型的集合，所有重复的值都会被忽略掉，元素之间无序:
 
 ```xml
 <bean id="compactDisc" class="soundsystem.BlankDisc" >
@@ -526,11 +596,13 @@ Spring 框架关注于通过 DI、AOP 和消除样板式代码来简化企业级
 </bean>
 ```
 
+---
+
 在装配集合方面，`<constructor-arg>` 比 `c-` 命名空间的属性更有优势。目前，使用 `c-` 命名空间的属性无法实现装配集合的功能。
 
 #### 通过属性的 Setter 方法注入
 
-下面展示一下如何使用 Spring XML 实现属性注入。
+下面展示一下如何使用 Spring XML 实现 Bean 对象的属性注入:
 
 ```xml
 <bean id="cdPlayer" class="soundsystem.CDPlayer" >
@@ -540,7 +612,15 @@ Spring 框架关注于通过 DI、AOP 和消除样板式代码来简化企业级
 
 它引用了 ID 为 `compactDisc` 的 bean（通过 `ref` 属性），并将其注入到 `compactDisc` 属性中（通过`setCompactDisc()` 方法）
 
-Spring 提供了更加简洁的 `p-` 命名空间，作为 `<property>` 元素的替代方案。为了启用 `p-` 命名空间，必须要在 XML 文件中与其他的命名空间一起对其进行声明：
+- 通过 **`<property>`** 标签进行属性注入;
+- `ref` 指定注入进行的 Bean 名称;
+- `name` 指定当前 Bean 对应的属性名;
+
+---
+
+Spring 提供了 **`p-`** 命名空间，作为 `<property>` 元素的替代方案。
+
+为了启用 `p-` 命名空间，必须要在 XML 文件中进行声明：
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -562,6 +642,7 @@ Spring 提供了更加简洁的 `p-` 命名空间，作为 `<property>` 元素�
 注入字面量和集合的方法，都和通过构造器注入方法差不多：
 
 ```xml
+<!-- 使用 property 标签 -->
 <bean id="compactDisc" class="soundsystem.BlankDisc">
   <property name="title" value="Sgt. Pepper's Lonely Hearts Club Band" />
   <property name="artist" value="The Beatles">
@@ -578,9 +659,8 @@ Spring 提供了更加简洁的 `p-` 命名空间，作为 `<property>` 元素�
 </bean>
 ```
 
-另外一种可选方案就是使用 `p-` 命名空间的属性来完成该功能：
-
 ```xml
+<!-- 使用 p- 命名空间 -->
 <bean id="compactDisc" class="soundsystem.BlankDisc"
       p:title="Sgt. Pepper's Lonely Hearts Club Band"
       p:artist="The Beatles" >
@@ -597,7 +677,11 @@ Spring 提供了更加简洁的 `p-` 命名空间，作为 `<property>` 元素�
 </bean>
 ```
 
-无论是 `c-` 还是 `p-` 命名空间，我们都不能在后面直接定义一个集合。但是我们可以用 Spring `util-` 命名空间中的一些功能来创建一个集合 Bean，然后通过 `-ref` 后缀来用 `c-` 和 `p-` 注入集合；
+---
+
+无论是 `c-` 还是 `p-` 命名空间，我们都不能在后面直接定义一个集合。
+
+但是我们可以用 Spring 提供的 **`util-`** 命名空间中的一些功能来创建一个集合 Bean，然后通过 `-ref` 后缀来用 `c-` 和 `p-` 注入集合；
 
 例如：
 
@@ -946,6 +1030,8 @@ public class SoundSystemConfig {
 
 </beans>
 ```
+
+## 高级装配
 
 ## 面向切面 AOP
 
@@ -1715,7 +1801,76 @@ Spitter 参数添加了 @Valid 注解，这会告知 Spring，需要确保这个
 
 如果有校验出现错误的话，那么这些错误可以通过 Errors 对象进行访问，现在这个对象已作为 processRegistration() 方法的参数。
 
-### 使用 Spring MVC 创建 REST API
+## 渲染 Web 视图
+
+## Spring MVC 进阶
+
+## Spring Security
+
+Spring Security 是为基于 Spring 的应用程序提供声明式安全保护的安全性框架。Spring Security 提供了完整的安全性解决方案，它能够在 Web 请求级别和方法调用级别处理身份认证和授权。
+
+Spring Security 借助一系列 Servlet Filter 来提供各种安全性功能。借助于 Spring 的小技巧，我们只需配置一个 Filter 就可以了。
+
+DelegatingFilterProxy 是一个特殊的 Servlet Filter，它本身所做的工作并不多。只是将工作委托给一个 javax.servlet.Filter 实现类，这个实现类作为一个 Bean 注册在 Spring 应用的上下文中。
+
+![2020-3-26-19-27-27.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-3-26-19-27-27.png)
+
+如果你喜欢在传统的 web.xml 中配置 Servlet 和 Filter 的话，可以使用 `<filter>` 元素，如下所示：
+
+```xml
+<filter>
+  <filter-name>springSecurityFilterChain</filter-name>
+  <filter-class>
+    org.springframework.web.filter.DelegatingFilteProxy
+  </filter-class>
+</filter>
+```
+
+Spring 3.2 引入了新的 Java 配置方案，完全不再需要通过 XML 来配置安全性功能了。如下的程序清单展现了 Spring Security 最简单的 Java 配置。
+
+```java
+package spitter.config;
+
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.servlet.configuration.EnableWebSecurity;
+
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
+}
+```
+
+@EnableWebSecurity 注解将会启用 Web 安全功能。但它本身并没有什么用处，Spring Security 必须配置在一个实现了 WebSecurityConfigurer 的 bean 中，最为简单的方式就是扩展 WebSecurityConfigurerAdapter 类。
+
+@EnableWebSecurity 可以启用任意 Web 应用的安全性功能。如果你的应用碰巧是使用 Spring MVC 开发的，那么就应该考虑使用 @EnableWeb-MvcSecurity 替代它。
+
+```java
+package spitter.config;
+
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.servlet.configuration.EnableWebMvcSecurity;
+
+@Configuration
+@EnableWebMvcSecurity
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
+}
+```
+
+## JDBC
+
+## 对象-关系映射持久化
+
+## 使用 NoSQL 数据库
+
+## 缓存数据
+
+## 保护方法应用
+
+## 使用远程服务
+
+## 使用 Spring MVC 创建 REST API
 
 为了理解 REST 是什么，我们将它的首字母缩写拆分为不同的构成部分：
 
@@ -1736,7 +1891,7 @@ REST 中会有行为，它们是通过 HTTP 方法来定义的。具体来讲，
 
 尽管通常来讲，HTTP 方法会映射为 CRUD 动作，但这并不是严格的限制。有时候，PUT 可以用来创建新资源，POST 可以用来更新资源。
 
-#### 创建第一个 REST 端点
+### 创建第一个 REST 端点
 
 表述是 REST 中很重要的一个方面。它是关于客户端和服务器端针对某一资源是如何通信的。任何给定的资源都几乎可以用任意的形式来进行表述。如果资源的使用者愿意使用 JSON，那么资源就可以用 JSON 格式来表述。如果使用者喜欢尖括号，那相同的资源可以用 XML 来进行表述。甚至 txt 格式。资源的本质没有变化，只是它的表述方式变化了。
 
@@ -1815,76 +1970,5 @@ public @ResponseBody Spittle saveSpittle(@RequestBody Spittle spittle) {
 因为 ResponseEntity 允许我们指定响应的状态码，所以当无法找到 Spittle 的时候，我们可以返回 HTTP 404 错误。
 
 ### 在响应中设置头部信息
-
-## 渲染 Web 视图
-
-## Spring MVC 进阶
-
-## Spring Security
-
-Spring Security 是为基于 Spring 的应用程序提供声明式安全保护的安全性框架。Spring Security 提供了完整的安全性解决方案，它能够在 Web 请求级别和方法调用级别处理身份认证和授权。
-
-Spring Security 借助一系列 Servlet Filter 来提供各种安全性功能。借助于 Spring 的小技巧，我们只需配置一个 Filter 就可以了。
-
-DelegatingFilterProxy 是一个特殊的 Servlet Filter，它本身所做的工作并不多。只是将工作委托给一个 javax.servlet.Filter 实现类，这个实现类作为一个 Bean 注册在 Spring 应用的上下文中。
-
-![2020-3-26-19-27-27.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-3-26-19-27-27.png)
-
-如果你喜欢在传统的 web.xml 中配置 Servlet 和 Filter 的话，可以使用 `<filter>` 元素，如下所示：
-
-```xml
-<filter>
-  <filter-name>springSecurityFilterChain</filter-name>
-  <filter-class>
-    org.springframework.web.filter.DelegatingFilteProxy
-  </filter-class>
-</filter>
-```
-
-Spring 3.2 引入了新的 Java 配置方案，完全不再需要通过 XML 来配置安全性功能了。如下的程序清单展现了 Spring Security 最简单的 Java 配置。
-
-```java
-package spitter.config;
-
-import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.annotation.web.servlet.configuration.EnableWebSecurity;
-
-@Configuration
-@EnableWebSecurity
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
-}
-```
-
-@EnableWebSecurity 注解将会启用 Web 安全功能。但它本身并没有什么用处，Spring Security 必须配置在一个实现了 WebSecurityConfigurer 的 bean 中，最为简单的方式就是扩展 WebSecurityConfigurerAdapter 类。
-
-@EnableWebSecurity 可以启用任意 Web 应用的安全性功能。如果你的应用碰巧是使用 Spring MVC 开发的，那么就应该考虑使用 @EnableWeb-MvcSecurity 替代它。
-
-```java
-package spitter.config;
-
-import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.annotation.web.servlet.configuration.EnableWebMvcSecurity;
-
-@Configuration
-@EnableWebMvcSecurity
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
-}
-```
-
-## JDBC
-
-## 对象-关系映射持久化
-
-## 使用 NoSQL 数据库
-
-## 缓存数据
-
-## 保护方法应用
-
-## 使用远程服务
-
-## 使用 Spring MVC 创建 REST API
 
 ## Spring 消息
