@@ -1647,17 +1647,22 @@ public class StoreService {
 
 ## 面向切面 AOP
 
-在软件开发中，散布于应用中多处的功能被称为横切关注点（crosscutting concern）。通常来讲，这些横切关注点从概念上是与应用的业务逻辑相分离的，但是传统开发方式中，这些横切关注点往往直接嵌入到应用的业务逻辑之中。
+在软件开发中，散布于应用中多处的重复的功能被称为**横切关注点**（crosscutting concern）。
 
-把这些横切关注点与业务逻辑相分离正是面向切面编程（AOP）所要解决的问题。
+- 通常来讲，这些横切关注点从概念上是与应用的业务逻辑相分离的
+- 但是传统开发方式中，这些横切关注点往往直接嵌入到应用的业务逻辑之中;
+
+把这些『 横切关注点 』与『 业务逻辑 』相分离正是**面向切面编程**（AOP）所要解决的问题。
+
+在使用面向切面编程时，我们集中在一个地方定义通用功能，并通过声明的方式定义这个功能要以何种方式在何处应用，而无需修改受影响的类。
 
 ### AOP 术语
 
 ![2020-3-26-0-10-38.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-3-26-0-10-38.png)
 
-**通知（Advice）**
+==**通知（Advice）**==
 
-在 AOP 术语中，通知定义了切面在何时，执行什么操作；
+**通知定义了切面在何时，执行什么操作**；
 
 Spring 切面可以应用 5 种类型的通知：
 
@@ -1667,68 +1672,83 @@ Spring 切面可以应用 5 种类型的通知：
 - 异常通知（After-throwing）：在目标方法抛出异常后调用通知；
 - 环绕通知（Around）：通知包裹了被通知的方法，在被通知的方法调用之前和调用之后执行自定义的行为。
 
-**连接点（Join Point）**
+==**连接点（Join Point）**==
 
-连接点是在应用执行过程中能够插入通知的一个点。这个点可以是调用方法时、抛出异常时、甚至修改一个字段时。通知可以利用这些点插入到应用的正常流程之中，并添加新的行为。
+**连接点是在应用执行过程中能够插入通知的一个点**。
 
-**切点（Poincut）**
+这个点可以是调用方法时、抛出异常时、甚至修改一个字段时。通知可以利用这些点插入到应用的正常流程之中，并添加新的行为。
 
-如果说通知定义了切面何时做何事的话，那么切点定义了何处；
+==**切点（Poincut）**==
+
+**如果说通知定义了切面何时做何事的话，那么切点定义了何处**；
 
 切点的定义会匹配通知所要织入的一个或多个连接点。
 
-**切面（Aspect）**
+==**切面（Aspect）**==
 
-切面是通知和切点的结合。通知和切点共同定义了切面的全部内容
+**切面是通知 & 切点的结合**。
 
-**引入（Introduction）**
+通知和切点共同定义了切面的全部内容
 
-引入允许我们向现有的类添加新方法或属性。可以在无需修改这些现有的类的情况下，让它们具有新的行为和状态。
+==**引入（Introduction）**==
 
-**织入（Weaving）**
+**引入允许我们向现有的类添加新方法或属性**。
 
-织入是把切面应用到目标对象并创建新的代理对象的过程。切面在指定的连接点被织入到目标对象中。
+可以在无需修改这些现有的类的情况下，让它们具有新的行为和状态。
+
+==**织入（Weaving）**==
+
+**织入是把切面应用到目标对象并创建新的代理对象的过程**。
+
+切面在指定的连接点被织入到目标对象中。
 
 ### Spring 中的 AOP
 
-Spring 提供了 4 种类型的 AOP 支持：
+**Spring 提供了 4 种类型的 AOP 支持**：
 
 - 基于代理的经典 Spring AOP；
 - 纯 POJO 切面；
 - @AspectJ 注解驱动的切面；
 - 注入式 AspectJ 切面（适用于 Spring 各版本）。
 
-前三种都是 Spring AOP 实现的变体，Spring AOP 构建在动态代理基础之上，因此，Spring 对 AOP 的支持局限于方法拦截。
+前三种都是 Spring AOP 实现的变体，**Spring AOP 构建在动态代理基础之上**，因此，Spring 对 AOP 的支持局限于方法拦截。
 
-现在 Spring 提供了更简洁和干净的面向切面编程方式。引入了简单的声明式 AOP 和基于注解的 AOP 之后，Spring 经典的 AOP 看起来就显得非常笨重和过于复杂，后面不会再介绍经典的 Spring AOP。
+现在 Spring 提供了更简洁面向切面编程方式。引入了简单的声明式 AOP 和基于注解的 AOP 之后，Spring 经典的 AOP 看起来就显得非常笨重和过于复杂，后面不会再介绍经典的 Spring AOP。
 
-借助 Spring 的 aop 命名空间，我们可以将纯 POJO 转换为切面。实际上，这些 POJO 只是提供了满足切点条件时所要调用的方法。虽然这种技术需要 XML 配置，但这的确是声明式地将对象转换为切面的简便方式。
+借助 Spring 的 `aop` 命名空间，可以用 XML 声明式地将纯 POJO 转换为切面。实际上，这些 POJO 只是提供了满足切点条件时所要调用的方法。
 
 Spring 借鉴了 AspectJ 的切面，以提供注解驱动的 AOP。本质上，它依然是 Spring 基于代理的 AOP，但是编程模型几乎与编写成熟的 AspectJ 注解切面完全一致。这种 AOP 风格的好处在于能够不使用 XML 来完成功能。
 
 与 Spring AOP 相比，虽然 AspectJ 现在支持基于注解的切面，但 AspectJ 最初是以 Java 语言扩展的方式实现的。这种方式有优点也有缺点。通过特有的 AOP 语言，我们可以获得更强大和细粒度的控制，以及更丰富的 AOP 工具集，但是我们需要额外学习新的工具和语法。
 
-通过代理类，Spring 在运行期把切面织入到 Spring 管理的 bean 中。代理类封装了目标类，并拦截被通知方法的调用，再把调用转发给真正的目标 bean。
+---
+
+通过代理类，Spring 在运行期把切面织入到 Spring 管理的 Bean 中。代理类封装了目标类，并拦截被外部对目标对象方法的调用，再把调用转发给真正的目标 bean。
 
 ![2020-3-26-0-36-55.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-3-26-0-36-55.png)
 
-各种 AOP 方案可以支持的连接点模型粒度各有区别，因为 Spring 基于动态代理，所以 Spring 只支持方法连接点。
+---
 
-AspectJ 和 JBoss，除了方法切点，它们还提供了字段和构造器接入点。Spring 缺少对字段连接点的支持，无法让我们创建细粒度的通知，例如拦截对象字段的修改。而且它不支持构造器连接点，我们就无法在 bean 创建时应用通知。
+各种 AOP 方案可以支持的连接点模型粒度各有区别，因为 Spring 基于动态代理，所以 **Spring 只支持『 方法 』连接点**。
+
+**AspectJ 和 JBoss，除了方法切点，它们还提供了字段和构造器接入点**。Spring 缺少对字段连接点的支持，无法让我们创建细粒度的通知，例如拦截对象字段的修改。而且它不支持构造器连接点，我们就无法在 Bean 创建时应用通知。
 
 ### 编写切点
 
-切点用于准确定位应该在什么地方应用切面的通知。通知和切点是切面的最基本元素。
+**切点用于准确定位应该在什么地方应用通知**。通知和切点是切面的最基本元素。
 
-在 Spring AOP 中，要使用 AspectJ 的切点表达式语言来定义切点。但 Spring 仅支持 AspectJ 切点指示器（pointcut designator）的一个子集。
+在 Spring AOP 中，要**使用 AspectJ 的切点表达式语言来定义切点**。但 Spring 仅支持 AspectJ 切点指示器（pointcut designator）的一个子集。
 
-下图是 Spring AOP 所支持的 AspectJ 切点指示器。
+下图是 **Spring AOP 所支持的 AspectJ 切点指示器**:
 
 ![2020-3-26-0-42-26.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-3-26-0-42-26.png)
 
-如上所展示的这些 Spring 支持的指示器时，注意只有 execution 指示器是实际执行匹配的，而其他的指示器都是用来限制匹配的。
+- 只有 `execution` 指示器是实际执行匹配的;
+- 其他的指示器都是用来限制匹配的;
 
-这说明 execution 指示器是我们在编写切点定义时最主要使用的指示器。在此基础上，我们使用其他指示器来限制所匹配的切点。
+**`execution` 指示器是我们在编写切点定义时最主要使用的指示器。在此基础上，使用其他指示器来限制所匹配的切点**。
+
+---
 
 🌰 下面举例如何去定义切点：
 
@@ -1738,33 +1758,50 @@ public interface Performance {
 }
 ```
 
-假设我们想编写 Performance 的 perform() 方法触发的通知。
+假设我们想编写 Performance 的 `perform()` 方法触发的通知。
 
-下面这个表达式能够设置当 perform() 方法执行时触发通知的调用。
+下面这个表达式能够设置当 `perform()` 方法执行时触发通知的调用。
 
 ![2020-3-26-0-46-59.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-3-26-0-46-59.png)
 
-使用 execution() 指示器选择 Performance 的 perform() 方法。方法表达式以 "\*" 号开始，表明了我们不关心方法返回值的类型。然后，我们指定了全限定类名和方法名。对于方法参数列表，我们使用两个点号（..）表明切点要选择任意的 perform() 方法，无论该方法的入参是什么。
+- 上述代码, 使用 `execution()` 指示器选择 Performance 类的 `perform()` 方法。
+- 返回类型是 `*` 表明了我们不关心方法返回值的类型;
+- 然后，指定了全限定类名和方法名;
+- 对于方法参数列表，我们使用两个点号（..）表明切点要选择任意的 `perform()` 方法，无论该方法的参数是什么;
 
 ---
 
-现在假设我们需要配置的切点仅匹配 concert 包。在此场景下，可以使用 within() 指示器来限制匹配。
+🌰 现在假设我们需要配置的切点仅匹配 `concert` 包。在此场景下，可以使用 `within()` 指示器来限制匹配。
 
 ![2020-3-26-0-48-36.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-3-26-0-48-36.png)
 
+- 使用了 `&&` 操作符把 `execution()` 和 `within()` 指示器连接在一起形成与（and）关系;
+- 类似地，我们可以使用 `||` 操作符来标识或（or）关系;
+- 使用 `!` 操作符来标识非（not）操作;
+- 因为 `&` 在 XML 中有特殊含义，所以在 Spring 的 XML 配置里面描述切点时，我们可以使用 `and` 来代替 `&&`;
+- 同样，`or` 和 `not` 可以分别用来代替 `||` 和 `!`;
+
 ---
 
-Spring 还引入了一个新的 bean() 指示器，它允许我们在切点表达式中使用 bean 的 ID 来标识 bean。bean() 使用 bean ID 或 bean 名称作为参数来限制切点只匹配特定的 bean。
+Spring 还引入了一个新的 `bean()` 指示器，它允许我们在切点表达式中使用 Bean 的名称作为参数来限制切点只匹配特定的 Bean。
 
 ```java
 execution(* concert.Performance.perform()) and bean('woodstock')
 ```
 
-在这里，我们希望在执行 Performance 的 perform() 方法时应用通知，但限定 bean 的 ID 为 woodstock。
+- 在这里，我们希望在执行 Performance 的 `perform()` 方法时应用通知，但限定在名称为 `woodstock` 的 Bean 中。
+
+我们还可以使用非操作为除了特定 ID 以外的其他 Bean 应用通知:
+
+```java
+execution(* concert.Performance.perform()) and !bean('woodstock')
+```
+
+- 切面的通知会被织入到所有 ID 不为 `woodstock` 的 Bean 中.
 
 ### 使用注解声明切面
 
-通过 @Aspect 注解定义一个切面：
+**定义切面**：
 
 ```java
 import org.aspect.lang.annotation.AfterReturning;
@@ -1797,54 +1834,66 @@ public class Audience {
 }
 ```
 
-Audience 有四个方法，定义了一个观众在观看演出时可能会做的事情。这些方法都使用了通知注解来表明它们应该在什么时候调用。
+Audience 有四个方法，定义了一个观众在观看演出时可能会做的事情。这些方法都使用了通知注解来表明它们应该在什么时候调用:
 
 ![2020-3-26-1-14-27.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-3-26-1-14-27.png)
 
-所有的这些注解都给定了一个切点表达式作为它的值，来表示这些通知会应用到什么连接点上。在这个示例中，通知它会在 Performance 的 perform() 方法执行时的各个情况下触发。
+**所有的这些注解都给定了一个切点表达式作为它的值，来表示这些通知会应用到什么连接点上**。
+
+在这个示例中，通知它会在 Performance 的 `perform()` 方法执行时的各个情况下触发。
+
+---
 
 相同的切点表达式我们重复了四遍，很不好维护，也不简洁。如果我们只定义这个切点一次，然后每次需要的时候引用它，那么这会是一个很好的方案。
 
-@Pointcut 注解能够定义可重用的切点。
+**`@Pointcut` 注解能够定义可重用的切点**。
 
 ```java
 @Aspect
 public class Audience {
 
   @Pointcut("execution(** concert.Performance.perform(..))")
-  public void performce() { }
+  public void performance() { }
 
-  @Before("performce()")
+  @Before("performance()")
   public void silenceCellPhones() {
     System.out.println("Silencing cell phones");
   }
 
-  @Before("performce()")
+  @Before("performance()")
   public void takeSeats() {
     System.out.println("Taking seats");
   }
 
-  @AfterReturning("performce()")
+  @AfterReturning("performance()")
   public void applause() {
     System.out.println("CLAP CLAP CLAP!!!");
   }
 
-  @AfterThrowing("performce()")
+  @AfterThrowing("performance()")
   public void demandRefund() {
     System.out.println("Demanding a refund");
   }
 }
 ```
 
-@Pointcut 注解设置的值是一个切点表达式，就像之前在通知注解上所设置的那样。通过在 performance() 方法上添加 @Pointcut 注解，这样就可以在任何的切点表达式中使用 performance() 来替代传入注解的切点表达式了。
-
-performance() 方法的实际内容并不重要，在这里它实际上应该是空的。其实该方法本身只是一个标识，供 @Pointcut 注解依附。
+- `@Pointcut` 注解设置的值是一个切点表达式;
+- 通过在 `performance()` 方法上添加 `@Pointcut` 注解，这样就可以在任何的切点表达式中使用 `performance()` 来替代传入注解的切点表达式了。
+- `performance()` 方法的实际内容并不重要，在这里它实际上应该是空的。其实该方法本身只是一个标识，供 `@Pointcut` 注解依附;
 
 #### 开启代理
 
-定义好一个切面后，还需要在 Spring 配置中开启对于切面类的代理；
+在这里再强调一次, **`Audience` 只是一个 POJO, 与其他的 Java 类并没有什么区别。只不过它通过注解表明会作为切面使用而已**.
 
-如果你使用 JavaConfig 的话，可以在配置类的类级别上通过使用 @EnableAspectJAutoProxy 注解启用自动代理功能。
+如果你就此止步的话，`Audience` 只会是 Spring 容器中的一个 Bean。即便使用了 AspectJ 注解，但它并不会被视为切面，这些注解不会解析.
+
+**定义好一个切面后，还需要在 Spring 配置中开启自动代理**.
+
+AspectJ 自动代理都会为所有使用 `@Aspect` 注解声明的切面内的切点所匹配的 Bean 创建一个代理。
+
+---
+
+如果你使用 JavaConfig 的话，可以在配置类的类级别上通过**使用 `@EnableAspectJAutoProxy` 注解启用自动代理功能**:
 
 ```java
 import org.springframework.context.annotation.Bean;
@@ -1864,7 +1913,9 @@ public class ConcertConfig {
 }
 ```
 
-假如你在 Spring 中要使用 XML 来装配 bean 的话，那么需要使用 Spring aop 命名空间中的 `<aop:aspectj-autoproxy>` 元素。
+---
+
+假如你在 Spring 中要使用 XML 来装配 Bean 的话，那么需要**使用 Spring `aop` 命名空间中的 `<aop:aspectj-autoproxy>` 元素**:
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -1889,13 +1940,53 @@ public class ConcertConfig {
 </beans>
 ```
 
-AspectJ 自动代理都会为所有使用 @Aspect 注解声明的切面内的切点所匹配的 Bean 创建一个代理。
+#### 创建环绕通知
+
+**使用 `@Around` 注解声明『 环绕通知 』, 它能够让你所编写的逻辑将被通知的目标方法完全包装起来**。实际上就像在一个通知方法中同时编写前置通知和后置通知。
+
+🌰 我们使用一个环绕通知来代替之前多个不同的前置通知和后置通知:
+
+```java
+import org.aspect.lang.annotation.ProceedingJoinPoint;
+import org.aspect.lang.annotation.Around;
+import org.aspect.lang.annotation.Aspect;
+import org.aspect.lang.annotation.Pointcut;
+
+@Aspect
+public class Audience {
+
+  @Pointcut("execution(** concert.Performance.perform(..))")
+  public void performce() { }
+
+  @Around("performce()")
+  public void watchPerformance(ProceedingJoinPoint jp) {
+    try {
+      System.out.println("Silencing cell phones");
+      System.out.println("Taking seats");
+      jp.procee();
+      System.out.println("CLAP CLAP CLAP!!!");
+    } catch (Throwable e) {
+      System.out.println("Demanding a refund");
+    }
+  }
+}
+```
+
+- `@Around` 注解表明 `watchPerformance()` 方法会作为 `performance()` 切点的环绕通知;
+
+环绕通知方法接受 **`ProceedingJoinPoint` 对象**作为参数:
+
+- 这个参数是必须要有的，因为你要在通知中通过它来调用被通知的方法;
+- 在通知方法中, 当要将控制权交给被通知的方法时，需要调用 `ProceedingJoinPoint` 的 `proceed()` 方法;
+- 如果不调这个方法的话，那么你的通知实际上会阻塞对被通知方法的调用;
+
+但是根据业务需求的不同, 你可以不调用 `proceed()` 方法，从而阻塞对被通知方法的访问. 或者, 你也可以在通知中对它进行多次调用。要这样做的一个场景就是实现重试逻辑，也就是在被通知方法失败后，进行重复尝试.
 
 #### 处理通知中的参数
 
 到目前为止，我们的切面都很简单，没有任何参数。
 
-在切点表达式中使用 args() 限定符可以把传入连接点方法的参数，也传递到通知中去；
+**在切点表达式中使用 `args()` 限定符可以把传入连接点方法的参数，也传递到通知中去**；
 
 ```java
 @Aspect
@@ -1921,11 +2012,92 @@ public class TrackCounter {
 
 ![2020-3-26-1-34-23.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-3-26-1-34-23.png)
 
-它表明传递给 playTrack() 方法的 int 类型参数也会传递到通知中去。参数的名称 trackNumber 也与切点方法签名中的参数相匹配。
+- **它表明传递给 `playTrack()` 方法的 `int` 类型参数也会传递到通知中去**;
+- **参数的名称 `trackNumber` 也与切点方法签名中的参数相匹配**;
+
+#### 通过注解引入新功能
+
+切面不但能为 Bean 中现有的方法添加额外的功能, 还能利用被称为『 **引入的 AOP 概念** 』，为 Spring Bean 添加新方法:
+
+- 在 Spring 中，切面只是实现了它们所包装 Bean 相同接口的代理;
+- 可以通过引入新的接口, 并且提供实现类, 让代理同时持有对新接口实现类实例的依赖, 来为代理添加新方法;
+- 通过判断用户调用的方法属于谁, 代理分别把调用委托给被通知的 Bean, 或者新引入的接口实现类实例;
+
+![2020-05-20-08-40-42](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-05-20-08-40-42.png)
+
+🌰 假设, 我们现在想为所有的 `Performance` 实现引入下面的 `Encoreable` 接口：
+
+```java
+package concert;
+
+public interface Encoreable {
+  void performEncore();
+}
+```
+
+下面 👇 代码展示, 如何通过 **`@DeclareParents` 注解**，将 `Encoreable` 接口引入到 `Performance` Bean 中:
+
+```java
+package concert;
+
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.DeclareParents;
+
+@Aspect
+public class EncodeableIntroducer {
+
+  @DeclareParents(value="concert.Performce+",
+                  defaultImpl=DefaultEncoreable.class)
+  public static Encoreable encoreable;
+}
+```
+
+@DeclareParents 注解由三部分组成：
+
+- **`@DeclareParents` 注解所标注的静态属性指明了要引入了接口**。在这里，我们所引入的是 Encoreable 接口;
+- **`value` 属性指定了哪种类型的 Bean 要引入该接口**。在本例中，也就是所有实现 Performance 的类型。（标记符后面的加号表示是 Performance 的所有子类型）;
+- **`defaultImpl` 属性指定了为引入功能提供实现的类**。在这里，我们指定的是 DefaultEncoreable 提供实现;
+
+当 Spring 发现一个 bean 使用了 @Aspect 注解时，Spring 就会创建一个代理，然后将调用委托给被代理的 bean 或被引入的新接口的实现，这取决于调用的方法属于被代理的 bean 还是属于被引入的接口。
 
 ### 使用 XML 声明切面
 
-在 XML 中把 bean 声明为一个切面时，我们总是从 `<aop:config>` 元素开始配置的。
+『 **面向注解的切面声明** 』有一个明显的**劣势**：你必须要有通知类的源代码, 你才能给它添加注解.
+
+如果你没有源码的话，或者不想将 AspectJ 注解放到你的代码之中，Spring 为切面提供了 XML 配置方案。
+
+在 Spring 的 `aop` 命名空间中，提供了多个元素用来在 XML 中声明切面:
+
+![2020-05-20-09-42-02](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-05-20-09-42-02.png)
+
+---
+
+下面 👇 展示如何将一个普通的 POJO 类通过 XML 配置成切面:
+
+现在我们有一个普通的 POJO 类 `Audience`, 它里面就简单的包含几个方法:
+
+```java
+public class Audience {
+
+  public void silenceCellPhones() {
+    System.out.println("Silencing cell phones");
+  }
+
+  public void takeSeats() {
+    System.out.println("Taking seats");
+  }
+
+  public void applause() {
+    System.out.println("CLAP CLAP CLAP!!!");
+  }
+
+  public void demandRefund() {
+    System.out.println("Demanding a refund");
+  }
+}
+```
+
+在 XML 中把 bean 声明为一个切面时，我们总是从 **`<aop:config>` 元素**开始配置的。
 
 ```xml
 <aop:config>
@@ -1951,11 +2123,18 @@ public class TrackCounter {
 </aop:config>
 ```
 
-使用 `<aop:aspect>` 元素声明了一个简单的切面。`ref` 元素引用了一个 POJO bean，该 bean 提供了在切面中通知所调用的方法。
+- 使用 `<aop:aspect>` 元素声明了一个简单的切面;
+- `ref` 元素引用了一个 POJO Bean，该 Bean 提供了在切面中通知所调用的方法;
+- 在所有的『 通知元素 』中，`pointcut` 属性定义了通知所应用的切点，它的值是使用 AspectJ 切点表达式语法所定义的切点;
+- `method` 属性指定每个通知所调用的方法;
 
-在所有的通知元素中，`pointcut` 属性定义了通知所应用的切点，它的值是使用 AspectJ 切点表达式语法所定义的切点。
+![2020-05-20-10-12-54](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-05-20-10-12-54.png)
 
-使用 `<aop:pointcut>` 将通用的切点表达式抽取到一个切点声明中，这样这个声明就能在所有的通知元素中使用了。在通知元素中，用 `pointcut-ref` 属性来引用这个命名切点。
+---
+
+使用 **`<aop:pointcut>`** 将通用的切点表达式抽取到一个切点声明中，这样这个声明就能在所有的通知元素中使用了。
+
+在通知元素中，用 **`pointcut-ref` 属性**来引用这个命名切点。
 
 ```xml
 <aop:config>
@@ -1984,9 +2163,28 @@ public class TrackCounter {
 </aop:config>
 ```
 
+#### 声明环绕通知
+
+声明环绕通知与声明其他类型的通知并没有太大区别。我们所需要做的仅仅是使用 **`<aop:around>` 元素**:
+
+```xml
+<aop:config>
+  <aop:aspect ref="audience">
+    <aop:pointcut
+      id="performance"
+      expression="execution(** concert.Performance.perform(..))" />
+
+    <aop:around
+      pointcut-ref="performance"
+      method="watchPerformance" />
+
+  </aop:aspect>
+</aop:config>
+```
+
 #### 为通知传递参数
 
-和在使用注解声明切面时一样，在切点表达式中包含一个参数，这个参数会传递到通知方法中去。
+和在使用注解声明切面时一样，在切点表达式中包含一个参数，这个参数会传递到通知方法中去:
 
 ```xml
 <aop:config>
@@ -1998,6 +2196,31 @@ public class TrackCounter {
     <aop:before pointcut-ref="trackPlayed" method="countTrack" />
   </aop:aspect>
 </aop:config>
+```
+
+#### 通过切面引入新的功能
+
+使用 Spring `aop` 命名空间中的 **`<aop:declare-parents>` 元素**，我们可以在 XML 配置中为被通知的 Bean 添加新的方法:
+
+```xml
+<aop:aspect>
+  <aop:delate-parents
+    types-matching="concert.Performance+"
+    implement-interface="concert.Encoreable"
+    default-impl="concert.DefaultEncoreable" />
+</aop:aspect>
+```
+
+- `types-matching` 属性指定了要被扩展的类型;
+- `implement-interface` 属性指定了新添加的接口;
+- `default-impl` 属性指定了新接口的实现类;
+
+上面 👆 使用 `default-impl` 属性用全限定类名来显式指定 `Encoreable` 的实现。或者，还可以使用 `delegate-ref` 属性引用了一个 Spring Bean 作为引入的实现类实例.
+
+这需要在 Spring 上下文中存在一个 ID 为 `encoreableDelegate` 的 Bean。
+
+```xml
+<bean id="encoreableDelegate" class="concert.DefaultEncoreable" />
 ```
 
 ## Spring MVC
