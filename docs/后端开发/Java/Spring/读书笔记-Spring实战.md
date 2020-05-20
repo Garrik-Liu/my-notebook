@@ -2408,7 +2408,7 @@ public class HomeController {
 
 #### 定义类级别的请求处理
 
-我们可以在类名上使用 `@RequestMapping` 注解来定义类级别的请求处理。
+我们可以**在类名上使用 `@RequestMapping` 注解来定义类级别的请求处理**。
 
 ```java
 import static org.springframework.web.bind.annotation.RequestMethod.*;
@@ -2429,9 +2429,12 @@ public class HomeController {
 }
 ```
 
-当控制器在类级别上添加 @RequestMapping 注解时，这个注解会应用到控制器的所有处理器方法上。处理器方法上的 @RequestMapping 注解会对类级别上的 @RequestMapping 的声明进行补充。
+- 当控制器在类级别上添加 `@RequestMapping` 注解时，这个注解会应用到控制器的所有处理器方法上;
+- 处理器方法上的 `@RequestMapping` 注解会对类级别上的 `@RequestMapping` 的声明进行补充;
 
-@RequestMapping 的 value 属性能够接受一个 String 类型的数组。到目前为止，我们给它设置的都是一个 String 类型的 /。但是，我们还可以将它映射到对 /homepage 的请求。
+---
+
+`@RequestMapping` 的 `value` 属性能够接受一个 String 类型的数组。
 
 ```java
 @Controller
@@ -2440,7 +2443,11 @@ public class HomeController {
 }
 ```
 
+- 上面的控制器可以同时处理 `/` 和 `/homepage` 的请求;
+
 #### 传递模型属性到视图中
+
+上面 👆 我们展示了最简单的控制器编写方法. 在 Spittr 应用中，我们需要有一个页面展现最近提交的 Spittle 列表。因此，我们需要一个新的方法来处理这个页面。
 
 ```java
 
@@ -2476,11 +2483,12 @@ public class SpittleController {
 }
 ```
 
-在 spittles() 方法中给定了一个 Model 作为参数。这样，spittles() 方法就能将 Repository 中获取到的 Spittle 列表填充到模型中。
+- 可以看到 `SpittleController` 有一个构造器，这个构造器使用了 `@Autowired` 注解，用来注入 `SpittleRepository`, 它是用来访问数据库的 Bean, 这里省略了具体实现;
+- 这个 `SpittleRepository` 随后又用在 `spittles()` 方法中，用来获取最新的 spittle 列表;
+- 在 `spittles()` 方法中给定了一个 `Model` 作为参数。这样，`spittles()` 方法就能将 Repository 中获取到的 Spittle 列表填充到模型中;
+- `Model` 实际上就是一个 Map（也就是 key-value 对的集合），它会传递给视图，这样数据就能渲染到客户端了;
 
-Model 实际上就是一个 Map（也就是 key-value 对的集合），它会传递给视图，这样数据就能渲染到客户端了。
-
-如果你希望使用非 Spring 类型的话，那么可以用 java.util.Map 来代替 Model。
+如果你希望使用非 Spring 类型的话，那么可以用 `java.util.Map` 来代替 `Model`。
 
 ```java
 @RequestMapping(method=RequestMethod.GET)
@@ -2513,13 +2521,15 @@ public String spittles(Map model) {
 </c:forEach>
 ```
 
-#### 接受请求中的数据
+### 接受请求中的数据
 
 Spring MVC 允许以多种方式将客户端中的数据传送到控制器的处理器方法中，包括：
 
-- 查询参数（Query Parameter）。
-- 表单参数（Form Parameter）。
-- 路径变量（Path Variable）。
+- **查询参数**（Query Parameter）。
+- **表单参数**（Form Parameter）。
+- **路径变量**（Path Variable）。
+
+#### 接收查询参数
 
 ```java
 @RequestMapping(method=RequestMethod.GET)
@@ -2530,21 +2540,19 @@ public List<Spittle> spittles(
 }
 ```
 
-上面代码表示，会从请求中获取两个参数 max 和 count，如果不存在使用默认值，后面的 long max 和 int count 表示，他们会分别被转换成 long 类型 和 int 类型，然后用 max 和 count 作为参数的名字，传入 spittles 方法。
+- 使用 `@RequestParam` 注解声明从请求中获取的参数;
+- `value` 属性表示从请求中获取两个参数 `max` 和 `count`;
+- `defaultValue` 参数表示如果请求中不存在目标参数, 使用默认值;
+  - 因为从请求带过来的查询参数都是 String 类型的, 所以 `defaultValue` 属性需要 String 类型的值;
+  - 在这里 `MAX_LONG_AS_STRING` 表示 Long 类型的最大值, 我们定义了一个 String 常量保存了 Long 最大值的字符串形式;
+  - `private static final String MAX_LONG_AS_STRING = Long.toString(Long.MAX_VALUE);`
+- 后面的 `long max` 和 `int count` 表示他们会分别被转换成 `long` 类型 和 `int` 类型，然后用 `max` 和 `count` 作为参数的名字传入 `spittles` 方法;
 
-```java
-@RequestMapping(value="/show", method=RequestMethod.GET)
-public String showSpittles(
-    @RequestParam("spittle_id") long spittleId,
-    Model model) {
-  model.addAttribute(spittleRepository.findOne(spittleId));
-  return "spittle";
-}
-```
+当服务器接收到 `/spittles?max=238900&count=50` 这样的请求, 就会调用 `spittles` 方法, 并且把查询参数传入进去;
 
-对于上面的代码，`/spittles/show?spittle_id=12345` 这样的路径下，spittle_id 就会被作为参数。
+#### 接收路径参数
 
-通过使用 `{}` 占位符，也可以把路径的一部分作为参数。
+通过使用 **`{}` 占位符**，也可以把路径的一部分作为参数。
 
 ```java
 @RequestMapping(value="/{spittleId}", method=RequestMethod.GET)
@@ -2556,14 +2564,14 @@ public String spittle(
 }
 ```
 
-它就能够处理针对 /spittles/54321 的请求，会把 54321 传递进来，作为 spittleId 的值。
+它就能够处理针对 `/spittles/54321` 的请求，会把 `54321` 传递进来，作为 `spittleId` 的值。
 
-如果 @PathVariable 中没有 value 属性的话，它会假设占位符的名称与方法的参数名相同。这能够让代码稍微简洁一些。
+如果 `@PathVariable` 中没有 `value` 属性的话，它会假设占位符的名称与方法的参数名相同。这能够让代码稍微简洁一些。
 
 ```java
 @RequestMapping(value="/{spittleId}", method=RequestMethod.GET)
 public String spittle(@PathVariable long spittleId, Model model) {
-  model.addAttribute(spittleRepository.findOne(spittleId));
+  model.addAttribute("spittle", spittleRepository.findOne(spittleId));
   return "spittle";
 }
 ```
