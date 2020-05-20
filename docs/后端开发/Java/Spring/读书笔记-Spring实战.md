@@ -2235,27 +2235,23 @@ Spring 的 Web 框架就是为了帮你解决这些关注点而设计的。Sprin
 
 ![2020-3-26-12-2-51.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-3-26-12-2-51.png)
 
-第一站是 Spring 的 DispatcherServlet。这是一个单实例的 Servlet 将请求委托给其他的 Spring MVC 控制器来执行实际的处理。
-
-Spring MVC 控制器（controller）。控制器是一个用于处理请求的 Spring 组件。在典型的应用程序中可能会有多个控制器，DispatcherServlet 需要知道应该将请求发送给哪个控制器。所以 DispatcherServlet 以会查询一个或多个处理器映射（handler mapping） 来确定请求的下一站在哪里。处理器映射会根据请求所携带的 URL 信息来进行决策。
-
-找到了目标控制器，DispatcherServlet 会将请求发送给选中的控制器。到了控制器，控制器会处理请求携带的信息。控制器在完成逻辑处理后，通常会产生一些信息，这些信息需要返回给用户并在浏览器上显示。这些信息被称为模型（model）。
-
-不过仅仅给用户返回原始的信息是不够的，这些信息需要以用户友好的方式进行格式化，一般会是 HTML。这叫做视图 （view）。
-
-控制器所做的最后一件事就是将模型数据打包，并且标示出用于渲染输出的视图名。它接下来会将请求连同模型和视图名发送回 DispatcherServlet 。
-
-传递给 DispatcherServlet 的视图名并不直接表示某个特定的视图文件。它仅仅传递了一个逻辑名称，这个名字将会用来查找产生结果的真正视图。DispatcherServlet 将会使用视图解析器（view resolver） 来将逻辑视图名匹配为一个特定的视图实现。
-
-最后，视图将使用模型数据渲染输出，这个输出会通过响应对象传递给客户端。
+1. 第一站是 Spring 的 **`DispatcherServlet`**。这是一个单实例的 Servlet 将请求委托给其他的 Spring MVC 控制器来执行实际的处理;
+2. 『 **控制器** 』（controller）是一个用于处理请求的 Spring 组件。在典型的应用程序中可能会有多个控制器，`DispatcherServlet` 需要知道应该将请求发送给哪个控制器。所以 `DispatcherServlet` 以会查询一个或多个『 **处理器映射** 』（handler mapping） 来确定请求的下一站在哪里。处理器映射会根据请求所携带的 URL 信息来进行决策;
+3. 找到了目标控制器，DispatcherServlet 会将请求发送给选中的控制器。控制器会处理请求携带的信息。在完成逻辑处理后，通常会产生一些结果信息，这些信息需要返回给客户端。这些信息被称为『 **模型** 』（model）。
+4. 仅仅给用户返回原始的信息是不够的，这些信息需要以用户友好的方式进行格式化，一般会是 HTML。这叫做『 **视图** 』 （view）。
+5. 控制器所做的最后一件事就是将模型数据打包，并且标示出用于渲染输出的视图名。它接下来会将请求连同模型和视图名发送回 DispatcherServlet 。
+6. 传递给 DispatcherServlet 的视图名并不直接表示某个特定的视图文件。它仅仅传递了一个逻辑名称，这个名字将会用来查找产生结果的真正视图。DispatcherServlet 将会使用『 **视图解析器** 』（view resolver） 来将逻辑视图名匹配为一个特定的视图实现。
+7. 最后，视图将使用模型数据渲染输出，这个输出会通过响应对象传递给客户端;
 
 ### 搭建 Spring MVC
 
 #### 使用 Servlet 容器配置
 
-按照传统的方式，像 DispatcherServlet 这样的 Servlet 会配置在 web.xml 文件中，这个文件会放到应用的 WAR 包里面。
+按照传统的方式，像 `DispatcherServlet` 这样的 Servlet 会配置在 `web.xml` 文件中，这个文件会放到应用的 WAR 包里面。
 
-而这里，我们会使用 Java 将 DispatcherServlet 配置在 Servlet 容器中，而不会再使用 web.xml 文件。
+而这里，我们展示使用 Java 来配置 `DispatcherServlet`.
+
+🌰 下面展示了一个名为 Spittr 的应用的 `DispatcherServlet` 配置:
 
 ```java
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
@@ -2279,24 +2275,23 @@ public class SpitterWebInitializer extends AbstractAnnotationConfigDispatcherSer
 }
 ```
 
-扩展 AbstractAnnotationConfigDispatcherServletInitializer 的任意类都会自动地配置 DispatcherServlet 和 Spring 应用上下文，Spring 的应用上下文会位于应用程序的 Servlet 上下文之中。
+**扩展 `AbstractAnnotationConfigDispatcherServletInitializer` 的任意类都会自动地配置 `DispatcherServlet` 和 Spring 应用上下文**.
+
+Spring 的应用上下文会位于应用程序的 Servlet 上下文之中。
 
 这里重写了三个方法：
 
-第一个方法是 getServletMappings()，它会将一个或多个路径映射到 Dispatcher-Servlet 上。在本例中，它映射的是 "/"，这表示它会是应用的默认 Servlet。它会处理进入应用的所有请求。
-
-为了理解其他的两个方法，我们首先要理解 DispatcherServlet 和一个 Servlet 监听器（也就是 ContextLoaderListener）的关系。
-
-AbstractAnnotationConfigDispatcherServletInitializer 会同时创建 DispatcherServlet 和 ContextLoaderListener。
-
-DispatcherServlet 加载包含 Web 组件的 bean，如控制器、视图解析器以及处理器映射，而 ContextLoaderListener 要加载应用中的其他 bean。这些 bean 通常是驱动应用后端的中间层和数据层组件。
-
-- getServletConfigClasses() 方法返回的配置类将会用来定义 DispatcherServlet 应用上下文中的 bean。
-- getRootConfigClasses() 方法返回配置类将会用来配置 ContextLoaderListener 创建的应用上下文中的 bean。
+- **`getServletMappings()`，它会将一个或多个路径映射到 Dispatcher-Servlet 上**。在本例中，它映射的是 `/`，这表示它会处理进入应用的所有请求;
+- 为了理解其他的两个方法，我们首先要理解 `DispatcherServlet` 和一个 Servlet 监听器（也就是 ContextLoaderListener）的关系:
+  - `AbstractAnnotationConfigDispatcherServletInitializer` 会同时创建 `DispatcherServlet` 和 `ContextLoaderListener`;
+  - `DispatcherServlet` 加载包含 Web 组件的 Bean，如控制器、视图解析器以及处理器映射;
+  - 而 `ContextLoaderListener` 要加载应用中的其他 Bean。这些 bean 通常是驱动应用后端的中间层和数据层组件;
+- **`getServletConfigClasses()` 方法返回的配置类将会用来定义 `DispatcherServlet` 应用上下文中的 Bean**;
+- **`getRootConfigClasses()` 方法返回配置类将会用来配置 `ContextLoaderListener` 创建的应用上下文中的 Bean**;
 
 #### 启用 Spring MVC
 
-为了使用 Spring MVC，用来配置 DispatcherServlet 的配置类上需要加一个 @EnableWebMvc 注解。
+为了使用 Spring MVC 组件，用来配置 `DispatcherServlet` 的 `WebConfig` 配置类上需要加一个 **`@EnableWebMvc` 注解**:
 
 ```java
 import org.springframework.context.annotation.Configuration;
@@ -2308,7 +2303,7 @@ public class WebConfig {
 }
 ```
 
-现在的配置中，我们还没有配置视图解析器，没有启动组件扫描，DispatcherServlet 会映射为应用的默认 Servlet，所以它会处理所有的请求，包括对静态资源的请求，如图片和样式表。
+现在的配置中，我们还没有配置视图解析器，没有启动组件扫描:
 
 ```java
 import org.springframework.context.annotation.Bean;
@@ -2340,17 +2335,29 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 }
 ```
 
-现在添加了 @ComponentScan 注解，因此将会扫描 spitter.web 包来查找组件。包下面所有带 @Controller 注解的类，都会被当做控制器引入；
-
-接下来声明了一个 InternalResourceViewResolver 视图解析器。它会查找 JSP 文件，在查找的时候，它会在视图名称上加一个特定的前缀和后缀（例如，名为 home 的视图将会解析为 /WEB-INF/views/home.jsp）。
-
-最后，新的 WebConfig 类还扩展了 WebMvcConfigurerAdapter 并重写了其 configureDefaultServletHandling() 方法。通过调用 DefaultServletHandlerConfigurer 的 enable() 方法，我们要求 DispatcherServlet 将对静态资源的请求转发到 Servlet 容器中默认的 Servlet 上，而不是使用 DispatcherServlet 本身来处理此类请求。
+- 现在添加了 **`@ComponentScan` 注解**，因此将会扫描 `spitter.web` 包来查找组件。包下面所有带 **`@Controller` 注解**的类，都会被当做控制器引入；
+- 接下来声明了一个 `InternalResourceViewResolver` 视图解析器。它会查找 JSP 文件，在查找的时候，它会在视图名称上加一个特定的『 前缀 』和『 后缀 』:
+  - 🌰 例如，名为 `home` 的视图将会解析为 `/WEB-INF/views/home.jsp`;
+- 最后，`WebConfig` 类还扩展了 `WebMvcConfigurerAdapter` 并重写了其 `configureDefaultServletHandling()` 方法。通过调用 `DefaultServletHandlerConfigurer` 的 `enable()` 方法，我们要求 `DispatcherServlet` 将对静态资源的请求转发到 Servlet 容器中默认的 Servlet 上，而不是使用 `DispatcherServlet` 本身来处理此类请求;
 
 ### 编写控制器
 
-在 Spring MVC 中，控制器只是在类名上有 @Controller 注解，并且方法上添加了 @RequestMapping 注解的类，这个注解声明了它们所要处理的请求。
+#### Spittr 应用举例
 
-例如，下面代码中，控制器类要处理对 / 的请求， 并渲染应用的首页。
+为了更好的理解代码示例, 下面 👇 要使用 Spring 技术来构建一个简单的微博（microblogging）应用。
+
+Spittr 应用有两个基本的实体类：
+
+- Spitter（应用的用户）
+- Spittle（用户发布的简短状态更新）
+
+在本章中，我们会构建应用的 Web 层，创建展现 Spittle 的控制器, 以及处理用户注册成为 Spitter 的表单。
+
+#### 编写基本的控制器
+
+在 Spring MVC 中，控制器只是在类名上有 **`@Controller` 注解**，并且方法上添加了 **`@RequestMapping` 注解**的类，这个注解声明了方法所要处理的请求。
+
+🌰 例如，下面代码中，控制器类要处理对 `/` 的请求， 并渲染应用的首页:
 
 ```java
 
@@ -2371,11 +2378,37 @@ public class HomeController {
 }
 ```
 
-home() 方法其实并没有做太多的事情：它返回了一个 String 类型的 home 。这个 String 将会被 Spring MVC 解读为要渲染的视图名称。DispatcherServlet 会要求视图解析器将这个逻辑名称解析为实际的视图。
+- `home()` 方法，带有 `@Request-Mapping` 注解。它的 `value` 属性指定了这个方法所要处理的请求路径;
+- `method` 属性细化了它所处理的 HTTP 方法;
+- 在本例中，当收到对 `/` 的 HTTP `GET` 请求时，就会调用 `home()` 方法;
+- `home()` 方法返回了一个 String 类型的 `home` 字符串;
+- 这个 String 字符串将会被 Spring MVC 解读为要渲染的『 视图名称 』
+- `DispatcherServlet` 会要求视图解析器将这个逻辑名称解析为实际的视图;
+
+鉴于我们配置 `InternalResourceViewResolver` 的方式，视图名 `home` 将会解析为 `/WEB-INF/views/home.jsp` 路径的 JSP 文件.
+
+```jsp
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ page session="false" %>
+<html>
+  <head>
+    <title>Spitter</title>
+    <link rel="stylesheet"
+          type="text/css"
+          href="<c:url value="/resources/style.css" />" >
+  </head>
+  <body>
+    <h1>Welcome to Spitter</h1>
+
+    <a href="<c:url value="/spittles" />">Spittles</a> |
+    <a href="<c:url value="/spitter/register" />">Register</a>
+  </body>
+</html>
+```
 
 #### 定义类级别的请求处理
 
-我们可以在类名上使用 @RequestMapping 注解来定义类级别的请求处理。
+我们可以在类名上使用 `@RequestMapping` 注解来定义类级别的请求处理。
 
 ```java
 import static org.springframework.web.bind.annotation.RequestMethod.*;
