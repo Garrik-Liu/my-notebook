@@ -2277,6 +2277,8 @@ public class SpitterWebInitializer extends AbstractAnnotationConfigDispatcherSer
 
 **扩展 `AbstractAnnotationConfigDispatcherServletInitializer` 的任意类都会自动地配置 `DispatcherServlet` 和 Spring 应用上下文**.
 
+这个类就继承了 Servlet  规范的 `ServletContainerInitializer`，按照 Servlet 的规范，Java Web 容器启动的时候，就会加载实现这个类.
+
 Spring 的应用上下文会位于应用程序的 Servlet 上下文之中。
 
 这里重写了三个方法：
@@ -2540,7 +2542,7 @@ public List<Spittle> spittles(
 }
 ```
 
-- 使用 `@RequestParam` 注解声明从请求中获取的参数;
+- 使用 **`@RequestParam` 注解**声明从请求中获取的参数;
 - `value` 属性表示从请求中获取两个参数 `max` 和 `count`;
 - `defaultValue` 参数表示如果请求中不存在目标参数, 使用默认值;
   - 因为从请求带过来的查询参数都是 String 类型的, 所以 `defaultValue` 属性需要 String 类型的值;
@@ -2578,7 +2580,39 @@ public String spittle(@PathVariable long spittleId, Model model) {
 
 ### 处理表单
 
-当处理注册表单的 POST 请求时，控制器需要接受表单数据并将表单数据保存为 Spitter 对象。
+Web 应用中经常需要处理从客户端发送过来的表单提交.
+
+🌰 在 Spittr 应用中, 需要有一个页面用于注册账户, 它里面包含一个表单, 在用户点击提交时, 会发送 POST 请求到 `/register` 路径下:
+
+```jsp
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ page session="false" %>
+<html>
+  <head>
+    <title>Spitter</title>
+    <link rel="stylesheet" type="text/css"
+          href="<c:url value="/resources/style.css" />" >
+  </head>
+  <body>
+    <h1>Register</h1>
+
+    <form method="POST">
+      First Name: <input type="text" name="firstName" /><br/>
+      Last Name: <input type="text" name="lastName" /><br/>
+      Email: <input type="email" name="email" /><br/>
+      Username: <input type="text" name="username" /><br/>
+      Password: <input type="password" name="password" /><br/>
+      <input type="submit" value="Register" />
+    </form>
+  </body>
+</html>
+```
+
+下面 👇 让我们来编写处理表单的控制器 SpitterController.
+
+#### 编写处理表单的控制器
+
+我们希望, 当处理注册表单的 POST 请求时，控制器需要接受表单数据并将表单数据保存为 `Spitter` 对象。为了防止重复提交（用户点击浏览器的刷新按钮有可能会发生这种情况），应该将浏览器重定向到新创建用户的基本信息页面。
 
 ```java
 import static org.springframework.web.bind.annotation.RequestMethod.*;
@@ -2609,6 +2643,7 @@ public class SpitterController {
     return "registerForm";
   }
 
+  // 接收表单提交
   @RequestMapping(value="/register", method=POST)
   public String processRegistration(Spitter spitter) {
     spitterRepository.save(spitter);
@@ -2618,13 +2653,24 @@ public class SpitterController {
 }
 ```
 
-如果用户在提交表单的时候，username 或 password 文本域为空的话，那么将会导致在新建 Spitter 对象中，username 或 password 是空的 String。至少这是一种怪异的行为。如果这种现象不处理的话，这将会出现安全问题。
+- 用于处理表单提交的 `processRegistration()` 方法，它接受一个 `Spitter` 对象作为参数。这个对象的各个属性将会使用请求中同名的参数进行填充;
+- 方法返回一个 String 类型，用来指定视图。但是这个视图格式和以前我们所看到的视图有所不同。这里不仅返回了视图的名称供视图解析器查找目标视图，而且返回的值还带有重定向的格式;
+- 当 InternalResourceViewResolver 看到视图格式中的 `redirect:` 前缀时，它就知道要将其解析为重定向的规则，而不是视图的名称:
+  - 在本例中，它将会重定向到用户基本信息的页面;
+  - 例如，如果 `Spitter.username` 属性的值为 `jbauer`，那么视图将会重定向到 `/spitter/jbauer`;
+- 除了 `redirect:` InternalResourceViewResolver 还能识别 `forward:` 前缀。当它发现视图格式中以 `forward:` 作为前缀时，请求将会前往（forward）指定的 URL 路径;
+
+#### 检验表单
+
+在上面 👆 的代码中, 处理表单提交的 `processRegistration()` 方法, 接收的 Spitter 对象的属性是用请求中同名的参数的值填充的.
+
+如果用户在提交表单的时候，`username` 或 `password` 文本域为空的话，那么将会导致在新建 Spitter 对象中，`username` 或 `password` 是空的 String。这可能会导致程序运行异常。
 
 从 Spring 3.0 开始，在 Spring MVC 中提供了对 Java 校验 API 的支持。Java 校验 API 定义了多个注解，这些注解可以放到属性上，从而限制这些属性的值。
 
 ![2020-3-26-13-53-54.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-3-26-13-53-54.png)
 
-我们所要做的事情就是将这些注解添加到 Spitter 的属性上。如下的程序清单展现了 Spitter 类，它的属性已经添加了校验注解。
+我们所要做的事情就是将这些**检验注解添加到 `Spitter` 实体类的属性上**。如下的程序清单展现了 `Spitter` 类，它的属性已经添加了校验注解:
 
 ```java
 import javax.validation.constraints.NotNull;
@@ -2657,7 +2703,7 @@ public class Spitter {
 }
 ```
 
-接下来需要修改 processRegistration() 方法来应用校验功能。
+接下来需要修改 `processRegistration()` 方法来应用校验功能。
 
 ```java
 @RequestMapping(value="/register", method=POST)
@@ -2673,78 +2719,597 @@ public String processRegistration(
 }
 ```
 
-Spitter 参数添加了 @Valid 注解，这会告知 Spring，需要确保这个对象满足校验限制。在 Spitter 属性上添加校验限制并不能阻止表单提交。即便用户没有填写某个域或者某个域所给定的值超出了最大长度，processRegistration() 方法依然会被调用。
+`Spitter` 参数添加了 **`@Valid` 注解**，这会告知 Spring，需要确保这个对象满足校验限制。在 Spitter 属性上添加校验限制并不能阻止表单提交。即便用户没有填写某个域或者某个域所给定的值超出了最大长度，`processRegistration()` 方法依然会被调用。
 
-如果有校验出现错误的话，那么这些错误可以通过 Errors 对象进行访问，现在这个对象已作为 processRegistration() 方法的参数。
+如果有校验出现错误的话，那么这些错误可以通过 `Errors` 对象进行访问，现在这个对象已作为 `processRegistration()` 方法的参数:
+
+- ⚠️ 很重要一点需要注意，`Errors` 参数要紧跟在带有 `@Valid` 注解的参数后面;
+
+`processRegistration()` 方法所做的第一件事就是调用 `Errors.hasErrors()` 来检查是否有错误:
+
+- 如果有错误的话，将会返回到 `registerForm`, 也就是注册表单的视图;
+- 但是现在，浏览器只会重新显示一个空的表单，在下一章中，我们将在表单中显示最初提交的值并将校验错误反馈给用户;
+- 如果没有错误的话，`Spitter` 对象将会通过 `Repository` 进行保存，控制器会像之前那样重定向到用户基本信息页面;
 
 ## 渲染 Web 视图
 
-## Spring MVC 进阶
+上面我们编写的控制器只是返回一个视图逻辑名和相关的数据模型. Spring 通过『 视图解析器 』来找到真正的视图实现.
 
-## Spring Security
+在之前, 我们使用名为 InternalResourceViewResolver 的视图解析器。在它的配置中，为了得到视图的名字，会使用 `/WEBINF/views/` 前缀和 `.jsp` 后缀，从而确定来渲染模型的 JSP 文件的物理位置.
 
-Spring Security 是为基于 Spring 的应用程序提供声明式安全保护的安全性框架。Spring Security 提供了完整的安全性解决方案，它能够在 Web 请求级别和方法调用级别处理身份认证和授权。
+下面 👇 我们来看看视图解析的基础知识以及 Spring 提供的其他视图解析器:
 
-Spring Security 借助一系列 Servlet Filter 来提供各种安全性功能。借助于 Spring 的小技巧，我们只需配置一个 Filter 就可以了。
+#### 理解视图解析
 
-DelegatingFilterProxy 是一个特殊的 Servlet Filter，它本身所做的工作并不多。只是将工作委托给一个 javax.servlet.Filter 实现类，这个实现类作为一个 Bean 注册在 Spring 应用的上下文中。
-
-![2020-3-26-19-27-27.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-3-26-19-27-27.png)
-
-如果你喜欢在传统的 web.xml 中配置 Servlet 和 Filter 的话，可以使用 `<filter>` 元素，如下所示：
-
-```xml
-<filter>
-  <filter-name>springSecurityFilterChain</filter-name>
-  <filter-class>
-    org.springframework.web.filter.DelegatingFilteProxy
-  </filter-class>
-</filter>
-```
-
-Spring 3.2 引入了新的 Java 配置方案，完全不再需要通过 XML 来配置安全性功能了。如下的程序清单展现了 Spring Security 最简单的 Java 配置。
+Spring MVC 定义了一个名为 **`ViewResolver`** 的接口，它大致如下所示：
 
 ```java
-package spitter.config;
-
-import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.annotation.web.servlet.configuration.EnableWebSecurity;
-
-@Configuration
-@EnableWebSecurity
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+public interface ViewResolver {
+  View resolverViewName(String viewName, Locale locale) throws Exception;
 }
 ```
 
-@EnableWebSecurity 注解将会启用 Web 安全功能。但它本身并没有什么用处，Spring Security 必须配置在一个实现了 WebSecurityConfigurer 的 bean 中，最为简单的方式就是扩展 WebSecurityConfigurerAdapter 类。
-
-@EnableWebSecurity 可以启用任意 Web 应用的安全性功能。如果你的应用碰巧是使用 Spring MVC 开发的，那么就应该考虑使用 @EnableWeb-MvcSecurity 替代它。
+当给 `resolveViewName()` 方法传入一个视图名和 `Locale` 对象时，它会返回一个 `View` 实例。**`View`** 是另外一个接口，如下所示：
 
 ```java
-package spitter.config;
+public interface View {
 
-import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.annotation.web.servlet.configuration.EnableWebMvcSecurity;
+  String getContentType();
 
-@Configuration
-@EnableWebMvcSecurity
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+  void render(Map<String, ?> model, HttpServletRequest request, HttpServlectResponse response) throws Exception;
 }
 ```
 
-## JDBC
+**View 接口的任务就是接受模型以及 Servlet 的 `request` 和 `response` 对象，并将输出结果渲染到 `response` 中**.
 
-## 对象-关系映射持久化
+---
 
-## 使用 NoSQL 数据库
+对于这些接口, Spring 提供了多个内置的实现:
 
-## 缓存数据
+![2020-05-20-14-01-23](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-05-20-14-01-23.png)
 
-## 保护方法应用
+在大多数应用中，我们只会用到其中很少的一部分。这些视图解析器中, 每一项都对应 Java Web 应用中特定的某种视图技术:
 
-## 使用远程服务
+- InternalResourceViewResolver 一般会用于 JSP;
+- TilesView-Resolver 用于 Apache Tiles 视图;
+- FreeMarkerViewResolver 用于 FreeMarker 模板视图;
+- Velocity-ViewResolver 用于 Velocity 模板视图;
+- 等等;
+
+#### 创建 JSP 视图
+
+因为大多数 Java Web 应用都会用到 JSP，我们首先将会介绍 InternalResourceViewResolver，这个视图解析器一般会用来解析 JSP 视图.
+
+InternalResourceViewResolver 遵循一种约定，会在视图名上添加前缀和后缀，进而确定一个 Web 应用中视图资源的物理路径。
+
+🌰 假设逻辑视图名为 `home`:
+- 通用的实践是将 JSP 文件放到 Web 应用的 `WEB-INF` 目录下，防止对它的直接访问;
+- 如果我们将所有的 JSP 文件都放在 `/WEB-INF/views/` 目录下， 并且 `home` 页的 JSP 名为 `home.jsp`;
+- 那么我们可以确定物理视图的路径就是逻辑视图名 `home` 再加上 `/WEB-INF/views/` 前缀和 `.jsp` 后缀:
+
+![2020-05-20-15-56-57](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-05-20-15-56-57.png)
+
+当使用 `@Bean` 注解的时候，我们可以按照如下的方式配置 InternalResource-ViewResolver，使其在解析视图时，遵循上述的约定:
+
+``` java
+@Bean
+public ViewResolver viewResolver() {
+  InternalResourceViewResolver resolver = new InternalResourceViewResolver();
+  resolver.setPrefix("/WEB-INF/views");
+  resolver.setSuffix(".jsp");
+  return resolver;
+}
+```
+
+XML 配置方式如下:
+``` xml
+<bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver"
+      p:prefix="/WEB-INF/views"
+      p:suffix=".jsp" />
+```
+
+::: warning
+
+这部分并不重要, 所以就到此为止!
+
+:::
+
+## Spring MVC 的高级技术
+
+### Spring MVC 配置的替代方案
+
+在前面, 通过扩展 `AbstractAnnotationConfigDispatcherServletInitializer` 类, 我们快速搭建了 Spring MVC 环境, 里面提供了基本的 `DispatcherServlet` 和 `ContextLoaderListener` 环境:
+
+``` java
+import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
+
+public class SpitterWebInitializer extends AbstractAnnotationConfigDispatcherServletInitializer {
+
+  @Override
+  protected String[] getServletMappings() {
+    return new String[] { "/" };
+  }
+
+  @Override
+  protected Class<?>[] getRootConfigClasses() {
+    return new Class<?>[] { RootConfig.class };
+  }
+
+  @Override
+  protected Class<?>[] getServletConfigClasses() {
+    return new Class<?>[] { WebConfig.class };
+  }
+}
+```
+
+除了 `DispatcherServlet` 以外，我们可能还需要额外的 Servlet 和 Filter；我们可能还需要对 `DispatcherServlet` 本身做一些额外的配置；或者，如果我们需要将应用部署到 Servlet 3.0 之前的容器中，那么还需要将 `DispatcherServlet` 配置到传统的 `web.xml` 中。
+
+#### 自定义 DispatcherServlet 配置
+
+在上面👆代码中, 我们扩展 ` AbstractAnnotation-ConfigDispatcherServletInitializer ` 类时重载的三个方法仅仅是必须要重载的 `abstract` 方法.  实际上还有更多的方法可以进行重载，从而实现额外的配置。
+
+#### 添加其他的 Servlet 和 Filter
+
+基于 Java 的初始化器（initializer）的一个好处就在于我们可以定义任意数量的初始化器类。因此，如果我们想往 Web 容器中注册其他组件的话，只需创建一个新的初始化器就可以了。
+
+最简单的方式就是实现 Spring 的 `WebApplicationInitializer` 接口.
+
+``` java
+package com.myapp.config;
+
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRegistration.Dynamic;
+import org.springframework.web.WebApplicationInitializer;
+import com.myapp.MyServlet;
+
+public class MyServletInitializer extends WebApplicationInitializer {
+  
+  @Override
+  public void onStartup(ServletContext servletContext) throws ServletException {
+    Dynamic myServlet = servlectContext.addServlet("myServlet", MyServlet.class);
+    
+    myServlect.addMapping("/custom/**");
+  }
+
+}
+```
+- 它注册了一个 Servlet 并将其映射到一个路径上;
+- 我们也可以通过这种方式来手动注册 Dispatcher-Servlet, 但这并没有必要, 因为AbstractAnnotationConfigDispatcher-ServletInitializer 没用太多代码就将这项任务完成得很漂亮;
+
+类似地，我们还可以创建新的 `WebApplicationInitializer` 实现来注册 Listener 和 Filter:
+
+``` java
+@Override
+public void onStartup(ServlectContext servletContext) throws ServletException {
+
+  Dynamic filter = servletContext.addFilter("myFilter", MyFilter.class);
+  
+  filter.addMappingForUrlPatterns(null, false, "/custom/**");
+} 
+```
+
+---
+
+如果你只是注册 Filter， 并且该 Filter 只会映射到 `DispatcherServlet` 上的话，那么在 `AbstractAnnotationConfigDispatcherServletInitializer` 中还有一种快捷方式:
+
+``` java
+@Override
+protected Filter() getServletFilters() {
+  return new Filter[] { new MyFilter() };
+}
+```
+- 重载 `getServletFilters()` 方法, 然后返回一个 `Filter` 数组;
+
+#### 在 `web.xml` 中声明 DispatcherServlet
+
+下面展示如何在 `web.xml` 中配置 DispatcherServlet 和 ContextLoader-Listener:
+
+``` xml
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="2.5"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://java.sun.com/xml/ns/javaee"
+  xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+      http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" >
+
+  <context-param>
+    <param-name>contextConfigLocation</param-name>
+    <param-value>/WEB-INF/spring/root-context.xml</param-value>
+  </context-param>
+  
+  <!-- ContextLoader Listener -->
+  <listener>
+    <listener-class>
+      org.springframework.web.context.ContextLoaderListener
+    </listener-class>
+  </listener>
+  
+  <!-- Dispatcher Servlet -->
+  <servlet>
+    <servlet-name>appServlet</servlet-name>
+    <servlet-class>
+      org.springframework.web.servlet.DispatcherServlet
+    </servlet-class>
+    <param-name>contextConfigLocation</param-name>
+    <param-value>
+      /WEB-INF/spring/appServlet/servlet-context.xml
+    </param-value>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>appServlet</servlet-name>
+    <url-pattern>/</url-pattern>
+  </servlet-mapping>
+</web-app>
+```
+
+`ContextLoaderListener` 和 `DispatcherServlet` 各自都会加载一个 Spring 应用上下文:
+- `ContextLoaderListener` 的参数 `contextConfigLocation` 指定了一个 XML 文件的地址，是 Spring 应用上下文的配置文件;
+- 在这里例子中, `ContextLoaderListener` 所需的根上下文会从 `/WEB-INF/spring/rootcontext.xml` 中加载 Bean 定义;
+- DispatcherServlet 所需的上下文配置文件在 `/WEB-INF/spring/appServlet/servlet-context.xml` 中;
+
+
+上面👆都是让 `DispatcherServlet` 和 `ContextLoaderListener` 从 XML 中加载各自的应用上下文, 下面展示如何加载 JavaConfig 配置类:
+
+需要先指定 DispatcherServlet 和 ContextLoaderListener 使用 **`AnnotationConfigWebApplicationContext`**，这是一个 WebApplicationContext 的实现类, **它会加载 Java 配置类**.
+
+通过设置 **`contextClass`** 来进行 `AnnotationConfigWebApplicationContext` 的引入.
+
+``` xml
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="2.5"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://java.sun.com/xml/ns/javaee"
+  xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+      http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" >
+
+  <!-- 使用 AnnotationConfigWebApplicationContext -->
+  <context-param>
+    <param-name>contextClass</param-name>
+    <param-value>
+      org.springframework.web.context.support.AnnotationConfigWebApplicationContext
+    </param-value>
+  </context-param>
+  
+  <context-param>
+    <param-name>contextConfigLocation</param-name>
+    <param-value>
+      com.habuma.spitter.config.RootConfig
+    </param-value>
+  </context-param>
+  
+  <listener>
+    <listener-class>
+      org.springframework.web.context.ContextLoaderListener
+    </listener-class>
+  </listener>
+  
+  <servlet>
+    <servlet-name>appServlet</servlet-name>
+    <servlet-class>
+      org.springframework.web.servlet.DispatcherServlet
+    </servlet-class>
+    <!-- 设置初始化参数 -->
+    <!-- 使用 AnnotationConfigWebApplicationContext -->
+    <init-param>
+      <param-name>contextClass</param-name>
+      <param-value>
+        org.springframework.web.context.support.AnnotationConfigWebApplicationContext
+      </param-value>
+    </init-param>
+    <context-param>
+      <param-name>contextConfigLocation</param-name>
+      <param-value>
+        com.habuma.spitter.config.WebConfigConfig
+      </param-value>
+    </context-param>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>appServlet</servlet-name>
+    <url-pattern>/</url-pattern>
+  </servlet-mapping>
+</web-app>
+```
+
+### 处理 multipart 形式的数据
+
+在 Web 应用中, 经常需要处理 multipart 格式的二进制数据, 例如上传图片, 上传文件, 等等.
+
+#### 配置 multipart 解析器
+
+`DispatcherServlet` 并没有实现任何解析 multipart 请求数据的功能。**multipart 请求的处理交给 Spring 中 `MultipartResolver` 策略接口的实现类来处理**.
+
+从 Spring 3.1 开 始，Spring 内置了两个 `MultipartResolver` 的实现供我们选择：
+- `CommonsMultipartResolver`：使用 Jakarta Commons FileUpload 解析 multipart 请求；
+- `StandardServletMultipartResolver`：依赖于 Servlet 3.0 对 multipart 请求的支持（始于 Spring 3.1）
+
+在这两者之间，**`StandardServletMultipartResolver` 可能会是优选的方案**。因为它使用 Servlet 所提供的功能支持，并不需要依赖任何其他的项目。
+
+``` java
+@Bean
+public MultipartResolver multipartResolver() throws IOException {
+  return new StandardServletMultipartResolver();
+}
+```
+
+在使用 `StandardServletMultipartResolver` Bean 之前, 还要在 `web.xml` 或 `Servlet` 初始化类中，将 multipart 的具体细节作为 `DispatcherServlet` 配置的一部分.
+
+例如, 假如我们采用 Servlet 初始化类的方式来配置 `DispatcherServlet` 的话，这个初始化类应该已经实现了 `WebApplicationInitializer`，那我们可以在 Servlet `registration` 上调用 `setMultipartConfig()` 方法，传入一个 `MultipartConfigElement` 实例:
+
+``` java
+DispatcherServlet ds = new DispatchServlet();
+Dynamic registration = context.addServlet("appServlet", ds);
+registration.addMapping("/");
+registration.setMultipartConfig(new MultipartConfigElement("/tmp/spittr/uploads"));
+```
+
+如果我们配置 `DispatcherServlet` 的 Servlet 初始化类继承了 `AbstractAnnotationConfigDispatcherServletInitializer` 或 `AbstractDispatcher-ServletInitializer` 的话，那么我们不会直接创建 `DispatcherServlet` 实例并将其注册到 Servlet 上下文中。
+
+这样的话，将不会有对 Dynamic Servlet `registration` 的引用供我们使用了。但是，可以通过重载`customizeRegistration()` 方法来配置 multipart 的具体细节, 它会得到一个 Dynamic 类型对象作为参数:
+
+``` java
+@Override
+protected void customizeRegistration(Dynamic registration) {
+  registration.setMultipartConfig(
+    new MultipartConfigElement("/tmp/spittr/uploads");
+  );
+}
+```
+
+上面👆我们向 `setMultipartConfig` 方法中传入了一个 **`MultipartConfigElement` 对象**, 并且传入了一个字符串参数, 这个参数指定的是文件系统中的一个绝对目录，上传文件将会临时写入该目录中。
+
+除了这个临时目录参数外, 还有很多其他的参数可以用来限制 multipart: 
+- 上传文件的最大容量（以字节为单位）。默认是没有限制的;
+- 整个 multipart 请求的最大容量（以字节为单位），不会关心有多少个 part 以及每个 part 的大小。默认是没有限制的;
+- 在上传的过程中，如果文件大小达到了一个指定最大容量（以字节为单位），将会写入到临时文件路径中。默认值为 0，也就是所有上传的文件都会写入到磁盘上;
+
+🌰 例如，假设我们想限制文件的大小不超过 2MB，整个请求不超过 4MB，而且所有的文件都要写到磁盘中:
+
+``` java
+@Override
+protected void customizeRegistration(Dynamic registration) {
+  registration.setMultipartConfig(
+    new MultipartConfigElement("/tmp/spittr/uploads",
+      2097152, 4194304, 0);
+  );
+}
+```
+
+---
+
+在 XML 配置文件中, 可以使用 `<servlet>` 中的 `<multipart-config>` 元素来配置 `MultipartConfigElement`:
+
+``` xml
+<servlet>
+  <servlet-name>appServlet</servlet-name>
+  <servlet-class>
+    org.springframework.web.servlet.DispatchServlet
+  </servlet-class>
+  <load-on-startup>1</load-on-startup>
+  <multipart-config>
+    <location>/tmp/spittr/upload</location>
+    <max-file-size>2097152</max-file-size>
+    <max-request-size>4194304</max-request-size>
+  </multipart-config>
+</servlet>
+```
+
+#### 处理 multipart 请求
+
+现在已经配置好了对 mutipart 请求的处理器，接下来就可以编写控制器方法来接收上传的文件.  要实现这一点，最常见的方式就是在某个控制器方法参数上添加 **`@RequestPart` 注解**:
+
+``` java
+@RequestMapping(value="/register", method=POST)
+public String processRegistration(
+    @RequestPart("profilePicture") byte[]  profilePicture,
+    @Valid Spittr spittr,
+    Errors errors) {
+  ...
+} 
+```
+- 我们想让这个方法能处理前端表单提交的图片数据;
+- 方法中添加 `byte` 类型数组参数，并为其添加 `@RequestPart` 注解, 并且指定请求中对应的参数名;
+- 当注册表单提交的时候，`profilePicture` 属性将会给定一个 byte 数组，这个数组中包含了请求中对应部分的数据;
+- 如果用户提交表单的时候没有选择文件，那么这个数组会是空, 而不是 `null`;
+
+现在我们仅仅是获得了上传文件的原始 `byte` 序列数据, 为了做更复杂的操作.  Spring 提供了 `MultipartFile` 接口，它为处理 multipart 数据提供了内容更为丰富的支持:
+
+``` java
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+
+public interface MultipartFile {
+  String getName();
+  String getOriginalFilename();
+  String getContentType();
+  boolean isEmpty();
+  long getSize();
+  byte[] getBytes() throws IOException;
+  InputStream getInputStream() throws IOException;
+  void transferTo(File dest) throws IOException;
+}
+```
+
+---
+
+**下面👇展示一下如何将文件保存到 Amazon S3 中**:
+
+``` java
+private void saveImage(MultipartFile image) throws ImageUploadException {
+  try {
+    AWSCredentials awsCredentials = new AWSCredentials(s3AccessKey, s2SecretKey);
+    S3Service s3 = new ResetS3Service(awsCredentials);
+    
+    S3Bucket bucket = s3.getBucket("spittrImages");
+    S3Object imageObject = new S3Object(image.getOriginalFilename);
+    
+    imageObject.setDataInputStream(image.getInputStream());
+    imageObject.setContentLength(image.getSize());
+    imageObject.setContentType(image.getContentType());
+    
+    AccessControlList acl = new AccessControlList();
+    acl.setOwner(bucket.getOwner());
+    acl.grantPermission(GroupGrants.ALL_USERS, Permission.PERMISSION_READ);
+    imageObject.setAcl(acl);
+    
+    s3.putObject(bucket, imageObject);
+  } catch (Exception e) {
+    throw new ImageUploadException("Unable to save image", e);
+  }
+}
+```
+
+我们在 `processRegistration()` 中可以调用  `saveImage()` 方法:
+
+``` java
+@RequestMapping(value="/register", method=POST)
+public String processRegistration(
+    @RequestPart("profilePicture") MultipartFile  profilePicture,
+    @Valid Spittr spittr,
+    Errors errors) {
+  ...
+  saveImages(profilePicture);
+  ...
+} 
+```
+- multipart 数据被转换成 `MultipartFile` 接口实现类实例, 然后作参数传入 `processRegistration` 方法;
+- 之后调用 `saveImages` 方法将图片存入 Amazon S3;
+
+### 处理异常
+
+Servlet 请求的输出都是一个 Servlet 响应。如果在请求处理的时候，出现了异常，那它的输出依然会是 Servlet 响应。异常必须要以某种方式转换为响应。
+
+Spring 提供了多种方式将异常转换为响应：
+- 特定的 Spring 异常将会自动映射为指定的 HTTP 状态码；
+- 异常上可以添加 `@ResponseStatus` 注解，从而将其映射为某一个 HTTP 状态码；
+- 在方法上可以添加 `@ExceptionHandler` 注解，使其用来处理异常。
+
+#### 将异常映射为 HTTP 状态码
+
+不同的 HTTP 状态码有对应的 Spring 异常:
+
+![2020-05-21-08-05-11](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-05-21-08-05-11.png)
+
+异常一般会由 Spring 自身抛出，作为 DispatcherServlet 处理过程中或执行校验时出现问题的结果.
+- 🌰 例如，如果 DispatcherServlet 无法找到适合处理请求的控制器方法，那么将会抛出 NoSuchRequestHandlingMethod-Exception 异常，最终的结果就是产生 404 状态码的响应（Not Found）
+
+但是对于控制器执行时所抛出的异常就不能给出准确的状态码了, 默认都是 500 (服务器内部错误), 因为请求与控制器的映射没有问题, 出问题的是控制器内部的执行.
+
+Spring 提供了一种机制，能够通过 `@ResponseStatus` 注解将异常映射为 HTTP 状态码。
+
+``` java
+@RequestMapping(value="/{spittleId}", method=RequestMethod.GET)
+public String spittle(
+    @PathVariable("spittleId") long spittleId, 
+    Model model) {
+  Spittle spittle = spittleRepository.findOne(spittleId);
+  if (spittle == null) {
+    throw new SpittleNotFoundException();
+  }
+  model.addAttribute(spittle);
+  return "spittle";
+}
+```
+- 在这里，会从 `SpittleRepository` 中，通过 ID 检索 Spittle 对象, 如果 `findOne()` 方法返回 `null` 的话，那么将会抛出 `SpittleNotFoundException` 异常;
+
+`SpittleNotFoundException` 是一个继承自 `RuntimeException` 的非检查型异常. 默认情况下, 如果请求 URL 与控制器映射上没有问题, 任何异常都会产生 500 状态码 Internal Server Error 的响应.
+
+单独创建 `SpittleNotFoundException` 异常类的原因就是希望能够用 `@ResponseStatus 注解` 自定义 HTTP 状态码, 以及错误信息:
+
+``` java
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
+
+@ResponseStatus(value=HttpStatus.NOT_FOUND, reason="Spittle Not Found")
+public class SpittleNotFoundException extends RuntimeException {
+}
+```
+
+#### 编写异常处理的方法
+
+有时候我们并不只是希望控制器简单的抛出异常, 然后响应给客户端一个 HTTP 状态码, 我们希望能够在控制器中处理异常, 并根据异常给出不同的响应内容:
+
+🌰 假设, `SpittleRepository` 的 `save()` 方法将会抛出 `DuplicateSpittleException` 异常, `saveSpittle()` 方法可能需要处理这个异常:
+
+``` java
+@RequestMapping(method=RequestMethod.POST)
+public String saveSpittle(SpittleForm form, Model model) {
+  try {
+    spittleRepository.save(new Spittle(null, form.getMessage(), new Date(), 
+        form.getLongitude(), form.getLatitude()));
+    return "redirect:/spittles";
+  } catch (DuplicateSpittleException e) {
+    return "error/duplicate";
+  }
+}
+```
+
+在这个控制器类中, 可能会在很多个方法中都使用 `spittleRepository` 去访问数据库, 对于抛出的相同的异常, 我们不希望在每个方法中都重新写一遍.
+
+可以通过 **`@ExceptionHandler 注解`** 在控制器中定义通用的错误处理方法. 
+
+**用这个注解修饰的方法能处理同一个控制器中所有处理器方法所抛出的异常**.
+
+
+``` java
+@ExceptionHandler(DuplicateSpittleException.class)
+public String handleDuplicateSpittle() {
+  return "error/duplicate";
+}
+```
+- `handleDuplicateSpittle()` 方法上添加了 `@ExceptionHandler` 注解，当抛出  `DuplicateSpittleException` 异常的时候，将会委托该方法来处理;
+
+这时之前的 `saveSpittle` 方法就可以简化成:
+
+``` java
+@RequestMapping(method=RequestMethod.POST)
+public String saveSpittle(SpittleForm form, Model model) {
+  spittleRepository.save(new Spittle(null, form.getMessage(), new Date(), 
+    form.getLongitude(), form.getLatitude()));
+  return "redirect:/spittles";
+}
+```
+
+### 为控制器添加通知
+
+上面👆我们将了如何在控制器中定义所有方法通用的异常处理器, 那么我们该如何去定义一个所有控制器都能通用的异常处理器呢?
+
+为了避免在所有的控制器中都重新编写一遍相同的异常处理方法, 最简单的解决方案是创建一个控制器基类, 里面定义好异常处理方法, 然后让所有其他的控制器都扩展自这个基类;
+
+但从 Spring 3.2 开始，这类问题有了一个新的解决方案：**控制器通知**。
+
+控制器通知是任意带有 **`@ControllerAdvice` 注解**的类，这个类会包含一个或多个如下类型的方法：
+- `@ExceptionHandler` 注解标注的方法；
+- `@InitBinder` 注解标注的方法；
+- `@ModelAttribute` 注解标注的方法;
+
+
+在带有 `@ControllerAdvice` 注解的类中，以上所述的这些方法会运用到整个应用程序所有控制器中带有 `@RequestMapping` 注解的方法上.
+
+在这里, 我们需要的是用 `@ExceptionHandler` 注解定义全部控制器通用的异常处理方法:
+
+``` java
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+
+@ControllerAdvice
+public class AppWideExceptionHandler {
+
+  @ExceptionHandler(DuplicateSpittleException.class)
+  public String handleNotFound() {
+    return "error/duplicate";
+  }
+
+}
+```
+- 现在，如果任意的控制器方法抛出了 `DuplicateSpittleException`，不管这个方法位于哪个控制器中，都会调用这个 `duplicateSpittleHandler()` 方法来处理异常;
+
+### 跨重定向请求传递数据
 
 ## 使用 Spring MVC 创建 REST API
 
@@ -2846,5 +3411,219 @@ public @ResponseBody Spittle saveSpittle(@RequestBody Spittle spittle) {
 因为 ResponseEntity 允许我们指定响应的状态码，所以当无法找到 Spittle 的时候，我们可以返回 HTTP 404 错误。
 
 ### 在响应中设置头部信息
+
+
+## 保护 Web 应用
+
+### Spring Security 介绍
+
+**Spring Security 是为基于 Spring 的应用程序提供声明式安全保护的安全性框架**。Spring Security 提供了完整的安全性解决方案，它能够在 『 Web 请求级别 』和『 方法调用级别 』处理身份认证和授权。
+
+Spring Security 从两个角度来解决安全性问题:
+- 使用 Servlet 规范中的 Filter 保护 Web 请求并限制 URL 级别的访问;
+- 使用 Spring AOP 保护方法调用, 借助于对象代理和使用通知，能够确保只有具备适当权限的用户才能访问安全保护的方法;
+
+#### 过滤 Web 请求
+
+Spring Security 借助一系列 Servlet Filter 来提供各种安全性功能。我们并不需要在 `web.xml` 或 `WebApplicationInitializer` 中配置多个 Filter, 借助于 Spring 的小技巧，我们只需配置一个 Filter 就可以了。
+
+`DelegatingFilterProxy` 是一个特殊的 Servlet Filter，它将工作委托给一个 `javax.servlet.Filter` 实现类，这个实现类作为一个 Bean 注册在 Spring 应用的上下文中。
+
+![2020-3-26-19-27-27.png](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-3-26-19-27-27.png)
+
+如果你喜欢在传统的 `web.xml` 中配置 Servlet 和 Filter 的话，可以使用 `<filter>` 元素，如下所示：
+
+```xml
+<filter>
+  <filter-name>springSecurityFilterChain</filter-name>
+  <filter-class>
+    org.springframework.web.filter.DelegatingFilteProxy
+  </filter-class>
+</filter>
+```
+
+如果你希望借助 `WebApplicationInitializer` 以 Java 的方式来配置 `DelegatingFilterProxy` 的话，那么我们所需要做的就是创建一个扩展的新类：
+
+``` java
+import org.springframwork.security.web.context.AbstractSecurityWebApplicationInitializer;
+
+public class SecurityWebInitializer extends AbstractSecurityWebApplicationInitializer{
+}
+```
+- `AbstractSecurityWebApplicationInitializer` 实现了 `WebApplicationInitializer`，因此 Spring 会发现它，并用它在 Web 容器中注册 `DelegatingFilterProxy`;
+
+**不管通过何种方式配置 `DelegatingFilterProxy`，它都会拦截发往应用中的请求，并将请求委托给 ID 为 `springSecurityFilterChain` Bean**
+
+#### 更简单的配置方式
+
+Spring 3.2 引入了新的 Java 配置方案，完全不再需要通过 XML 来配置安全性功能了。如下的程序清单展现了 Spring Security 最简单的 Java 配置。
+
+```java
+package spitter.config;
+
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.servlet.configuration.EnableWebSecurity;
+
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
+}
+```
+
+`@EnableWebSecurity` 注解将会启用 Web 安全功能。但它本身并没有什么用处，Spring Security 必须配置在一个实现了 `WebSecurityConfigurer` 的 Bean 中，最为简单的方式就是扩展 `WebSecurityConfigurerAdapter` 类。
+
+`@EnableWebSecurity` 可以启用任意 Web 应用的安全性功能。
+
+如果你的应用碰巧是使用 Spring MVC 开发的，那么就应该考虑使用 `@EnableWebMvcSecurity` 替代它。
+
+```java
+package spitter.config;
+
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.servlet.configuration.EnableWebMvcSecurity;
+
+@Configuration
+@EnableWebMvcSecurity
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
+}
+```
+
+如果希望指定 Web 安全的更多细节，这要通过重载 `WebSecurityConfigurerAdapter` 中的一个或多个方法来实现:
+
+![2020-05-21-09-04-34](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-05-21-09-04-34.png)
+
+在下面👇的内容中会具体讲, 如何根据应用程序的业务需求, 来配置 Spring Security.
+
+### 选择查询用户详细信息的服务
+
+
+
+### 拦截请求
+
+### 认证用户
+
+### 保护视图
+
+## JDBC
+
+几乎所有企业级应用都有数据持久化需求.  Spring 自带了一组数据访问框架，集成了多种数据访问技术。Spring 都能够帮你消除持久化代码中那些重复单调的数据访问逻辑, 可以让我们专注以数据处理逻辑;
+
+#### Spring 的数据访问哲学
+
+为了避免持久化的逻辑分散到应用的各个组件中，数据访问的功能都放到一个或多个专注于此项任务的组件中。这样的组件通常称为『 **数据访问对象** 』（Data Access Object，DAO）或 Repository。
+
+为了避免应用与特定的数据访问策略耦合在一起，编写良好的 DAO 应该以接口的方式暴露功能:
+
+![2020-05-21-10-08-21](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-05-21-10-08-21.png)
+
+这样做的好处有:
+- **易于测试**, 服务对象不关心具体的数据访问实现, 你可以为这些数据访问接口创建 mock 实现，这样无需连接数据库就能测试服务对象;
+- **低耦合**, 应用程序与数据访问实现分离, 具体采用了什么持久化技术, 应用程序并不需要知道.  数据访问层可以灵活切换各种实现方式, 而不影响它的使用者;
+
+#### Spring 的数据访问异常体系
+
+JDBC 定义的异常太简单了.  Spring JDBC 提供的了与具体持久化实现无关的数据访问异常体系.  为各种不同的数据访问问题定义异常.
+
+Spring JDBC 提供的异常都继承自 `DataAccessException`。这是一个非首查异常.  也就是说我们并不被强制捕获 Spirng 抛出的数据访问异常.
+
+Spirng 把是否要捕获异常的权力留给了开发人员。
+
+为了利用 Spring 的数据访问异常，我们必须使用 Spring 所支持的『 数据访问模板 』。
+
+#### 数据访问模板
+
+在数据访问过程中, 会涉及到很多重复的操作, 只有很少的一部分是每次都会变化的.  Spring 帮我们把重复的操作封装起来, 让我们只需要关心可变的部分.
+
+Spring 将数据访问过程中固定的和可变的部分明确划分为两个不同的类：模板（template）和回调（callback）。模板管理过程中固定的部分，而回调处理自定义的数据访问代码。
+
+![2020-05-21-10-28-27](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-05-21-10-28-27.png)
+
+我们只需要在回调中关心应用程序相关的数据访问, 语句、绑定参数, 整理结果集.
+
+针对不同的持久化平台，Spring 提供了多个可选的模板。
+
+![2020-05-21-10-30-36](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-05-21-10-30-36.png)
+
+在本章中，我们将会从基础的 JDBC 访问开始，因为这是从数据库中读取和写入数据的最基本方式。
+
+#### 基于 JDBC 驱动的数据源
+
+无论选择 Spring 的哪种数据访问方式，你都需要配置一个数据源的引用。
+
+Spring 提供了在 Spring 上下文中配置数据源 Bean 的多种方式.  这里我们只讲通过 JDBC 驱动程序定义的数据源.
+
+Spring 提供了三个数据源类（均位于 `org.springframework.jdbc.datasource` 包中）供选择：
+
+- `DriverManagerDataSource`：在每个连接请求时都会返回一个新建的连接;；
+- `SimpleDriverDataSource`：与 `DriverManagerDataSource` 的工作方式类似，但是它直接使用 JDBC 驱动，来解决在特定环境下的类加载问题;
+- `SingleConnectionDataSource`：在每个连接请求时都会返回同一个的连接。尽管它不是严格意义上的连接池数据源，但是你可以将其视为只有一个连接的池;
+
+---
+
+如下就是配置 `DriverManagerDataSource` 的方法：
+
+``` java
+@Bean
+public DataSource dataSource() {
+  DriverManagerDataSource ds = new DriverManagerDataSource();
+  ds.setDriverClassName("org.h2.Driver");
+  ds.setUrl("jdbc:h2:tcp://localhost/~/spitter");
+  ds.setUsername("sa");
+  ds.setPassword("");
+  return ds;
+}
+```
+
+如果使用 XML 的话，`DriverManagerDataSource` 可以按照如下的方式配置:
+
+``` java
+<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource"
+      p:driverClassName="org.h2.Driver"
+      p:url="jdbc:h2:tcp://localhost/~/spitter"
+      p:username="sa"
+      p:password="" />
+```
+
+这些数据源 Bean 都不具备连接池功能, 每次连接数据库都重新建立连接, 这会导致性能问题.
+
+#### 使用 JDBC 模板
+
+Spring 的 JDBC 框架承担了资源管理和异常处理的工作，从而简化了 JDBC 代码，让我们只需编写从数据库读写数据的必需代码。
+
+Spring 为 JDBC 提供了三个模板类供选择：
+- JdbcTemplate：最基本的 Spring JDBC 模板，这个模板支持简单的 JDBC 数据库访问功能以及基于索引参数的查询；
+- NamedParameterJdbcTemplate：使用该模板类执行查询时可以将值以命名参数的形式绑定到 SQL 中，而不是使用简单的索引参数；
+- SimpleJdbcTemplate：该模板类利用 Java 5 的一些特性如自动装箱、泛型以及可变参数列表来简化 JDBC 模板的使用。
+
+**对于大多数的 JDBC 任务来说，JdbcTemplate 是最好方案**.
+
+为了让 JdbcTemplate 正常工作，只需要为其设置 DataSource 就可以了:
+
+``` java
+@Bean
+public JdbcTemplate jdbcTemplate(DataSource dataSource) {
+  return new JdbcTemplate(dataSource);
+}
+```
+
+我们可以将 jdbcTemplate 装配到 DAO 中并使用它来访问数据库:
+
+``` java
+@Repository
+public class JdbcSpitterRepository implements SpitterRepository {
+	
+  private JdbcOperations jdbcOperations;
+
+  @Autowired
+  public JdbcSpitterRepository(JdbcOperations jdbcOperations) {
+    this.jdbcOperations = jdbcOperations;		
+  }	
+  ...
+}
+```
+
+## 缓存数据
 
 ## Spring 消息
