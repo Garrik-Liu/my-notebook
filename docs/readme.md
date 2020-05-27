@@ -49,7 +49,7 @@ home: true
 
 ## 计算机网络
 
-- [HTTP](/网络/readme.md)
+- [计算机网络笔记](/网络/readme.md)
 
 ## 运营
 
