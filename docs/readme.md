@@ -47,9 +47,9 @@ home: true
 
 - [数据结构与算法](/数据结构与算法/readme.md)
 
-## 网络
+## 计算机网络
 
-- [HTTP](/网络/http/readme.md)
+- [HTTP](/网络/readme.md)
 
 ## 运营
 
