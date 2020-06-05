@@ -16,7 +16,9 @@ const server = http.createServer(((req, res) => {
             if (err) {
                 console.log(err);
             } else {
-                res.writeHead(200, { 'Content-Type': 'text/html' });
+                res.writeHead(200, {
+                    'Content-Type': 'text/html'
+                });
                 res.end(data);
             }
         })
@@ -32,13 +34,17 @@ const server = http.createServer(((req, res) => {
             if (err) {
                 console.log(err);
             } else {
-                res.writeHead(200, { 'Content-Type': 'text/html' });
+                res.writeHead(200, {
+                    'Content-Type': 'text/html'
+                });
                 res.end(data);
             }
         })
 
     } else {
-        res.writeHead(404, { 'Content-Type': 'text/plain' });
+        res.writeHead(404, {
+            'Content-Type': 'text/plain'
+        });
         res.end("404");
     }
 }));
@@ -48,7 +54,9 @@ server.listen(3000, () => {
 });
 
 function db(dbUrl, targetDB, targetCol, data) {
-    MongoClient.connect(dbUrl, { useNewUrlParser: true }, (err, db) => {
+    MongoClient.connect(dbUrl, {
+        useNewUrlParser: true
+    }, (err, db) => {
         if (err) {
             console.log(err);
         } else {
