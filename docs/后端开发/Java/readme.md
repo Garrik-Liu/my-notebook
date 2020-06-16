@@ -24,9 +24,10 @@ sidebar: false
 
 - [Spring 入门](./Spring/spring入门.md)
 - [读书笔记 - Spring 实战](./Spring/读书笔记-Spring实战.md)
-- [实战 - SSM 商铺系统](./Spring/实战-SSM商铺系统.md)
 
 ## SpringBoot
+
+- [Spring Boot 入门](./SpringBoot/springboot入门.md)
 
 ## MyBatis
 
