@@ -3323,107 +3323,6 @@ public class AppWideExceptionHandler {
 
 ### 跨重定向请求传递数据
 
-## 使用 Spring MVC 创建 REST API
-
-为了理解 REST 是什么，我们将它的首字母缩写拆分为不同的构成部分：
-
-- 表述性（Representational）：REST 资源实际上可以用各种形式来进行表述，包括 XML、JSON（JavaScript Object Notation）甚至 HTML —— 最适合资源使用者的任意形式；
-- 状态（State）：当使用 REST 的时候，我们更关注资源的状态而不是对资源采取的行为；
-- 转移（Transfer）：REST 涉及到转移资源，它以某种表述性形式从一个应用转移到另一个应用。
-
-更简洁地讲，REST 就是将资源的状态以最适合客户端或服务端的形式从服务器端转移到客户端（或者反过来）。
-
-在 REST 中，资源通过 URL 进行识别和定位。
-
-REST 中会有行为，它们是通过 HTTP 方法来定义的。具体来讲，也就是 GET、POST、PUT、DELETE、PATCH 以及其他的 HTTP 方法构成了 REST 中的动作。这些 HTTP 方法通常会匹配为如下的 CRUD 动作：
-
-- Create：POST
-- Read：GET
-- Update：PUT 或 PATCH
-- Delete：DELETE
-
-尽管通常来讲，HTTP 方法会映射为 CRUD 动作，但这并不是严格的限制。有时候，PUT 可以用来创建新资源，POST 可以用来更新资源。
-
-### 创建第一个 REST 端点
-
-表述是 REST 中很重要的一个方面。它是关于客户端和服务器端针对某一资源是如何通信的。任何给定的资源都几乎可以用任意的形式来进行表述。如果资源的使用者愿意使用 JSON，那么资源就可以用 JSON 格式来表述。如果使用者喜欢尖括号，那相同的资源可以用 XML 来进行表述。甚至 txt 格式。资源的本质没有变化，只是它的表述方式变化了。
-
-需要了解的是控制器本身通常并不关心资源如何表述。控制器以 Java 对象的方式来处理资源。控制器完成了它的工作之后，资源才会被转化成最适合客户端的形式。
-
-Spring 提供了两种方法将资源的 Java 表述形式转换为发送给客户端的表述形式：
-
-- 内容协商（Content negotiation）：选择一个视图，它能够将模型渲染为呈现给客户端的表述形式；
-- 消息转换器（Message conversion）：通过一个消息转换器将控制器所返回的对象转换为呈现给客户端的表述形式。
-
-在这里直接将如何使用消息转换器。消息转换（message conversion）提供了一种更为直接的方式，它能够将控制器产生的数据转换为服务于客户端的表述形式。
-
-Spring 自带了各种各样的转换器。
-
-为了支持消息转换，我们需要对 Spring MVC 的编程模型进行一些小调整。
-
-如果想使用消息转换功能的话，我们需要告诉 Spring 跳过正常的模型/视图流程，并使用消息转换器。有不少方式都能做到这一点，但是最简单的方法是为控制器方法添加 @ResponseBody 注解。
-
-```java
-@RequestMapping(method=RequestMethod.GET, produces="application/json")
-public @ResponseBody List<Spittle> spittles(
-    @RequestParam(value="max", defaultValue=MAX_LONG_AS_STRING) long max,
-    @RequestParam(value="count", defaultValue="20") int count) {
-  return spittleRepository.findSpittles(max, count);
-}
-```
-
-@ResponseBody 注解会告知 Spring，我们要将返回的对象作为资源发送给客户端，并将其转换为客户端可接受的表述形式。更具体地讲，DispatcherServlet 将会考虑到请求中 Accept 头部信息，并查找能够为客户端提供所需表述形式的消息转换器。
-
-举例来讲，假设客户端的 Accept 头部信息表明它接受 “application/json”，并且 Jackson JSON 库位于应用的类路径下，那么将会选择 MappingJacksonHttpMessageConverter。消息转换器会将控制器返回的 Spittle 列表转换为 JSON 文档，并将其写入到响应体中。
-
-```json
-[
-  {
-    "id": 42,
-    "latitude": 28.419489,
-    "longitude": -81.581184,
-    "message": "Hello World",
-    "time": 140038920000
-  },
-  {
-    "id": 43,
-    "latitude": 28.419136,
-    "longitude": -81.577225,
-    "message": "Blast off!",
-    "time": 140047560000
-  }
-]
-```
-
-#### 在请求体中接收资源状态
-
-到目前为止，我们只关注了 REST 端点如何为客户端提供资源。但是 REST 并不是只读的，REST API 也可以接受来自客户端的资源表述。
-
-@RequestBody 也能告诉 Spring 查找一个消息转换器，将来自客户端的资源表述转换为对象。
-
-```java
-@RequestMapping(method=RequestMethod.POST, consumes="application/json")
-public @ResponseBody Spittle saveSpittle(@RequestBody Spittle spittle) {
-  return spittleRepository.save(spittle);
-}
-```
-
-@RequestMapping 表明它只能处理 “/spittles”（在类级别的 @RequestMapping 中进行了声明）的 POST 请求。POST 请求体中预期要包含一个 Spittle 的资源表述。
-
-因为 Spittle 参数上使用了 @RequestBody，所以 Spring 将会查看请求中的 Content-Type 头部信息，并查找能够将请求体转换为 Spittle 的消息转换器。
-
-如果客户端发送的 Spittle 数据是 JSON 表述形式，那么 Content-Type 头部信息可能就会是 “application/json”。在这种情况下，DispatcherServlet 会查找能够将 JSON 转换为 Java 对象的消息转换器。
-
-@RequestMapping 有一个 consumes 属性，我们将其设置为 “application/json”。它会告诉 Spring 这个方法只会处理对 “/spittles” 的 POST 请求，并且要求请求的 Content-Type 头部信息为 “application/json”。如果无法满足这些条件的话，会由其他方法（如果存在合适的方法的话）来处理请求。
-
-### 发送错误信息到客户端
-
-作为 @ResponseBody 的替代方案，控制器方法可以返回一个 ResponseEntity 对象。ResponseEntity 中可以包含响应相关的元数据（如头部信息和状态码）以及要转换成资源表述的对象。
-
-因为 ResponseEntity 允许我们指定响应的状态码，所以当无法找到 Spittle 的时候，我们可以返回 HTTP 404 错误。
-
-### 在响应中设置头部信息
-
 ## JDBC
 
 几乎所有企业级应用都有数据持久化需求. Spring 自带了一组数据访问框架，集成了多种数据访问技术。Spring 都能够帮你消除持久化代码中那些重复单调的数据访问逻辑, 可以让我们专注以数据处理逻辑;
@@ -3543,3 +3442,104 @@ public class JdbcSpitterRepository implements SpitterRepository {
   ...
 }
 ```
+
+## 使用 Spring MVC 创建 REST API
+
+为了理解 REST 是什么，我们将它的首字母缩写拆分为不同的构成部分：
+
+- 表述性（Representational）：REST 资源实际上可以用各种形式来进行表述，包括 XML、JSON（JavaScript Object Notation）甚至 HTML —— 最适合资源使用者的任意形式；
+- 状态（State）：当使用 REST 的时候，我们更关注资源的状态而不是对资源采取的行为；
+- 转移（Transfer）：REST 涉及到转移资源，它以某种表述性形式从一个应用转移到另一个应用。
+
+更简洁地讲，REST 就是将资源的状态以最适合客户端或服务端的形式从服务器端转移到客户端（或者反过来）。
+
+在 REST 中，资源通过 URL 进行识别和定位。
+
+REST 中会有行为，它们是通过 HTTP 方法来定义的。具体来讲，也就是 GET、POST、PUT、DELETE、PATCH 以及其他的 HTTP 方法构成了 REST 中的动作。这些 HTTP 方法通常会匹配为如下的 CRUD 动作：
+
+- Create：POST
+- Read：GET
+- Update：PUT 或 PATCH
+- Delete：DELETE
+
+尽管通常来讲，HTTP 方法会映射为 CRUD 动作，但这并不是严格的限制。有时候，PUT 可以用来创建新资源，POST 可以用来更新资源。
+
+### 创建第一个 REST 端点
+
+表述是 REST 中很重要的一个方面。它是关于客户端和服务器端针对某一资源是如何通信的。任何给定的资源都几乎可以用任意的形式来进行表述。如果资源的使用者愿意使用 JSON，那么资源就可以用 JSON 格式来表述。如果使用者喜欢尖括号，那相同的资源可以用 XML 来进行表述。甚至 txt 格式。资源的本质没有变化，只是它的表述方式变化了。
+
+需要了解的是控制器本身通常并不关心资源如何表述。控制器以 Java 对象的方式来处理资源。控制器完成了它的工作之后，资源才会被转化成最适合客户端的形式。
+
+Spring 提供了两种方法将资源的 Java 表述形式转换为发送给客户端的表述形式：
+
+- 内容协商（Content negotiation）：选择一个视图，它能够将模型渲染为呈现给客户端的表述形式；
+- 消息转换器（Message conversion）：通过一个消息转换器将控制器所返回的对象转换为呈现给客户端的表述形式。
+
+在这里直接将如何使用消息转换器。消息转换（message conversion）提供了一种更为直接的方式，它能够将控制器产生的数据转换为服务于客户端的表述形式。
+
+Spring 自带了各种各样的转换器。
+
+为了支持消息转换，我们需要对 Spring MVC 的编程模型进行一些小调整。
+
+如果想使用消息转换功能的话，我们需要告诉 Spring 跳过正常的模型/视图流程，并使用消息转换器。有不少方式都能做到这一点，但是最简单的方法是为控制器方法添加 @ResponseBody 注解。
+
+```java
+@RequestMapping(method=RequestMethod.GET, produces="application/json")
+public @ResponseBody List<Spittle> spittles(
+    @RequestParam(value="max", defaultValue=MAX_LONG_AS_STRING) long max,
+    @RequestParam(value="count", defaultValue="20") int count) {
+  return spittleRepository.findSpittles(max, count);
+}
+```
+
+@ResponseBody 注解会告知 Spring，我们要将返回的对象作为资源发送给客户端，并将其转换为客户端可接受的表述形式。更具体地讲，DispatcherServlet 将会考虑到请求中 Accept 头部信息，并查找能够为客户端提供所需表述形式的消息转换器。
+
+举例来讲，假设客户端的 Accept 头部信息表明它接受 “application/json”，并且 Jackson JSON 库位于应用的类路径下，那么将会选择 MappingJacksonHttpMessageConverter。消息转换器会将控制器返回的 Spittle 列表转换为 JSON 文档，并将其写入到响应体中。
+
+```json
+[
+  {
+    "id": 42,
+    "latitude": 28.419489,
+    "longitude": -81.581184,
+    "message": "Hello World",
+    "time": 140038920000
+  },
+  {
+    "id": 43,
+    "latitude": 28.419136,
+    "longitude": -81.577225,
+    "message": "Blast off!",
+    "time": 140047560000
+  }
+]
+```
+
+#### 在请求体中接收资源状态
+
+到目前为止，我们只关注了 REST 端点如何为客户端提供资源。但是 REST 并不是只读的，REST API 也可以接受来自客户端的资源表述。
+
+@RequestBody 也能告诉 Spring 查找一个消息转换器，将来自客户端的资源表述转换为对象。
+
+```java
+@RequestMapping(method=RequestMethod.POST, consumes="application/json")
+public @ResponseBody Spittle saveSpittle(@RequestBody Spittle spittle) {
+  return spittleRepository.save(spittle);
+}
+```
+
+@RequestMapping 表明它只能处理 “/spittles”（在类级别的 @RequestMapping 中进行了声明）的 POST 请求。POST 请求体中预期要包含一个 Spittle 的资源表述。
+
+因为 Spittle 参数上使用了 @RequestBody，所以 Spring 将会查看请求中的 Content-Type 头部信息，并查找能够将请求体转换为 Spittle 的消息转换器。
+
+如果客户端发送的 Spittle 数据是 JSON 表述形式，那么 Content-Type 头部信息可能就会是 “application/json”。在这种情况下，DispatcherServlet 会查找能够将 JSON 转换为 Java 对象的消息转换器。
+
+@RequestMapping 有一个 consumes 属性，我们将其设置为 “application/json”。它会告诉 Spring 这个方法只会处理对 “/spittles” 的 POST 请求，并且要求请求的 Content-Type 头部信息为 “application/json”。如果无法满足这些条件的话，会由其他方法（如果存在合适的方法的话）来处理请求。
+
+### 发送错误信息到客户端
+
+作为 @ResponseBody 的替代方案，控制器方法可以返回一个 ResponseEntity 对象。ResponseEntity 中可以包含响应相关的元数据（如头部信息和状态码）以及要转换成资源表述的对象。
+
+因为 ResponseEntity 允许我们指定响应的状态码，所以当无法找到 Spittle 的时候，我们可以返回 HTTP 404 错误。
+
+### 在响应中设置头部信息
