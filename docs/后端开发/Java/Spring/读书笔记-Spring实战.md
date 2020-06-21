@@ -3327,7 +3327,7 @@ public class AppWideExceptionHandler {
 
 几乎所有企业级应用都有数据持久化需求. Spring 自带了一组数据访问框架，集成了多种数据访问技术。Spring 都能够帮你消除持久化代码中那些重复单调的数据访问逻辑, 可以让我们专注以数据处理逻辑;
 
-#### Spring 的数据访问哲学
+### Spring 的数据访问哲学
 
 为了避免持久化的逻辑分散到应用的各个组件中，数据访问的功能都放到一个或多个专注于此项任务的组件中。这样的组件通常称为『 **数据访问对象** 』（Data Access Object，DAO）或 Repository。
 
@@ -3366,7 +3366,7 @@ Spring 将数据访问过程中固定的和可变的部分明确划分为两个�
 
 在本章中，我们将会从基础的 JDBC 访问开始，因为这是从数据库中读取和写入数据的最基本方式。
 
-#### 基于 JDBC 驱动的数据源
+### 基于 JDBC 驱动的数据源
 
 无论选择 Spring 的哪种数据访问方式，你都需要配置一个数据源的引用。
 
@@ -3406,7 +3406,7 @@ public DataSource dataSource() {
 
 这些数据源 Bean 都不具备连接池功能, 每次连接数据库都重新建立连接, 这会导致性能问题.
 
-#### 使用 JDBC 模板
+### 使用 JDBC 模板
 
 Spring 的 JDBC 框架承担了资源管理和异常处理的工作，从而简化了 JDBC 代码，让我们只需编写从数据库读写数据的必需代码。
 
@@ -3447,15 +3447,15 @@ public class JdbcSpitterRepository implements SpitterRepository {
 
 为了理解 REST 是什么，我们将它的首字母缩写拆分为不同的构成部分：
 
-- 表述性（Representational）：REST 资源实际上可以用各种形式来进行表述，包括 XML、JSON（JavaScript Object Notation）甚至 HTML —— 最适合资源使用者的任意形式；
-- 状态（State）：当使用 REST 的时候，我们更关注资源的状态而不是对资源采取的行为；
-- 转移（Transfer）：REST 涉及到转移资源，它以某种表述性形式从一个应用转移到另一个应用。
+- **表述性**（Representational）：REST 资源实际上可以用各种形式来进行表述，包括 XML、JSON（JavaScript Object Notation）甚至 HTML —— 最适合资源使用者的任意形式；
+- **状态**（State）：当使用 REST 的时候，我们更关注资源的状态而不是对资源采取的行为；
+- **转移**（Transfer）：REST 涉及到转移资源，它以某种表述性形式从一个应用转移到另一个应用。
 
 更简洁地讲，REST 就是将资源的状态以最适合客户端或服务端的形式从服务器端转移到客户端（或者反过来）。
 
-在 REST 中，资源通过 URL 进行识别和定位。
+在 REST 中，资源通过 **URL** 进行识别和定位。
 
-REST 中会有行为，它们是通过 HTTP 方法来定义的。具体来讲，也就是 GET、POST、PUT、DELETE、PATCH 以及其他的 HTTP 方法构成了 REST 中的动作。这些 HTTP 方法通常会匹配为如下的 CRUD 动作：
+REST 中会有行为，它们是通过 HTTP 方法来定义的。具体来讲，也就是 **GET、POST、PUT、DELETE、PATCH** 以及其他的 HTTP 方法构成了 REST 中的动作。这些 HTTP 方法通常会匹配为如下的 CRUD 动作：
 
 - Create：POST
 - Read：GET
@@ -3481,7 +3481,7 @@ Spring 自带了各种各样的转换器。
 
 为了支持消息转换，我们需要对 Spring MVC 的编程模型进行一些小调整。
 
-如果想使用消息转换功能的话，我们需要告诉 Spring 跳过正常的模型/视图流程，并使用消息转换器。有不少方式都能做到这一点，但是最简单的方法是为控制器方法添加 @ResponseBody 注解。
+如果想使用消息转换功能的话，我们需要告诉 Spring 跳过正常的模型/视图流程，并使用消息转换器。有不少方式都能做到这一点，但是最简单的方法是为控制器方法添加 `@ResponseBody` 注解。
 
 ```java
 @RequestMapping(method=RequestMethod.GET, produces="application/json")
@@ -3492,9 +3492,9 @@ public @ResponseBody List<Spittle> spittles(
 }
 ```
 
-@ResponseBody 注解会告知 Spring，我们要将返回的对象作为资源发送给客户端，并将其转换为客户端可接受的表述形式。更具体地讲，DispatcherServlet 将会考虑到请求中 Accept 头部信息，并查找能够为客户端提供所需表述形式的消息转换器。
+`@ResponseBody` 注解会告知 Spring，我们要将返回的对象作为资源发送给客户端，并将其转换为客户端可接受的表述形式。更具体地讲，DispatcherServlet 将会考虑到请求中 Accept 头部信息，并查找能够为客户端提供所需表述形式的消息转换器。
 
-举例来讲，假设客户端的 Accept 头部信息表明它接受 “application/json”，并且 Jackson JSON 库位于应用的类路径下，那么将会选择 MappingJacksonHttpMessageConverter。消息转换器会将控制器返回的 Spittle 列表转换为 JSON 文档，并将其写入到响应体中。
+举例来讲，假设客户端的 Accept 头部信息表明它接受 `application/json`，并且 Jackson JSON 库位于应用的类路径下，那么将会选择 `MappingJacksonHttpMessageConverter`。消息转换器会将控制器返回的 Spittle 列表转换为 JSON 文档，并将其写入到响应体中。
 
 ```json
 [
@@ -3519,7 +3519,7 @@ public @ResponseBody List<Spittle> spittles(
 
 到目前为止，我们只关注了 REST 端点如何为客户端提供资源。但是 REST 并不是只读的，REST API 也可以接受来自客户端的资源表述。
 
-@RequestBody 也能告诉 Spring 查找一个消息转换器，将来自客户端的资源表述转换为对象。
+`@RequestBody` 也能告诉 Spring 查找一个消息转换器，将来自客户端的资源表述转换为对象。
 
 ```java
 @RequestMapping(method=RequestMethod.POST, consumes="application/json")
@@ -3528,18 +3528,334 @@ public @ResponseBody Spittle saveSpittle(@RequestBody Spittle spittle) {
 }
 ```
 
-@RequestMapping 表明它只能处理 “/spittles”（在类级别的 @RequestMapping 中进行了声明）的 POST 请求。POST 请求体中预期要包含一个 Spittle 的资源表述。
+@RequestMapping 表明它只能处理 `/spittles`（在类级别的 `@RequestMapping` 中进行了声明）的 POST 请求。POST 请求体中预期要包含一个 Spittle 的资源表述。
 
-因为 Spittle 参数上使用了 @RequestBody，所以 Spring 将会查看请求中的 Content-Type 头部信息，并查找能够将请求体转换为 Spittle 的消息转换器。
+因为 Spittle 参数上使用了 `@RequestBody`，所以 Spring 将会查看请求中的 `Content-Type` 头部信息，并查找能够将请求体转换为 Spittle 的消息转换器。
 
-如果客户端发送的 Spittle 数据是 JSON 表述形式，那么 Content-Type 头部信息可能就会是 “application/json”。在这种情况下，DispatcherServlet 会查找能够将 JSON 转换为 Java 对象的消息转换器。
+如果客户端发送的 Spittle 数据是 JSON 表述形式，那么 `Content-Type` 头部信息可能就会是 `application/json`。在这种情况下，DispatcherServlet 会查找能够将 JSON 转换为 Java 对象的消息转换器。
 
-@RequestMapping 有一个 consumes 属性，我们将其设置为 “application/json”。它会告诉 Spring 这个方法只会处理对 “/spittles” 的 POST 请求，并且要求请求的 Content-Type 头部信息为 “application/json”。如果无法满足这些条件的话，会由其他方法（如果存在合适的方法的话）来处理请求。
+`@RequestMapping` 有一个 `consumes` 属性，我们将其设置为 `application/json`。它会告诉 Spring 这个方法只会处理对 `/spittles` 的 POST 请求，并且要求请求的 `Content-Type` 头部信息为 `application/json`。如果无法满足这些条件的话，会由其他方法（如果存在合适的方法的话）来处理请求。
 
 ### 发送错误信息到客户端
 
-作为 @ResponseBody 的替代方案，控制器方法可以返回一个 ResponseEntity 对象。ResponseEntity 中可以包含响应相关的元数据（如头部信息和状态码）以及要转换成资源表述的对象。
+作为 `@ResponseBody` 的替代方案，控制器方法可以返回一个 `ResponseEntity` 对象。`ResponseEntity` 中可以包含响应相关的元数据（如头部信息和状态码）以及要转换成资源表述的对象。
 
-因为 ResponseEntity 允许我们指定响应的状态码，所以当无法找到 Spittle 的时候，我们可以返回 HTTP 404 错误。
+因为 `ResponseEntity` 允许我们指定响应的状态码，所以当无法找到 Spittle 的时候，我们可以返回 HTTP 404 错误。
 
 ### 在响应中设置头部信息
+
+### RestTemplate
+
+## 使用 MyBatis
+
+在 MyBatis 时期， Spring 3.0 在 MyBatis 3.0 官方发布前就已经结束了，因为 Spring 开发团队不想发布一个基于非发布版 MyBatis 的整合支持. 于是 MyBatis 社区自己创建了一个 MyBatis-Spring 项目。MyBatis-Spring 可以帮助我们将 MyBatis 代码无缝整合到 Spring 中.
+
+## 使用 NoSQL 数据库
+
+### 使用 MongoDB 持久化文档数据
+
+有一些数据的最佳表现形式是『 文档 document 』MongoDB 就是一个非关系型的文档数据库.
+
+Spring Data MongoDB 提供了三种方式在 Spring 应用中使用 MongoDB：
+
+- 通过注解实现『 对象-文档 』映射；
+- 使用 MongoTemplate 实现基于模板的数据库访问；
+- 自动化的运行时 Repository 生成功能。
+
+在本章中，我们将会在一个购物订单系统中学习 MongoDB。
+
+#### 启动 MongoDB
+
+为了使用 MongoDB, 需要在 Spring 中配置如下的几个 Bean:
+
+- MongoClient: 以便于访问 MongoDB 数据库。
+- MongoTemplate: 实现基于模板的数据库访问;
+
+```java
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.mongodb.core.MongoFactoryBean;
+import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
+
+import com.mongodb.Mongo;
+
+@Configuration
+@EnableMongoRepositories(basePackages = "orders.db")
+public class MongoConfig {
+
+  @Bean
+  public MongoFactoryBean mongo() {
+    MongoFactoryBean mongo = new MongoFactoryBean();
+    mongo.setHost("localhost");
+    return mongo;
+  }
+
+  @Bean
+  public MongoOperations mongoTemplate(Mongo mongo) {
+    return new MongoTemplate(mongo, "OrderDB");
+  }
+}
+```
+
+通过 `@EnableMongoRepositories` 启用 Spring Data MongoDB 的自动化 Repository 生成功能.
+
+- 这个不是必须的, 但是十分建议使用;
+
+在 `mongo` 方法中, 使用 MongoFactoryBean 类创建了一个 MongoClient 实例。创建的 `mongo` Bean 用于将 Spring Data MongoDB 与数据库本身连接起来（与使用关系型数据时 DataSource 所做的事情并没有什么区别）
+
+在 `mongoTemplate` 方法中, 使用 MongoTemplate 类构造一个用以操作数据库的 Bean，用刚刚创建的 `mongo` Bean 作为参数传入, 并且填入数据库的名称.
+
+---
+
+除了直接声明这些 bean，我们还可以让配置类扩展 AbstractMongo-Configuration 并重载 `getDatabaseName()` 和`mongo()` 方法
+
+```java
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
+import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
+
+import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
+
+@Configuration
+@EnableMongoRepositories(basePackages = "orders.db")
+public class MongoConfig extends AbstractMongoConfiguration {
+
+	@Override
+	protected String getDatabaseName() {
+		return "OrdersDB";
+	}
+
+	@Override
+	public Mongo mongo() throws Exception {
+		return new MongoClient();
+	}
+
+}
+```
+
+这种配置方法更简洁, 这个配置中没有直接声明 MongoTemplate Bean，当然它还是会被隐式地创建.
+
+这里重载了 `getDatabaseName()` 方法来提供数据库的名称。`mongo()` 方法依然会创建一个 MongoClient 的实例
+
+---
+
+假如 MongoDB 服务器不是运行在本地, 或者不是使用的默认 `27017` 端口, 可以在创建 MongoClient 的时候指定:
+
+```java
+public Mongo mongo() throws Exception {
+  return new MongoClient("127.0.0.1", 37017);
+}
+```
+
+---
+
+Spring Data MongoDB 提供了 XML 配置的方案:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:mongo="http://www.springframework.org/schema/data/mongo"
+  xsi:schemaLocation="
+    http://www.springframework.org/schema/data/mongo
+    http://www.springframework.org/schema/data/mongo/spring-mongo.xsd
+    http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd" >
+
+  <mongo:repositories base-package="order.db" />
+
+  <mongo:mongo />
+
+  <bean id="mongoTemplate" class="org.springframework.mongodb.core.MongoTemplate">
+    <constructor-arg ref="mongo">
+    <constructor-arg value="OrderDB">
+  </bean>
+</beans>
+```
+
+#### 为模型添加注解, 实现 MongoDB 持久化
+
+Spring Data MongoDB 提供了一些将 Java 类型映射为 MongoDB 文档的注解, 以来实现『 **对象-文档映射** 』
+
+![2020-06-17-21-35-29](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-06-17-21-35-29.png)
+
+例如，如下的程序清单展现了如何为 Order 类添加注解，它会被持久化到 MongoDB 中。
+
+```java
+import java.util.Collection;
+import java.util.LinkedHashSet;
+
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
+
+@Document
+public class Order {
+
+	@Id
+	private String id;
+
+	@Field("client")
+	private String customer;
+
+	private String type;
+
+	private Collection<Item> items = new LinkedHashSet<Item>();
+
+	public String getCustomer() {
+		return customer;
+	}
+
+	public void setCustomer(String customer) {
+		this.customer = customer;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public Collection<Item> getItems() {
+		return items;
+	}
+
+	public void setItems(Collection<Item> items) {
+		this.items = items;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+}
+```
+
+- `Order` 类添加了 `@Document` 注解，这样它就能够借助 MongoTemplate 或自动生成的 Repository 进行持久化
+- `id` 属性上使用了 `@Id` 注解，用来指定它作为文档的 ID
+- `customer` 属性上使用了 `@Field` 注解，这样的话，当文档持久化的时候 `customer` 属性将会映射为名为 `client` 的域
+- 其他的属性并没有添加注解。除非将属性设置为瞬时态（transient）的，否则 Java 对象中所有的域都会持久化为文档中的域
+- 如果我们不使用 `@Field` 注解进行设置的话，那么文档域中的名字将会与对应的 Java 属性相同
+
+#### 使用 MongoTemplate 访问 MongoDB
+
+接下来就要去使用 MongoTemplate 了. 在这里我们将 MongoTemplate 注入到一个类型为 MongoOperations 的属性中。
+
+```java
+@Autowired
+MongoOperations mongo;
+```
+
+MongoOperations 是 MongoTemplate 所实现的接口.
+
+下面看一下最为常用的几个操作:
+
+```java
+// 计算文档集合中有多少条文档。
+long orderCount = mongo.getCollection("order").count();
+
+// 保存一个新的 Order
+// save() 方法的第一个参数是新创建的 Order，第二个参数是要保存的文档存储的名称。
+Order order = new Order();
+... // set properties and add line item
+mongo.save(order, "order");
+
+// 调用 findById() 方法来根据 ID 查找订单：
+String orderId = ...;
+Order order = mongo.findById(orderId, Order.class);
+
+
+// 对于更高级的查询，我们需要构造 Query 对象并将其传递给 find() 方法
+// 例如，要查找所有 client 域等于 “Chuck Wagon” 的订单:
+List<Order> chucksOrders = mongo.find(
+  Query.query(Criteria.where("client").is("Chuck Wagon")), Order.class);
+
+// 例如, 想要查询 Chuck 所有通过 Web 创建的订单：
+List<Order> chucksWebOrders = mongo.find(Query.query(
+  Criteria.where("customer").is("Chuck Wagon")
+    .and("type").is("WEB")), Order.class);
+
+// 想移除某一个文档的话，那么就应该使用 remove() 方法：
+mongo.remove(order);
+```
+
+#### 编写 MongoDB Repository
+
+前面已经通过 @EnableMongoRepositories 注解启用了 Spring Data MongoDB 的 Repository 功能，接下来需要做的就是创建一个接口，Repository 实现要基于这个接口来生成.
+
+接口要扩展 MongoRepository。下面 👇 OrderRepository 扩展了 MongoRepository 为 Order 文档提供了基本的 CRUD 操作。
+
+```java
+import orders.Order;
+import org.springframework.data.mongodb.repository.MongoRepository;
+
+public interface OrderRepository extends MongoRepository<Order, String> {
+}
+```
+
+MongoRepository 接口有两个参数，第一个是带有 @Document 注解的对象类型，也就是该 Repository 要处理的类型。第二个参数是带有 @Id 注解的属性类型。
+
+尽管 OrderRepository 本身并没有定义任何方法，但是它会继承多个方法:
+
+![2020-06-17-21-51-38](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-06-17-21-51-38.png)
+
+上表 👆 中, T 映射为 Order，ID 映射为 String，而 S 映射为所有扩展 Order 的类型。
+
+---
+
+有时候可能希望 Repository 提供除内置方法以外的其他方法。通过给自定义方法, 按照遵循约定的方式命名, Spring Data MongoDB 可以自动为方法生成实现
+
+```java
+public interface OrderReporitory extends MongoRepository<Order, String> {
+  List<Order> findByCustomer(String c);
+  List<Order> findByCustomerLike(String c);
+  List<Order> findByCustomerAndType(String c, String t);
+  List<Order> findByCustomerLikeAndType(String c, String t);
+}
+```
+
+这里我们有四个新的方法，每一个都是查找满足特定条件的 Order 对象。
+
+- 其中第一个用来获取 customer 属性等于传入值的 Order 列表；
+- 第二个方法获取 customer 属性 like 传入值的 Order 列表；
+- 接下来方法会返回 customer 和 type 属性等于传入值的 Order 对象；
+- 最后一个方法与前一个类似，只不过 customer 在对比的时候使用的是 like 而不是 equals。
+
+find 这个查询动词并不是固定的。如果喜欢的话，我们还可以使用 get 作为查询动词, 如果 read 更适合的话，你还可以使用这个动词：
+
+```java
+List<Order> getByCustomer(String c);
+List<Order> readByCustomer(String c);
+```
+
+在查询动词与 By 之前，我们有很大的灵活性。例如，我们可以标示要查找什么内容：
+
+```java
+List<Order> findOrdersByCustomer(String c);
+```
+
+如果只想要一个 Order 对象的话，我们可以只需简单地返回 Order.
+
+这里，所返回的就是原本 List 中的第一个 Order 对象。如果没有匹配元素的话，方法将会返回 null。
+
+```java
+Order findASingleOrderByCustomer(String c);
+```
+
+@Query 注解可以用 JSON 为 Repository 方法指定自定义的查询。
+
+```java
+@Query("{'customer': 'Chuck Wagon', 'type': ?0}")
+List<Order> findChucksOrders(String t);
+```
+
+### 使用 Redis 操作 key-value 数据
+
+## 缓存数据
+
+## Spring Security
