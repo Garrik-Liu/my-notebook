@@ -6,54 +6,58 @@ home: true
 
 [收藏夹](./收藏夹.md)
 
-## 前端开发
+## 计算机科学
 
-- [JavaScript 笔记](/前端开发/javascript/readme.md)
-- [HTML 笔记](/前端开发/html/readme.md)
-- [CSS 笔记](/前端开发/css/readme.md)
-- [Vue 笔记](/前端开发/vue/readme.md)
-- [浏览器](/前端开发/浏览器/readme.md)
-- [面试](/前端开发/面试/readme.md)
+### 前端开发
 
-## 后端开发
+- [JavaScript 笔记](/计算机科学/前端开发/javascript/readme.md)
+- [HTML 笔记](/计算机科学/前端开发/html/readme.md)
+- [CSS 笔记](/计算机科学/前端开发/css/readme.md)
+- [Vue 笔记](/计算机科学/前端开发/vue/readme.md)
+- [浏览器](/计算机科学/前端开发/浏览器/readme.md)
+- [面试](/计算机科学/前端开发/面试/readme.md)
 
-- [Java 笔记](/后端开发/Java/readme.md)
-- [NodeJs 笔记](/后端开发/NodeJs/readme.md)
-- [Express 笔记](/后端开发/Express/readme.md)
-- [模板引擎](/后端开发/模板引擎/readme.md)
+### 后端开发
 
-## 计算机科学相关
+- [Java 笔记](/计算机科学/后端开发/Java/readme.md)
+- [NodeJs 笔记](/计算机科学/后端开发/NodeJs/readme.md)
+- [Express 笔记](/计算机科学/后端开发/Express/readme.md)
+- [模板引擎](/计算机科学/后端开发/模板引擎/readme.md)
 
-- [计算机相关笔记](/计算机/readme.md)
+### 工程化
 
-## 算法
+- [Git 笔记](/计算机科学/工程化/git/readme.md)
+- [Webpack 笔记](/计算机科学/工程化/webpack/readme.md)
 
-- [算法笔记](/算法/算法学习/readme.md)
+### 数据结构 & 算法
 
-## 图形
+- [数据结构与算法](/计算机科学/数据结构与算法/readme.md)
 
-- [Canvas 笔记](/图形/canvas/readme.md)
+### 数据库
 
-## 工程化
+- [数据库笔记](/计算机科学/数据库/readme.md)
 
-- [Git 笔记](/工程化/git/readme.md)
-- [Webpack 笔记](/工程化/webpack/readme.md)
+### 计算机组成原理
 
-## 数据库
+- [计算机组成原理笔记](/计算机科学/计算机组成原理/计算机组成原理.md)
 
-- [数据库笔记](/数据库/readme.md)
+### 操作系统
 
-## 数据结构 & 算法
+- [操作系统笔记]()
 
-- [数据结构与算法](/数据结构与算法/readme.md)
+### 计算机网络
 
-## 计算机网络
+- [计算机网络笔记](/计算机科学/网络/readme.md)
 
-- [计算机网络笔记](/网络/readme.md)
+## 互联网
 
-## 运营
+### 运营
 
-- [运营笔记](/运营/readme.md)
+- [运营笔记](/互联网/运营/readme.md)
+
+### 数据分析
+
+- [数据分析]()
 
 ## 数学
 
@@ -62,7 +66,7 @@ home: true
 
 ## 经济 & 金融
 
-- [经济学](/经济学/readme.md)
+- [经济学](/经济学&金融学/经济学/readme.md)
 
 ## 其他
 
