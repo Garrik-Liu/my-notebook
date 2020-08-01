@@ -70,6 +70,14 @@ module.exports = {
         [
             "vuepress-plugin-container",
             {
+                type: "normal",
+                before: (info) => `<div class="custom-block"><p class="title">${info}</p>`,
+                after: "</div>",
+            },
+        ],
+        [
+            "vuepress-plugin-container",
+            {
                 type: "details",
                 before: (info) =>
                     `<details class="custom-block details"><summary>${info}</summary>\n`,
