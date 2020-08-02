@@ -67,15 +67,15 @@ module.exports = {
                 after: "</div>",
             },
         ],
-        [
-            "vuepress-plugin-container",
-            {
-                type: "normal",
-                before: (info) =>
-                    `<div class="custom-block normal"><p class="title">${info}</p>`,
-                after: "</div>",
-            },
-        ],
+        // [
+        //     "vuepress-plugin-container",
+        //     {
+        //         type: "normal",
+        //         before: (info) =>
+        //             `<div class="custom-block normal"><p class="title">${info}</p>`,
+        //         after: "</div>",
+        //     },
+        // ],
         [
             "vuepress-plugin-container",
             {
