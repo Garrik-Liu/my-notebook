@@ -25,6 +25,7 @@
         "markdown-it-attrs": "^3.0.2",
         "markdown-it-ins": "^3.0.0",
         "markdown-it-mark": "^3.0.0",
+        "markdown-it-mermaid": "^0.2.5",
         "vuepress": "^1.2.0"
     },
     "devDependencies": {

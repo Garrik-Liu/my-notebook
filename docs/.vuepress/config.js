@@ -9,6 +9,7 @@ module.exports = {
             // 使用更多的 markdown-it 插件!
             md.use(require("markdown-it-ins"));
             md.use(require("markdown-it-mark"));
+            md.use(require("markdown-it-mermaid"));
         },
     },
     themeConfig: {
