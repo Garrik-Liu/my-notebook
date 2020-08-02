@@ -39,6 +39,7 @@
         "vuepress-plugin-clean-urls": "^1.1.1",
         "vuepress-plugin-container": "^2.1.2",
         "vuepress-plugin-mathjax": "^1.2.8",
+        "vuepress-plugin-mermaidjs": "^1.6.0",
         "vuepress-theme-default-prefers-color-scheme": "^1.0.3"
     }
 }
