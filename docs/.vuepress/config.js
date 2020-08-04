@@ -94,13 +94,19 @@ module.exports = {
                 after: () => "</details>\n",
             },
         ],
+        // [
+        //     "vuepress-plugin-mathjax",
+        //     {
+        //         target: "svg",
+        //         macros: {
+        //             "*": "\\times",
+        //         },
+        //     },
+        // ],
         [
-            "vuepress-plugin-mathjax",
+            "@maginapp/vuepress-plugin-katex",
             {
-                target: "svg",
-                macros: {
-                    "*": "\\times",
-                },
+                delimiters: "dollars",
             },
         ],
     ],
