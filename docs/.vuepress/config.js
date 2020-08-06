@@ -2,19 +2,13 @@ module.exports = {
     title: "Garrik 的笔记",
     description: "这里是 Garrik 的前端笔记本",
     base: "/my-notebook/",
-    theme: 'cool',
+    //theme: 'default-prefers-color-scheme',
     markdown: {
         lineNumbers: false,
         extendMarkdown: (md) => {
             // 使用更多的 markdown-it 插件!
-            md.set({
-                html: true
-            });
             md.use(require("markdown-it-ins"));
             md.use(require("markdown-it-mark"));
-            //md.use(require('markdown-it-katex'));
-            md.use(require('markdown-it-plantuml'));
-            md.use(require('markdown-it-admonition'));
         },
     },
     themeConfig: {
