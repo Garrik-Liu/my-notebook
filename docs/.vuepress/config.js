@@ -12,7 +12,7 @@ module.exports = {
             });
             md.use(require("markdown-it-ins"));
             md.use(require("markdown-it-mark"));
-            md.use(require('markdown-it-katex'));
+            //md.use(require('markdown-it-katex'));
             md.use(require('markdown-it-plantuml'));
             md.use(require('markdown-it-admonition'));
         },
@@ -100,11 +100,11 @@ module.exports = {
                 after: () => "</details>\n",
             },
         ],
-        // [
-        //     "@maginapp/vuepress-plugin-katex",
-        //     {
-        //         delimiters: "dollars",
-        //     },
-        // ],
+        [
+            "@maginapp/vuepress-plugin-katex",
+            {
+                delimiters: "dollars",
+            },
+        ],
     ],
 };
