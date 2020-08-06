@@ -31,17 +31,10 @@ module.exports = {
         nextLinks: true,
         prevLinks: true,
         smoothScroll: true,
-        //defaultTheme: 'light',
-        // postcss: {
-        //     plugins: [
-        //         require('css-prefers-color-scheme/postcss'),
-        //         require('autoprefixer')
-        //     ]
-        // }
     },
 
     plugins: [
-        ["@vuepress/back-to-top", true],
+        "vuepress-plugin-mermaidjs", ["@vuepress/back-to-top", true],
         ["@vuepress/medium-zoom", true],
         ["@vuepress/last-updated", true],
         [
