@@ -26,7 +26,8 @@
         "markdown-it-ins": "^3.0.0",
         "markdown-it-mark": "^3.0.0",
         "markdown-it-mermaid": "^0.2.5",
-        "vuepress": "^1.2.0"
+        "vuepress": "^1.2.0",
+        "vuepress-theme-cool": "^1.3.0"
     },
     "devDependencies": {
         "@maginapp/vuepress-plugin-katex": "^1.0.7",
