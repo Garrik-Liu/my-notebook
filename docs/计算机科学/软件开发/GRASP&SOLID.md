@@ -30,6 +30,8 @@ GRASP 中定义了 9 个基本的 OO 设计模式：
 
 ![2020-08-21-16-29-32](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-08-21-16-29-32.png)
 
+设计模式有很多很多种, 但是基本上都可以视为是对于 GRASP 的应用。
+
 ### 创建者 Creator
 
 果以下条件之一 ( 越多越好 ) 为真时，就将创建类 A 实例的职责分配给类 B：
