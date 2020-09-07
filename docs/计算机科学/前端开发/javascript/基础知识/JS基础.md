@@ -955,6 +955,43 @@ console.log(Reflect.ownKeys(o));
 
 ### Object 类型
 
+ECMAScript 中的对象其实就是一组数据和功能的集合。
+
+显式地创建 `Object` 的实例有两种方式。
+
+**`new` 操作符调用 `Object()` 构造函数**。
+
+```js
+let person = new Object();
+person.name = "Nicholas";
+person.age = 29;
+```
+
+**对象字面量（object literal）表示法**。在使用对象字面量表示法定义对象时，并不会实际调用 Object 构造函数。
+
+```js
+let person = {
+  name: "Nicholas",
+  age: 29,
+};
+```
+
+属性一般是通过「 **点语法** 」来存取的，但也可以使用「 **中括号** 」来存取属性。在使用中括号时，要在括号内使用属性名的字符串形式。
+
+```js
+console.log(person["name"]); // "Nicholas"
+console.log(person.name); // "Nicholas"
+
+// 因为"first name"中包含一个空格，所以不能使用点语法来访问。
+person["first name"] = "Nicholas";
+```
+
+每个 `Object` 实例都有如下属性和方法。
+
+- `toLocaleString()`：返回对象的字符串表示，该字符串反映对象所在的本地化执行环境。
+- `toString()`：返回对象的字符串表示。
+- `valueOf()`：返回对象对应的字符串、数值或布尔值表示。通常与 `toString()` 的返回值相同。
+
 ## 流控制语句
 
 ### if 语句
@@ -1374,18 +1411,857 @@ JavaScript 是使用垃圾回收的语言，执行环境会负责在代码执行
 
 用很多种标记未使用变量的实现方式，但 JavaScript 中用到过两种主要的标记策略是，「 **标记清理** 」和「 **引用计数** 」
 
+垃圾回收程序会周期性运行，垃圾回收有可能会明显拖慢渲染的速度和帧速率。开发者不知道什么时候运行时会收集垃圾，因此最好的办法是在写代码时就要做到：无论什么时候开始收集垃圾，都能让它尽快结束工作。
+
 ### 标记清理
+
+JavaScript 最常用的垃圾回收策略是标记清理（mark-and-sweep）。
+
+在上下文中的变量，逻辑上讲，永远不应该释放它们的内存，因为只要上下文中的代码在运行，就有可能用到它们。
+
+垃圾回收程序运行的时候，会标记内存中存储的所有变量。然后，它会将所有在上下文中的变量，以及被在上下文中的变量引用的变量的标记去掉。在此之后再被加上标记的变量就是待删除的了，原因是它们不会再被访问到了。
+
+添加标记的实现并不重要，关键是策略。
+
+随后垃圾回收程序做一次内存清理，销毁带标记的所有值并收回它们的内存。
 
 ### 引用计数
 
+另一种没那么常用的垃圾回收策略是引用计数（reference counting）。其思路是对每个值都记录它被引用的次数。
+
+当一个值被创建且被赋给一个变量时，它的引用数为 1。如果同一个值又被赋给另一个变量，那么引用数加 1。类似地，如果保存对该值的变量被其他值给覆盖了，那么引用数减 1。当一个值的引用数为 0 时，就说明没办法再访问到这个值了。圾回收程序下次运行的时候就会释放引用数为 0 的值的内存。
+
+---
+
+当存在「 循环引用 」时，引用计数会出现问题。
+
+```js
+function problem() {
+  let objectA = new Object();
+  let objectB = new Object();
+
+  objectA.someOtherObject = objectB;
+  objectB.anotherObject = objectA;
+}
+```
+
+在这个例子中，`objectA` 和 `objectB` 变量保存的对象实例，通过各自的属性相互引用，意味着它们的引用数都是 `2`。
+
+在标记清理策略下，这不是问题，因为在函数结束后，这两个对象都不在作用域中。
+
+而在引用计数策略下，`objectA` 和 `objectB` 上保存的实例在函数结束后还会存在，因为它们的引用数永远不会变成 `0`。如果函数被多次调用，则会导致大量内存永远不会被释放。
+
 ### 内存管理
 
-## 基本引用类型
+在使用垃圾回收的编程环境中，开发者通常无须关心内存管理。但是，操作系统分配给浏览器的内存通常比分配给桌面软件的要少很多。这是为了避免运行大量 JavaScript 的网页耗尽系统内存而导致操作系统崩溃。
 
-## 集合引用类型
+因此，我们应该尽量让网页的内存占用保持在一个较小的值上，这可以让页面性能更好。
 
-### Array
+优化内存占用的最佳手段就是，保证在执行代码时只保存必要的数据。如果一个对象实例不再需要，那么把引用它的变量的值设置为 `null`，从而释放其引用，这称作「 **解除引用** 」
 
-### 定型数组
+这个建议最适合全局变量和全局对象的属性。因为，局部变量在超出作用域后会被自动解除引用。
+
+```js
+function createPerson(name) {
+  let localPerson = new Object();
+  localPerson.name = name;
+  return localPerson;
+}
+
+let globalPerson = createPerson("Nicholas");
+
+// 解除globalPerson对值的引用
+
+globalPerson = null;
+```
+
+不过要注意，解除对一个值的引用并不会自动导致相关内存被回收。关键在于确保相关的值已经不在上下文里了，因此它在下次垃圾回收时会被回收。
+
+## 原始值包装类型
+
+为了方便操作原始值，ECMAScript 提供了 3 种特殊的引用类型：`Boolean`、`Number` 和 `String`。
+
+原始值本是并不具备属性和方法，每当用到某个原始值的方法或属性时，后台都会创建一个相应原始包装类型的对象实例。
+
+```js
+let s1 = "some text";
+let s2 = s1.substring(2);
+```
+
+上面 👆 代码执行时，后台执行了以下 3 步：
+
+1. 创建一个 `String` 类型的实例；
+2. 调用实例上的特定方法；
+3. 销毁实例。
+
+可以显式地使用 `Boolean`、`Number` 和 `String` 构造函数创建原始值包装对象。不过应该在确实必要时再这么做，否则容易让开发者疑惑，分不清它们到底是原始值还是引用值。
+
+- 在原始值包装类型的实例上调用 `typeof` 会返回 `"object"`。
+- 所有原始值包装对象都会转换为布尔值 `true`。
+
+注意，使用 `new` 调用原始值包装类型的构造函数，与调用同名的转型函数并不一样。例如：
+
+```js
+let value = "25";
+let number = Number(value); // 转型函数
+console.log(typeof number); // "number"
+let obj = new Number(value); // 构造函数
+console.log(typeof obj); // "object"
+```
+
+### Boolean
+
+创建一个 `Boolean` 对象，就使用 `Boolean` 构造函数并传入 `true` 或 `false`，如下例所示：
+
+```js
+let booleanObject = new Boolean(true);
+```
+
+- `valueOf()` 方法，返回一个原始值 `true` 或 `false`
+- `toString()` 方法被调用时也会被覆盖，返回字符串 `"true"` 或 `"false"`
+
+`Boolean` 对象在 ECMAScript 中基本上没有使用场景。请一定要记住 `Boolean` 对象实例与原始值是不一样的。
+
+```js
+let falseObject = new Boolean(false);
+let result = falseObject && true;
+console.log(result); // true
+
+let falseValue = false;
+result = falseValue && true;
+console.log(result); // false
+
+console.log(typeof falseObject); // object
+console.log(typeof falseValue); // boolean
+console.log(falseObject instanceof Boolean); // true
+console.log(falseValue instanceof Boolean); // false
+```
+
+### Number
+
+要创建一个 `Number` 对象，就使用 `Number` 构造函数并传入一个数值
+
+```js
+let numberObject = new Number(10);
+```
+
+- `valueOf()` 方法返回 Number 对象表示的原始数值，
+- `toString()` 方法可选地接收一个表示基数的参数，并返回相应基数形式的数值字符串
+
+```js
+let num = 10;
+console.log(num.toString()); // "10"
+console.log(num.toString(2)); // "1010"
+console.log(num.toString(8)); // "12"
+console.log(num.toString(10)); // "10"
+console.log(num.toString(16)); // "a"
+```
+
+---
+
+ES6 新增了 `Number.isInteger()` 方法，用于辨别一个数值是否保存为整数。
+
+```js
+console.log(Number.isInteger(1)); // true
+console.log(Number.isInteger(1.0)); // true
+console.log(Number.isInteger(1.01)); // false
+```
+
+#### 数值格式化
+
+`toFixed()` 方法返回包含指定小数点位数的数值字符串，可以表示有 0~20 个小数位的数值。
+
+```js
+let num = 10;
+console.log(num.toFixed(2)); // "10.00"
+```
+
+如果数值本身的小数位超过了参数指定的位数，则四舍五入到最接近的小数位。
+
+```js
+let num = 10.005;
+console.log(num.toFixed(2)); // "10.01"
+```
+
+---
+
+`toPrecision()` 方法会根据情况返回最合理的输出结果，可能是固定长度，也可能是科学记数法形式。接收一个参数，表示结果中数字的总位数。
+
+```js
+let num = 99;
+console.log(num.toPrecision(1)); // "1e+2"
+console.log(num.toPrecision(2)); // "99"
+console.log(num.toPrecision(3)); // "99.0"
+```
+
+### String
+
+要创建一个 `String` 对象，使用 `String` 构造函数并传入一个字符串。
+
+```js
+let stringObject = new String("hello world");
+```
+
+`valueOf()` 和 `toString()` 都返回对象的原始字符串值。
+
+- 每个 `String` 对象都有一个 `length` 属性，表示字符串中字符的数量。
+- `charAt()` 方法返回给定索引位置的字符。
+- `charCodeAt()` 方法可以指定索引位置的字符编码 ( 10 进制格式 )
+- `fromCharCode()` 方法用于根据给定的 Unicode 编码 ( 16 进制格式 / 10 进制格式 ) 创建字符串中的字符。
+
+```js
+let stringValue = "hello world";
+console.log(stringValue.length); // "11"
+
+let message = "abcde";
+console.log(message.charAt(2)); // "c"
+
+// Unicode "Latin small letter C"的编码是U+0063
+console.log(message.charCodeAt(2)); // 99
+
+console.log(String.fromCharCode(0x61, 0x62, 0x63, 0x64, 0x65)); // "abcde"
+console.log(String.fromCharCode(97, 98, 99, 100, 101)); // "abcde"
+```
+
+#### 字符串操作方法
+
+concat()，用于将一个或多个字符串拼接成一个新字符串。可以接收任意多个参数，一次性拼接多个字符串。
+
+```js
+let stringValue = "hello ";
+let result = stringValue.concat("world", "!");
+
+console.log(result); // "hello world!"
+console.log(stringValue); // "hello"
+```
+
+当然，更常用的方式是使用加号操作符 `+` 进行字符拼接。
+
+---
+
+ECMAScript 提供了 3 个从字符串中提取子字符串的方法：`slice()`、`substr()` 和 `substring()`。
+
+- 它们的第 1 个参数表示子字符串开始的位置下标。
+- 对 `slice()` 和 `substring()` 而言，第 2 个参数是提取结束的位置，即该位置之前的字符会被提取出来。
+- 对 `substr()` 而言，第 2 个参数表示返回的子字符串长度。
+- 省略第 2 个参数都意味着提取到字符串末尾。
+
+```js
+let stringValue = "hello world";
+console.log(stringValue.slice(3)); // "lo world"
+console.log(stringValue.substring(3)); // "lo world"
+console.log(stringValue.substr(3)); // "lo world"
+console.log(stringValue.slice(3, 7)); // "lo w"
+console.log(stringValue.substring(3, 7)); // "lo w"
+console.log(stringValue.substr(3, 7)); // "lo worl"
+```
+
+当某个参数是负值时，这 3 个方法的行为又有不同。
+
+- `slice()` 方法将所有负值参数都当成字符串长度加上负参数值。
+- `substr()` 方法将第一个负参数值当成字符串长度加上该值，将第二个负参数值转换为 0。
+- `substring()` 方法会将所有负参数值都转换为 0。
+
+```js
+let stringValue = "hello world";
+console.log(stringValue.slice(-3)); // "rld"
+console.log(stringValue.substring(-3)); // "hello world"
+console.log(stringValue.substr(-3)); // "rld"
+console.log(stringValue.slice(3, -4)); // "lo w"
+console.log(stringValue.substring(3, -4)); // "hel"
+console.log(stringValue.substr(3, -4)); // "" (empty string)
+```
+
+注意，`substring(3, 0)`，等价于 `substring(0, 3)`，这个方法会将较小的参数作为起点，将较大的参数作为终点。
+
+#### 字符串位置方法
+
+`indexOf()` 和 `lastIndexOf()` 用于在字符串中搜索指定的子字符串，并返回位置下标，找不到返回 `-1`。
+
+- `indexOf()` 方法从字符串开头开始查找子字符串。
+- `lastIndexOf()` 方法从字符串末尾开始查找子字符串。
+
+这两个方法都可以接收可选的第 2 个参数，表示开始搜索的位置。
+
+- `indexOf()` 会从这个参数指定的位置开始向字符串末尾搜索，忽略该位置之前的字符。
+- `lastIndexOf()` 则会从这个参数指定的位置开始向字符串开头搜索，忽略该位置之后直到字符串末尾的字符。
+
+```js
+let stringValue = "hello world";
+console.log(stringValue.indexOf("o")); // 4
+console.log(stringValue.lastIndexOf("o")); // 7
+
+console.log(stringValue.indexOf("o", 6)); // 7
+console.log(stringValue.lastIndexOf("o", 6)); // 4
+```
+
+#### 字符串包含方法
+
+ECMAScript 6 增加了 3 个用于判断字符串中是否包含另一个字符串的方法：`startsWith()`、`endsWith()` 和 `includes()`。这些方法都会从字符串中搜索传入的字符串，并返回一个表示是否包含的 "布尔值"。
+
+```js
+let message = "foobarbaz";
+
+console.log(message.startsWith("foo")); // true
+console.log(message.startsWith("bar")); // false
+
+console.log(message.endsWith("baz")); // true
+console.log(message.endsWith("bar")); // false
+
+console.log(message.includes("bar")); // true
+console.log(message.includes("qux")); // false
+```
+
+- `startsWith()` 和 `includes()` 方法接收可选的第二个参数，用于指定开始搜索的位置。
+- `endsWith()` 方法接收可选的第二个参数，表示应该当作字符串末尾的位置。
+
+```js
+let message = "foobarbaz";
+
+console.log(message.startsWith("foo")); // true
+console.log(message.startsWith("foo", 1)); // false
+
+console.log(message.includes("bar")); // true
+console.log(message.includes("bar", 4)); // false
+
+console.log(message.endsWith("bar")); // false
+console.log(message.endsWith("bar", 6)); // true
+```
+
+#### 字符串格式化方法
+
+`trim()` 方法会创建字符串的一个副本，删除前、后所有空格符。
+
+`trimeLeft()` 和 `trimRight()` 方法分别用于从字符串开始和末尾清理空格符。
+
+```js
+let stringValue = "  hello world  ";
+let trimmedStringValue = stringValue.trim();
+console.log(stringValue); // "  hello world "
+console.log(trimmedStringValue); // "hello world"
+```
+
+---
+
+`repeat()` 方法接收一个整数参数，表示要将字符串复制多少次，然后返回拼接所有副本后的结果。
+
+```js
+let stringValue = "na ";
+console.log(stringValue.repeat(16) + "batman");
+// na na na na na na na na na na na na na na na na batman
+```
+
+---
+
+`padStart()` 和 `padEnd()` 方法会复制字符串，如果小于指定长度，则在相应一边填充字符，直至满足长度条件。这两个方法的第 1 个参数是长度，第 2 个参数是可选的填充字符串，默认为空格。
+
+如果第 1 个参数指定的长度小于或等于字符串长度，则会返回原始字符串。
+
+```js
+let stringValue = "foo";
+
+console.log(stringValue.padStart(6)); // "   foo"
+console.log(stringValue.padStart(9, ".")); // "......foo"
+
+console.log(stringValue.padEnd(6)); // "foo   "
+console.log(stringValue.padEnd(9, ".")); // "foo......"
+
+console.log(stringValue.padStart(2)); // "foo"
+console.log(stringValue.padEnd(2)); // "foo"
+```
+
+#### 字符串迭代与解构
+
+#### 字符串大小写转换
+
+包括 4 个方法：`toLowerCase()`、`toLocaleLowerCase()`、`toUpperCase()` 和 `toLocaleUpperCase()` 会复制字符串并将其转换为全部大写，或小写格式。
+
+`toLocaleLowerCase()` 和 `toLocaleUpperCase()` 方法基于特定地区实现，在一些地区大小写转换需应用特殊规则。通常，如果不知道代码涉及什么语言，则最好使用地区特定的转换方法。
+
+```js
+let stringValue = "hello WORLD";
+console.log(stringValue.toLocaleUpperCase()); // "HELLO WORLD"
+console.log(stringValue.toUpperCase()); // "HELLO WORLD"
+console.log(stringValue.toLocaleLowerCase()); // "hello world"
+console.log(stringValue.toLowerCase()); // "hello world"
+connsole.log(stringValue); // "hello WORLD"
+```
+
+#### 字符串模式匹配方法
+
+`match()` 方法，这个方法本质上跟 `RegExp` 对象的 `exec()` 方法相同。 `match()` 方法接收一个参数，可以是一个正则表达式字符串，也可以是一个 `RegExp` 对象。
+
+具体 `exec()` 方法的细节参照 `RegExp` 那一章，这里不展开。
+
+```js
+let text = "cat, bat, sat, fat";
+let pattern = /.at/;
+
+// 等价于pattern.exec(text)
+let matches = text.match(pattern);
+console.log(matches.index); // 0
+console.log(matches[0]); // "cat"
+console.log(pattern.lastIndex); // 0
+```
+
+---
+
+`search()` 方法的参数与 `match()` 方法一样，正则表达式字符串或 `RegExp` 对象。这个方法返回模式第一个匹配的位置索引，如果没找到则返回 `-1`。
+
+```js
+let text = "cat, bat, sat, fat";
+let pos = text.search(/at/);
+console.log(pos); // 1
+```
+
+---
+
+`replace()` 方法用于字符串替换操作。接收两个参数，第一个参数可以是一个 `RegExp` 对象或一个字符串（ 不是正则表达式字符串 ），第二个参数可以是一个字符串或一个函数。
+
+如果第一个参数是字符串，那么只会替换第一个子字符串。要想替换所有子字符串，第一个参数必须为正则表达式并且带全局标记。
+
+```js
+let text = "cat, bat, sat, fat";
+let result = text.replace("at", "ond");
+console.log(result); // "cond, bat, sat, fat"
+
+result = text.replace(/at/g, "ond");
+console.log(result); // "cond, bond, sond, fond"
+```
+
+如果第二个参数是函数，这个函数会收到 3 个参数：
+
+1. 与模式匹配的字符串
+2. 匹配项在字符串中的开始位置
+3. 整个字符串
+
+这个函数应该返回一个字符串，表示应该把匹配项替换成什么。
+
+```js
+function htmlEscape(text) {
+  return text.replace(/[<>"&]/g, function(match, pos, originalText) {
+    switch (match) {
+      case "<":
+        return "&lt;";
+      case ">":
+        return "&gt;";
+      case "&":
+        return "&amp;";
+      case '"':
+        return "&quot;";
+    }
+  });
+}
+
+console.log(htmlEscape('<p class="greeting">Hello world!</p>'));
+// "&lt;p class=&quot;greeting&quot;&gt;Hello world!</p>"
+```
+
+---
+
+`split()` 方法会根据传入的分隔符将字符串拆分成数组。作为分隔符的参数可以是字符串，也可以是 `RegExp` 对象。还可以传入第二个参数，即数组大小，确保返回的数组不会超过指定大小。
+
+```js
+let colorText = "red,blue,green,yellow";
+let colors1 = colorText.split(","); // ["red", "blue", "green", "yellow"]
+let colors2 = colorText.split(",", 2); // ["red", "blue"]
+let colors3 = colorText.split(/[^,]+/); // ["", ",", ",", ",", ""]
+```
+
+## 单例内置对象
+
+ECMA-262 对内置对象的定义是 “任何由 ECMAScript 实现提供、与宿主环境无关的对象”。开发者不用显式地实例化内置对象，因为它们已经实例化好了。
+
+前面的 `Object`, `String`, `Number` 等，都是内置对象。
+
+这里在着重介绍几个。
+
+### Global
+
+Global 对象很特别，代码不会显式地访问它。
+
+它为一种兜底对象，它所针对的是不属于任何对象的属性和方法。事实上，不存在全局变量或全局函数这种东西。在全局作用域中定义的变量和函数都会变成 `Global` 对象的属性。
+
+#### `window` 对象
+
+虽然 ECMA-262 没有规定直接访问 `Global` 对象的方式，但浏览器将 `window` 对象实现为 `Global` 对象的代理。因此，所有全局作用域中声明的变量和函数都变成了 `window` 的属性。
+
+#### `eval` 方法
+
+`eval()` 方法就是一个完整的 ECMAScript 解释器，它接收一个参数，即一个要执行的 ECMAScript（JavaScript）字符串。
+
+```js
+eval("console.log('hi')");
+// 等价于
+console.log("hi");
+```
+
+通过 `eval()` 定义的任何变量和函数都不会被提升，这是因为在解析代码的时候，它们是被包含在一个字符串中的。它们只是在 `eval()` 执行的时候才会被创建。
+
+在严格模式下，在 `eval()` 内部创建的变量和函数无法被外部访问。
+
+在使用 `eval()` 的时候必须极为慎重，特别是在解释用户输入的内容时。因为这个方法会对 XSS 利用暴露出很大的攻击面。恶意用户可能插入会导致你网站或应用崩溃的代码。
+
+### Date
+
+`Date` 类型将日期保存为自协调世界时（UTC，Universal Time Coordinated）时间 1970 年 1 月 1 日午夜（零时）至今所经过的毫秒数。
+
+在不给 `Date` 构造函数传参数的情况下，创建的对象将保存当前日期和时间。要基于其他日期和时间创建日期对象，必须传入其毫秒表示。
+
+ECMAScript 为此提供了两个辅助方法：`Date.parse()` 和 `Date.UTC()`。
+
+`Date.parse()`：接收一个表示日期的字符串参数，尝试将这个字符串转换为表示该日期的毫秒数。支持下列日期格式：
+
+- “月/日/年”，如 `"5/23/2019"`
+- “月 日, 年”，如 `"May 23, 2019"`
+- “星期 月 日 年 时:分:秒 时区”，如 `"Tue May 23 2019 00:00:00 GMT-0700"`
+- ISO 8601 扩展格式 “YYYY-MM-DDTHH:mm:ss.sssZ”，如 `2019-05-23T00:00:00`
+
+如果直接把表示日期的字符串传给 Date 构造函数，那么 `Date` 会在后台调用 `Date.parse()`。
+
+```js
+let someDate = new Date("May 23, 2019");
+// 等价于
+let someDate = new Date(Date.parse("May 23, 2019"));
+```
+
+---
+
+`Date.UTC()` 方法也返回日期的毫秒表示。参数为，年、月（ 从 0 算起，1 月是 0，2 月是 1 ）、日（ 1~31 ）、时（ 0~23 ）、分、秒和毫秒。
+
+- 这些参数中，只有 "年" 和 "月" 是必需的。
+- 如果不提供 "日"，那么默认为 1。
+- 其他参数的默认值都是 0。
+
+```js
+// GMT 时间 2000 年 1 月 1 日零点
+let y2k = new Date(Date.UTC(2000, 0));
+
+// GMT 时间 2005 年 5 月 5 日下午 5 点 55 分 55 秒
+let allFives = new Date(Date.UTC(2005, 4, 5, 17, 55, 55));
+```
+
+当按照 `Date.UTC()` 函数接收参数的格式，将参数传入 `Date` 构造函数中时，`Date.UTC()` 也会被 `Date` 构造函数隐式调用，但与 `Date.parse()` 有一个区别：这种情况下创建的是 Local 本地日期 ( 由系统设置决定 )，不是 GMT 日期。
+
+```js
+// 本地时间2000年1月1日零点
+let y2k = new Date(2000, 0);
+
+// 本地时间2005年5月5日下午5点55分55秒
+let allFives = new Date(2005, 4, 5, 17, 55, 55);
+```
+
+---
+
+ECMAScript 还提供了 `Date.now()` 方法，返回方法执行时日期和时间的毫秒数。
+
+```js
+const now = Date.now();
+console.log(now); // 1599345578342
+```
+
+`Date` 实例的 `valueOf()` 方法返回日期的毫秒表示。
+
+#### 日期格式化
+
+`Date` 类型有几个专门用于格式化日期的方法，它们都会返回字符串：
+
+- `toString()` 方法通常返回带时区信息的日期和时间，而时间也是以 24 小时制（0~23）表示的；
+- `toLocaleString()` 方法返回与浏览器运行的本地环境一致的日期和时间；
+- `toDateString()` 显示日期中的星期、月、日、年；
+- `toTimeString()` 显示日期中的时、分、秒和时区；
+- `toLocaleDateString()` 显示日期中的星期、月、日、年（ 格式特定于地区 ）；
+- `toLocaleTimeString()` 显示日期中的时、分、秒；
+- `toUTCString()` 显示完整的 UTC 日期。
+
+这些方法会因浏览器而异。因此不能用于在用户界面上一致地显示日期。
+
+#### 其他方法
+
+下表 👇 列出了直接取得或设置日期值的特定部分的方法。
+
+::: details Date 对象的方法 - 点击展开：
+
+|                方法                |                                                    说明                                                    |
+| :--------------------------------: | :--------------------------------------------------------------------------------------------------------: |
+|            `getTime()`             |                                  返回日期的毫秒表示；与 `valueOf()` 相同                                   |
+|      `setTime(milliseconds)`       |                                    设置日期的毫秒表示，从而修改整个日期                                    |
+|          `getFullYear()`           |                                     返回 4 位数年（即 2019 而不是 19）                                     |
+|         `getUTCFullYear()`         |                                          返回 UTC 日期的 4 位数年                                          |
+|        `setFullYear(year)`         |                                     设置日期的年（year 必须是 4 位数）                                     |
+|       `setUTCFullYear(year)`       |                                  设置 UTC 日期的年（year 必须是 4 位数）                                   |
+|            `getMonth()`            |                                 返回日期的月（0 表示 1 月，11 表示 12 月）                                 |
+|          `getUTCMonth()`           |                              返回 UTC 日期的月（0 表示 1 月，11 表示 12 月）                               |
+|         `setMonth(month)`          |                            设置日期的月（month 为大于 0 的数值，大于 11 加年）                             |
+|        `setUTCMonth(month)`        |                          设置 UTC 日期的月（month 为大于 0 的数值，大于 11 加年）                          |
+|            `getDate()`             |                                           返回日期中的日（1~31）                                           |
+|           `getUTCDate()`           |                                        返回 UTC 日期中的日（1~31）                                         |
+|          `setDate(date)`           |                              设置日期中的日（如果 date 大于该月天数，则加月）                              |
+|         `setUTCDate(date)`         |                           设置 UTC 日期中的日（如果 date 大于该月天数，则加月）                            |
+|             `getDay()`             |                             返回日期中表示周几的数值（0 表示周日，6 表示周六）                             |
+|           `getUTCDay()`            |                          返回 UTC 日期中表示周几的数值（0 表示周日，6 表示周六）                           |
+|            `getHours()`            |                                           返回日期中的时（0~23）                                           |
+|          `getUTCHours()`           |                                        返回 UTC 日期中的时（0~23）                                         |
+|         `setHours(hours)`          |                                设置日期中的时（如果 hours 大于 23，则加日）                                |
+|        `setUTCHours(hours)`        |                             设置 UTC 日期中的时（如果 hours 大于 23，则加日）                              |
+|           `getMinutes()`           |                                           返回日期中的分（0~59）                                           |
+|         `getUTCMinutes()`          |                                        返回 UTC 日期中的分（0~59）                                         |
+|       `setMinutes(minutes)`        |                               设置日期中的分（如果 minutes 大于 59，则加时）                               |
+|      `setUTCMinutes(minutes)`      |                            设置 UTC 日期中的分（如果 minutes 大于 59，则加时）                             |
+|           `getSeconds()`           |                                           返回日期中的秒（0~59）                                           |
+|         `getUTCSeconds()`          |                                        返回 UTC 日期中的秒（0~59）                                         |
+|       `setSeconds(seconds)`        |                               设置日期中的秒（如果 seconds 大于 59，则加分）                               |
+|      `setUTCSeconds(seconds)`      |                            设置 UTC 日期中的秒（如果 seconds 大于 59，则加分）                             |
+|        `getMilliseconds()`         |                                              返回日期中的毫秒                                              |
+|       `getUTCMilliseconds()`       |                                           返回 UTC 日期中的毫秒                                            |
+|  `setMilliseconds(milliseconds)`   |                                              设置日期中的毫秒                                              |
+| `setUTCMilliseconds(milliseconds)` |                                           设置 UTC 日期中的毫秒                                            |
+|       `getTimezoneOffset()`        | 返回以分钟计的 UTC 与本地时区的偏移量（如美国 EST 即“东部标准时间”返回 300，进入夏令时的地区可能有所差异） |
+
+:::
+
+### Math
+
+`Math` 对象有一些属性，主要用于保存数学中的一些特殊值。
+
+|      属性      |         说明          |
+| :------------: | :-------------------: |
+|    `Math.E`    | 自然对数的基数 e 的值 |
+|  `Math.LN10`   |   10 为底的自然对数   |
+|   `Math.LN2`   |   2 为底的自然对数    |
+|  `Math.LOG2E`  |  以 2 为底 e 的对数   |
+| `Math.LOG10E`  |  以 10 为底 e 的对数  |
+|   `Math.PI`    |        π 的值         |
+| `Math.SQRT1_2` |     1/2 的平方根      |
+|  `Math.SQRT2`  |      2 的平方根       |
+
+#### `min()` 和 `max()` 方法
+
+用于确定一组数值中的最小值和最大值。
+
+```js
+let max = Math.max(3, 54, 32, 16);
+console.log(max); // 54
+
+let min = Math.min(3, 54, 32, 16);
+console.log(min); // 3
+```
+
+要知道数组中的最大值和最小值，可以像下面这样使用扩展操作符：
+
+```js
+let values = [1, 2, 3, 4, 5, 6, 7, 8];
+let max = Math.max(...values);
+```
+
+#### 舍入方法
+
+- `Math.ceil()` 方法始终向上舍入为最接近的整数。
+- `Math.floor()` 方法始终向下舍入为最接近的整数。
+- `Math.round()` 方法执行四舍五入。
+- `Math.fround()` 方法返回数值最接近的单精度（32 位）浮点值表示。
+
+```js
+console.log(Math.ceil(25.9)); // 26
+console.log(Math.ceil(25.5)); // 26
+console.log(Math.ceil(25.1)); // 26
+
+console.log(Math.round(25.9)); // 26
+console.log(Math.round(25.5)); // 26
+console.log(Math.round(25.1)); // 25
+
+console.log(Math.fround(0.4)); // 0.4000000059604645
+console.log(Math.fround(0.5)); // 0.5
+console.log(Math.fround(25.9)); // 25.899999618530273
+
+console.log(Math.floor(25.9)); // 25
+console.log(Math.floor(25.5)); // 25
+console.log(Math.floor(25.1)); // 25
+```
+
+#### `random()` 方法
+
+`Math.random()` 方法返回一个 0~1 范围内的随机数，其中包含 `0` 但不包含 `1`。
+
+可以基于如下公式使用 `Math.random()` 从一组整数中随机选择一个数：
+
+```js
+Math.floor(Math.random() * total_number_of_choices + first_possible_value);
+
+// 想从1~10范围内随机选择一个数
+let num = Math.floor(Math.random() * 10 + 1);
+```
+
+#### 其他方法
+
+|         方法         |               说明               |
+| :------------------: | :------------------------------: |
+|    `Math.abs(x)`     |         返回 x 的绝对值          |
+|    `Math.exp(x)`     |     返回 `Math.E` 的 x 次幂      |
+|   `Math.expm1(x)`    |      等于 `Math.exp(x) - 1`      |
+|    `Math.log(x)`     |        返回 x 的自然对数         |
+|   `Math.log1p(x)`    |      等于 `1 + Math.log(x)`      |
+| `Math.pow(x, power)` |       返回 x 的 power 次幂       |
+| `Math.pow(...nums)`  | 返回 nums 中每个数平方和的平方根 |
+|   `Math.clz32(x)`    | 返回 32 位整数 x 的前置零的数量  |
+|    `Math.sign(x)`    | 返回表示 x 符号的 1、0、-0 或-1  |
+|   `Math.trunc(x)`    | 返回 x 的整数部分，删除所有小数  |
+|    `Math.sqrt(x)`    |         返回 x 的平方根          |
+|    `Math.cbrt(x)`    |         返回 x 的立方根          |
+|    `Math.acos(x)`    |         返回 x 的反余弦          |
+|   `Math.acosh(x)`    |       返回 x 的反双曲余弦        |
+|    `Math.asin(x)`    |         返回 x 的反正弦          |
+|   `Math.asinh(x)`    |       返回 x 的反双曲正弦        |
+|    `Math.atan(x)`    |         返回 x 的反正切          |
+|   `Math.atanh(x)`    |       返回 x 的反双曲正切        |
+|  `Math.atan2(y, x)`  |        返回 y/x 的反正切         |
+|    `Math.cos(x)`     |          返回 x 的余弦           |
+|    `Math.sin(x)`     |          返回 x 的正弦           |
+|    `Math.tan(x)`     |          返回 x 的正切           |
+
+### RegExp
+
+ECMAScript 通过 `RegExp` 类型支持正则表达式。
+
+具体的内容这里不讲，单开一篇文章细讲。
+
+## Array
+
+ECMAScript 中，数组中每个槽位可以存储任意类型的数据。
+
+有几种基本的方式可以创建数组。一种是使用 `Array` 构造函数
+
+如果知道数组中元素的数量，那么可以给构造函数传入一个数值，然后 `length` 属性就会被自动创建并设置为这个值。
+
+也可以给 `Array` 构造函数传入要保存的元素。
+
+```js
+let colors = new Array();
+let colors = new Array(20);
+let colors = new Array("red", "blue", "green");
+```
+
+另一种创建数组的方式是使用**数组字面量（array literal）表示法**。与对象一样，在使用数组字面量表示法创建数组不会调用 `Array` 构造函数。
+
+```js
+let colors = ["red", "blue", "green"]; // 创建一个包含3个元素的数组
+let names = []; // 创建一个空数组
+let values = [1, 2]; // 创建一个包含2个元素的数组
+```
+
+### `Array.from()` & `Array.of()`
+
+Array 对象中还有两个 ES6 新增的用于创建数组的静态方法 `from()` 和 `of()`。
+
+#### `Array.from()`
+
+`from()` 将类数组结构转换为数组实例。
+
+- 类数组结构：任何可迭代的结构，或者有一个 length 属性和可索引元素的结构。
+
+```js
+// 字符串会被拆分为单字符数组
+console.log(Array.from("Matt")); // ["M", "a", "t", "t"]
+
+// 可以使用from()将集合和映射转换为一个新数组
+const m = new Map().set(1, 2).set(3, 4);
+const s = new Set()
+  .add(1)
+  .add(2)
+  .add(3)
+  .add(4);
+
+console.log(Array.from(m)); // [[1, 2], [3, 4]]
+console.log(Array.from(s)); // [1, 2, 3, 4]
+
+// Array.from()对现有数组执行浅复制
+const a1 = [1, 2, 3, 4];
+const a2 = Array.from(a1);
+
+console.log(a1); // [1, 2, 3, 4]
+alert(a1 === a2); // false
+
+// 可以使用任何可迭代对象
+const iter = {
+  *[Symbol.iterator]() {
+    yield 1;
+    yield 2;
+    yield 3;
+    yield 4;
+  },
+};
+console.log(Array.from(iter)); // [1, 2, 3, 4]
+
+// arguments对象可以被轻松地转换为数组
+function getArgsArray() {
+  return Array.from(arguments);
+}
+console.log(getArgsArray(1, 2, 3, 4)); // [1, 2, 3, 4]
+
+// from()也能转换带有必要属性的自定义对象
+const arrayLikeObject = {
+  0: 1,
+  1: 2,
+  2: 3,
+  3: 4,
+  length: 4,
+};
+console.log(Array.from(arrayLikeObject)); // [1, 2, 3, 4]
+```
+
+`Array.from()` 还接收第二个可选的映射函数参数。这个函数可以直接增强新数组的值。还可以接收第三个可选参数，用于指定映射函数中 `this` 的值。但这个重写的 `this` 值在箭头函数中不适用。
+
+```js
+const a1 = [1, 2, 3, 4];
+const a2 = Array.from(a1, (x) => x ** 2);
+const a3 = Array.from(
+  a1,
+  function(x) {
+    return x ** this.exponent;
+  },
+  { exponent: 2 }
+);
+console.log(a2); // [1, 4, 9, 16]
+console.log(a3); // [1, 4, 9, 16]
+```
+
+#### `Array.of()`
+
+`of()` 将一组参数转换为数组实例。
+
+这个方法用于替代在 ES6 之前常用的 `Array.prototype.slice.call(arguments)`，一种异常笨拙的将 `arguments` 对象转换为数组的写法：
+
+```js
+console.log(Array.of(1, 2, 3, 4)); // [1, 2, 3, 4]
+console.log(Array.of(undefined)); // [undefined]
+```
+
+### 复制 & 填充方法
+
+### 栈方法
+
+### 队列方法
+
+### 排序方法
+
+### 操作方法
+
+### 搜索 & 位置方法
+
+### 迭代器方法
+
+### 迭代方法
+
+### 归并方法
+
+## 定型数组 Typed Array
+
+## Map
+
+## WeakMap
+
+## Set
+
+## WeakSet
 
 ## 迭代器与生成器
