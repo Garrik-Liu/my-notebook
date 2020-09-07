@@ -2149,6 +2149,94 @@ let names = []; // 创建一个空数组
 let values = [1, 2]; // 创建一个包含2个元素的数组
 ```
 
+要取得或设置数组的值，需要使用中括号 `[]` 并提供相应值的数字索引 Index
+
+如果把一个值设置给超过数组最大索引的索引，则数组长度会自动扩展到该索引值加 1。
+
+```js
+let colors = ["red", "blue", "green"]; // 定义一个字符串数组
+colors[2] = "black"; // 修改第三项
+colors[3] = "brown"; // 添加第四项
+console.log(colors.length); // 4
+```
+
+通过修改 `length` 属性，可以从数组末尾删除或添加元素。
+
+```js
+let colors = ["red", "blue", "green"]; // 创建一个包含3个字符串的数组
+colors.length = 2;
+alert(colors[2]); // undefined
+
+colors[colors.length] = "black"; // 添加一种颜色（位置3）
+colors[colors.length] = "brown"; // 再添加一种颜色（位置4）
+
+let colors = ["red", "blue", "green"]; // 创建一个包含3个字符串的数组
+colors[99] = "black"; // 添加一种颜色（位置99）
+alert(colors.length); // 100
+```
+
+#### 检测数组
+
+在只有一个全局作用域的情况下，使用 `instanceof` 操作符就可以检测数组。
+
+```js
+if (value instanceof Array) {
+  // 操作数组
+}
+```
+
+如果网页里有多个框架，则可能涉及两个不同的全局执行上下文，因此就会有两个不同版本的 Array 构造函数。如果要把数组从一个框架传给另一个框架，则这个数组的构造函数将有别于在第二个框架内本地创建的数组。
+
+ECMAScript 提供了 `Array.isArray()` 方法。用来确定一个值是否为数组，而不用管它是在哪个全局执行上下文中创建的。
+
+```js
+if (Array.isArray(value)) {
+  // 操作数组
+}
+```
+
+#### 数组空位
+
+使用数组字面量初始化数组时，可以使用一串逗号来创建空位（hole），值为 `undefined`
+
+```js
+const options = [1, , , , 5];
+console.log(options.length); // 5
+
+for (const option of options) {
+  console.log(option === undefined);
+}
+// false
+// true
+// true
+// true
+// false
+```
+
+ES6 之前的方法则会忽略这个空位，但具体的行为也会因方法而异：
+
+```js
+const options = [1, , , , 5];
+
+// map()会跳过空位置
+console.log(options.map(() => 6)); // [ 6, <3 empty slots>, 6 ]
+
+// join()视空位置为空字符串
+console.log(options.join("-")); // "1----5"
+```
+
+⚠️ 由于行为不一致和存在性能隐患，因此实践中要避免使用数组空位。如果确实需要空位，则可以显式地用 `undefined` 值代替。
+
+#### 转换方法
+
+`valueOf()` 返回的还是数组本身。而 `toString(`) 返回由数组中每个值的等效字符串拼接而成的一个逗号分隔的字符串。
+
+```js
+let colors = ["red", "blue", "green"]; // 创建一个包含3个字符串的数组
+console.log(colors.toString()); // red,blue,green
+console.log(colors.valueOf()); // [ "red", "blue", "green" ]
+```
+
 ### `Array.from()` & `Array.of()`
 
 Array 对象中还有两个 ES6 新增的用于创建数组的静态方法 `from()` 和 `of()`。
@@ -2238,23 +2326,347 @@ console.log(Array.of(undefined)); // [undefined]
 
 ### 复制 & 填充方法
 
+ES6 新增了两个方法：批量复制方法 `fill()`，以及填充数组方法 `copyWithin()`。
+
+使用 `fill()` 方法可以向一个已有的数组中插入全部或部分相同的值。第一个参数是要填充的值，第二个参数是开始索引，第三个参数是结束索引。
+
+```js
+const zeroes = [0, 0, 0, 0, 0];
+
+// 用5填充整个数组
+zeroes.fill(5);
+console.log(zeroes); // [5, 5, 5, 5, 5]
+zeroes.fill(0); // 重置
+
+zeroes.fill(6, 3);
+console.log(zeroes); // [0, 0, 0, 6, 6]
+zeroes.fill(0); // 重置
+
+zeroes.fill(7, 1, 3);
+console.log(zeroes); // [0, 7, 7, 0, 0];
+zeroes.fill(0); // 重置
+```
+
+`copyWithin()` 会按照指定范围浅复制数组中的部分内容，然后将它们插入到指定索引开始的位置。
+
+```js
+let ints = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+
+// 从ints中复制索引0开始的内容，插入到索引5开始的位置
+// 在源索引或目标索引到达数组边界时停止
+ints.copyWithin(5);
+console.log(ints); // [0, 1, 2, 3, 4, 0, 1, 2, 3, 4]
+
+ints = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+// 从ints中复制索引5开始的内容，插入到索引0开始的位置
+ints.copyWithin(0, 5);
+console.log(ints); // [5, 6, 7, 8, 9, 5, 6, 7, 8, 9]
+
+ints = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+// 从ints中复制索引0开始到索引3结束的内容
+// 插入到索引4开始的位置
+ints.copyWithin(4, 0, 3);
+alert(ints); // [0, 1, 2, 3, 0, 1, 2, 7, 8, 9]
+reset();
+```
+
 ### 栈方法
+
+ECMAScript 给数组提供 `push()` 和 `pop()` 方法，以实现类似栈的行为。
+
+- `push()` 方法接收任意数量的参数，并将它们添加到数组末尾，返回数组的最新长度。
+- `pop()` 方法则用于删除数组的最后一项，返回被删除的项。
+
+```js
+let colors = new Array(); // 创建一个数组
+let count = colors.push("red", "green"); // 推入两项
+alert(count); // 2
+
+count = colors.push("black"); // 再推入一项
+alert(count); // 3
+
+let item = colors.pop(); // 取得最后一项
+alert(item); // black
+alert(colors.length); // 2
+```
 
 ### 队列方法
 
+使用 `shift()` 和 `push()`，可以把数组当成队列来使用：
+
+```js
+let colors = new Array(); // 创建一个数组
+colors.push("red", "green"); // 推入两项
+colors.push("black"); // 再推入一项
+let item = colors.shift(); // 取得第一项
+```
+
+ECMAScript 也为数组提供了 `unshift()` 方法。就是执行跟 `shift()` 相反的操作：在数组开头添加任意多个值，然后返回新的数组长度。
+
+通过使用 `unshift()` 和 `pop()`，可以在相反方向上模拟队列。在数组开头添加新数据，在数组末尾取得数据。
+
 ### 排序方法
+
+reverse()方法就是将数组元素反向排列。比如：
+
+```js
+let values = [1, 2, 3, 4, 5];
+values.reverse();
+alert(values); // 5,4,3,2,1
+```
+
+`sort()` 会按照升序重新排列数组元素，即最小的值在前面，最大的值在后面。但 `sort()` 会在每一项上调用 `String()` 转型函数，然后比较字符串来决定顺序。
+
+```js
+let values = [0, 1, 5, 10, 15];
+values.sort();
+alert(values); // 0,1,10,15,5
+```
+
+这样进行数值排列，结果不是符合期望的。`sort()` 方法可以接收一个比较函数，用于判断哪个值应该排在前面。
+
+比较函数接收两个参数，如果第一个参数应该排在第二个参数前面，就返回负值；如果两个参数相等，就返回 `0`；如果第一个参数应该排在第二个参数后面，就返回正值。
+
+```js
+function compare(value1, value2) {
+  if (value1 < value2) {
+    return -1;
+  } else if (value1 > value2) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
+let values = [0, 1, 5, 10, 15];
+values.sort(compare);
+alert(values); // 0,1,5,10,15
+```
+
+`reverse()` 和 `sort()` 都返回调用它们的数组的引用。
 
 ### 操作方法
 
+`concat()` 方法可以在现有数组全部元素基础上创建一个新数组。
+
+```js
+let colors = ["red", "green", "blue"];
+let colors2 = colors.concat("yellow", ["black", "brown"]);
+
+console.log(colors); // ["red", "green","blue"]
+console.log(colors2); // ["red", "green", "blue", "yellow", "black", "brown"]
+```
+
+---
+
+`slice()` 用于创建一个包含原有数组中一个或多个元素的新数组。接收一个或两个参数：返回元素的开始索引和结束索引。如果只有一个参数，则 `slice()` 会返回该索引到数组末尾的所有元素。
+
+- 如果 `slice()` 的参数有负值，那么就以数值长度加上这个负值的结果确定位置。比如，在包含 `5` 个元素的数组上调用 `slice(-2,-1)`，就相当于调用 `slice(3,4)`。
+- 如果结束位置小于开始位置，则返回空数组。
+
+```js
+let colors = ["red", "green", "blue", "yellow", "purple"];
+let colors2 = colors.slice(1);
+let colors3 = colors.slice(1, 4);
+
+alert(colors2); // green,blue,yellow,purple
+alert(colors3); // green,blue,yellow
+```
+
+---
+
+`splice()` 有 3 种不同的方式使用这个方法。
+
+- **删除**。传 2 个参数：要删除的第一个元素的位置，和要删除的元素数量。比如 `splice(0, 2)` 会删除前两个元素。
+- **插入**。传 3 个参数：开始位置、0（ 不删除元素 ），之后的传入的参数都是要插入的元素。比如，`splice(2, 0, "red", "green")` 会从数组位置 2 开始插入字符串 `"red"` 和 `"green"`。
+- **替换**。传入 3 个参数：开始位置、要删除元素的数量，和要插入的任意多个元素。比如，`splice(2, 1, "red", "green")` 会在位置 `2` 删除一个元素，然后从该位置开始向数组中插入 `"red"` 和 `"green"`。
+
+`splice()` 方法始终返回这样一个数组，它包含从数组中被删除的元素，如果没有删除元素，则返回空数组。
+
+```js
+let colors = ["red", "green", "blue"];
+let removed = colors.splice(0, 1); // 删除第一项
+alert(colors); // green,blue
+alert(removed); // red，只有一个元素的数组
+
+removed = colors.splice(1, 0, "yellow", "orange"); // 在位置1插入两个元素
+alert(colors); // green,yellow,orange,blue
+alert(removed); // 空数组
+
+removed = colors.splice(1, 1, "red", "purple"); // 插入两个值，删除一个元素
+alert(colors); // green,red,purple,orange,blue
+alert(removed); // yellow，只有一个元素的数组
+```
+
 ### 搜索 & 位置方法
 
-### 迭代器方法
+ECMAScript 提供两类搜索数组的方法：按严格相等搜索 & 按断言函数搜索。
 
-### 迭代方法
+#### 严格相等搜索
+
+ECMAScript 提供了 3 个严格相等的搜索方法：`indexOf()`、`lastIndexOf()`和 `includes()`。
+
+- 都接收两个参数：要查找的元素，和一个可选的起始搜索位置。
+- 会使用全等 `===` 比较，也就是说两项必须严格相等。
+- `indexOf()` 和 `includes()` 方法从数组前头（第一项）开始向后搜索，而 `lastIndexOf()` 从数组末尾（最后一项）开始向前搜索。
+- `indexOf()` 和 `lastIndexOf()` 都返回要查找的元素在数组中的位置，如果没找到则返回 `-1`。`includes()` 返回布尔值，表示是否至少找到一个与指定元素匹配的项。
+
+```js
+let numbers = [1, 2, 3, 4, 5, 4, 3, 2, 1];
+
+alert(numbers.indexOf(4)); // 3
+alert(numbers.lastIndexOf(4)); // 5
+alert(numbers.includes(4)); // true
+
+alert(numbers.indexOf(4, 4)); // 5
+alert(numbers.lastIndexOf(4, 4)); // 3
+alert(numbers.includes(4, 7)); // false
+
+let person = { name: "Nicholas" };
+let people = [{ name: "Nicholas" }];
+let morePeople = [person];
+
+alert(people.indexOf(person)); // -1
+alert(morePeople.indexOf(person)); // 0
+alert(people.includes(person)); // false
+alert(morePeople.includes(person)); // true
+```
+
+#### 断言函数搜索
+
+按照定义的断言函数搜索数组，在数组的每一个元素上都调用这个函数。断言函数的返回值决定了相应索引的元素是否被认为匹配。
+
+接收 3 个参数：当前元素，索引，和数组本身。
+
+`find()` 和 `findIndex()` 方法使用了断言函数。这两个方法都从数组的最小索引开始。
+
+- `find()` 返回第一个匹配的元素。
+- `findIndex()` 返回第一个匹配元素的索引。
+
+这两个方法也都接收第二个可选的参数，用于指定断言函数内部 `this` 的值。
+
+找到匹配项后，这两个方法都不再继续搜索。
+
+```js
+const people = [
+  {
+    name: "Matt",
+    age: 27,
+  },
+  {
+    name: "Nicholas",
+    age: 29,
+  },
+];
+
+alert(people.find((element, index, array) => element.age < 28));
+// {name: "Matt", age: 27}
+
+alert(people.findIndex((element, index, array) => element.age < 28));
+// 0
+```
 
 ### 归并方法
 
+ECMAScript 为数组提供了两个归并方法：`reduce()` 和 `reduceRight()`。这两个方法都会迭代数组的所有项，并在此基础上构建一个最终返回值。
+
+- `reduce()` 方法从数组第一项开始遍历到最后一项。
+- `reduceRight()` 从最后一项开始遍历至第一项。
+
+这两个方法都接收两个参数：
+
+- 对每一项都会运行的归并函数。函数接收 4 个参数：
+  - 上一个归并值
+  - 当前项
+  - 当前项的索引
+  - 数组本身
+- 可选的，用作归并起点的初始值。
+
+```js
+let values = [1, 2, 3, 4, 5];
+let sum = values.reduce((prev, cur, index, array) => prev + cur);
+
+alert(sum); // 15
+```
+
+### 迭代方法
+
+ECMAScript 为数组定义了 5 个迭代方法。
+
+- `every()`：对数组每一项都运行传入的函数，如果对每一项函数都返回 `true`，则这个方法返回 `true`。
+- `some()`：对数组每一项都运行传入的函数，如果有一项函数返回 `true`，则这个方法返回 `true`。
+- `filter()`：对数组每一项都运行传入的函数，函数返回 `true` 的项会组成数组之后返回。
+- `forEach()`：对数组每一项都运行传入的函数，没有返回值。
+- `map()`：对数组每一项都运行传入的函数，返回由每次函数调用的结果构成的数组。
+
+每个方法接收两个参数：以每一项为参数运行的函数，以及可选的作为函数运行上下文的作用域对象（ `this` 的值 ）
+
+传给每个方法的函数接收 3 个参数：当前元素，元素索引，和数组本身。
+
+```js
+let numbers = [1, 2, 3, 4, 5, 4, 3, 2, 1];
+
+let everyResult = numbers.every((item, index, array) => item > 2);
+alert(everyResult); // false
+
+let someResult = numbers.some((item, index, array) => item > 2);
+alert(someResult); // true
+
+let filterResult = numbers.filter((item, index, array) => item > 2);
+alert(filterResult); // 3,4,5,4,3
+
+let mapResult = numbers.map((item, index, array) => item * 2);
+alert(mapResult); // 2,4,6,8,10,8,6,4,2
+
+numbers.forEach((item, index, array) => {
+  // 执行某些操作
+});
+```
+
+### 迭代器方法
+
+- `keys()` 返回「 数组索引 」的迭代器。
+- `values()` 返回「 数组元素 」的迭代器。
+- `entries()` 返回「 键 / 值对 」的迭代器。
+
+```js
+const a = ["foo", "bar", "baz", "qux"];
+
+// 因为这些方法都返回迭代器，所以可以将它们的内容
+// 通过Array.from()直接转换为数组实例
+const aKeys = Array.from(a.keys());
+const aValues = Array.from(a.values());
+const aEntries = Array.from(a.entries());
+
+console.log(aKeys); // [0, 1, 2, 3]
+console.log(aValues); // ["foo", "bar", "baz", "qux"]
+console.log(aEntries); // [[0, "foo"], [1, "bar"], [2, "baz"], [3, "qux"]]
+
+for (const [idx, element] of a.entries()) {
+  alert(idx);
+  alert(element);
+}
+// 0
+// foo
+// 1
+// bar
+// 2
+// baz
+// 3
+// qux
+```
+
 ## 定型数组 Typed Array
+
+设计定型数组的目的就是提高与 WebGL 等原生库交换二进制数据的效率。
+
+由于定型数组的二进制表示对操作系统而言是一种容易使用的格式，JavaScript 引擎可以重度优化算术运算、按位运算和其他对定型数组的常见操作，因此使用它们速度极快。
+
+::: warning
+
+🚧 建设中…
+
+:::
 
 ## Map
 
