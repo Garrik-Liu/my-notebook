@@ -2670,10 +2670,979 @@ for (const [idx, element] of a.entries()) {
 
 ## Map
 
+ES6 新增了 `Map` 类型进行 “键/值对” 存储。
+
+### 基本 API
+
+- 使用 `new` 关键字和 `Map` 构造函数可以创建一个空映射。
+- 如果想在创建的同时初始化实例，可以给 `Map` 构造函数传入一个可迭代对象
+- `size` 属性返回 Map 的大小。
+
+```js
+const m = new Map();
+
+// 使用嵌套数组初始化映射
+const m1 = new Map([
+  ["key1", "val1"],
+  ["key2", "val2"],
+  ["key3", "val3"],
+]);
+alert(m1.size); // 3
+
+// 使用自定义迭代器初始化映射
+const m2 = new Map({
+  [Symbol.iterator]: function*() {
+    yield ["key1", "val1"];
+    yield ["key2", "val2"];
+    yield ["key3", "val3"];
+  },
+});
+alert(m2.size); // 3
+```
+
+- 使用 `set()` 方法再添加键/值对。另外，可以使用 `get()` 和 `has()` 进行查询。
+- `set()` 方法返回映射实例，因此可以把多个操作连缀起来。
+- 使用 `delete()` 和 `clear()` 删除值。
+
+```js
+const m = new Map();
+
+alert(m.has("firstName")); // false
+alert(m.get("firstName")); // undefined
+alert(m.size); // 0
+
+m.set("firstName", "Matt").set("lastName", "Frisbie");
+
+alert(m.has("firstName")); // true
+alert(m.get("firstName")); // Matt
+alert(m.size); // 2
+
+m.delete("firstName"); // 只删除这一个键/值对
+
+alert(m.has("firstName")); // false
+alert(m.has("lastName")); // true
+alert(m.size); // 1
+
+m.clear(); // 清除这个映射实例中的所有键/值对
+
+alert(m.has("firstName")); // false
+alert(m.has("lastName")); // false
+alert(m.size); // 0
+```
+
+---
+
+`Object` 只能使用数值、字符串或符号作为键不同。`Map` 可以使用任何 JavaScript 数据类型作为键。与 `Object` 类似，映射的值是没有限制的。
+
+```js
+const m = new Map();
+
+const functionKey = function() {};
+const symbolKey = Symbol();
+const objectKey = new Object();
+
+m.set(functionKey, "functionValue");
+m.set(symbolKey, "symbolValue");
+m.set(objectKey, "objectValue");
+
+alert(m.get(functionKey)); // functionValue
+alert(m.get(symbolKey)); // symbolValue
+alert(m.get(objectKey)); // objectValue
+```
+
+### 顺序 & 迭代
+
+`Map` 实例会维护键值对的插入顺序，因此可以根据插入顺序执行迭代操作。
+
+映射实例可以提供一个迭代器（ Iterator ），能以插入顺序生成 `[key, value]` 形式的数组。可以通过 `entries()` 方法取得这个迭代器，也可以使用 `Symbol.iterator` 属性，它引用 `entries()`。
+
+```js
+const m = new Map([
+  ["key1", "val1"],
+  ["key2", "val2"],
+  ["key3", "val3"],
+]);
+
+alert(m.entries === m[Symbol.iterator]); // true
+
+for (let pair of m.entries()) {
+  alert(pair);
+}
+// [key1,val1]
+// [key2,val2]
+// [key3,val3]
+
+for (let pair of m[Symbol.iterator]()) {
+  alert(pair);
+}
+// [key1,val1]
+// [key2,val2]
+// [key3,val3]
+```
+
+可以直接对 `Map` 实例使用扩展操作，把映射转换为数组：
+
+```js
+const m = new Map([
+  ["key1", "val1"],
+  ["key2", "val2"],
+  ["key3", "val3"],
+]);
+
+console.log([...m]); // [[key1,val1],[key2,val2],[key3,val3]]
+```
+
+`keys()` 和 `values()` 分别返回以插入顺序生成键和值的迭代器：
+
+```js
+const m = new Map([
+  ["key1", "val1"],
+  ["key2", "val2"],
+  ["key3", "val3"],
+]);
+
+for (let key of m.keys()) {
+  alert(key);
+}
+// key1
+// key2
+// key3
+
+for (let key of m.values()) {
+  alert(key);
+}
+// value1
+// value2
+// value3
+```
+
+### Object vs Map
+
+**内存占用**
+
+- 给定固定大小的内存，`Map` 大约可以比 `Object` 多存储 `50%` 的键/值对。
+
+**插入性能**
+
+- 如果代码涉及大量插入操作，那么显然 `Map` 的性能更佳。
+
+**查找速度**
+
+- 对这两个类型而言，查找速度不会随着键/值对数量增加而线性增加。如果代码涉及大量查找操作，那么某些情况下可能选择 `Object` 更好一些。
+
+**删除性能**
+
+- `Map` 的 `delete()` 操作都比插入和查找更快。如果代码涉及大量删除操作，那么毫无疑问应该选择 `Map`。
+
 ## WeakMap
+
+`WeakMap` 弱映射是 `Map` 的 “兄弟” 类型。`WeakMap` 中的 “weak”（弱），描述的是 JavaScript 垃圾回收程序对待 “弱映射” 中键的方式。
+
+弱映射中的键只能是 `Object` 或者继承自 `Object` 的类型，尝试使用非对象设置键会抛出 `TypeError`。值的类型没有限制。
+
+```js
+const key1 = { id: 1 },
+  key2 = { id: 2 },
+  key3 = { id: 3 };
+// 使用嵌套数组初始化弱映射
+const wm1 = new WeakMap([
+  [key1, "val1"],
+  [key2, "val2"],
+  [key3, "val3"],
+]);
+
+alert(wm.get(key1)); // val2
+alert(wm.get(key2)); // val2
+alert(wm.get(key3)); // val3
+```
+
+之后可以使用 `set()` 再添加键/值对，可以使用 `get()` 和 `has()` 查询，还可以使用 `delete()` 删除。
+
+---
+
+表示弱映射的键不属于正式的引用，不会阻止垃圾回收。
+
+```js
+const wm = new WeakMap();
+
+wm.set({}, "val");
+```
+
+`set()` 方法初始化了一个新对象并将它用作一个字符串的键。因为没有指向这个对象的其他引用，所以当这行代码执行完成后，这个对象键就会被当作垃圾回收。
+
+之后，因为值也没有被引用，所以值本身也会成为垃圾回收的目标。
+
+因为 `WeakMap` 中的键/值对任何时候都可能被销毁，所以没必要提供迭代其键/值对的能力。
+
+```js
+const wm = new WeakMap();
+
+const container = {
+  key: {},
+};
+
+wm.set(container.key, "val");
+
+function removeReference() {
+  container.key = null;
+}
+```
+
+`container` 对象维护着一个对弱映射键的引用，因此这个对象键不会成为垃圾回收的目标。不过，如果调用了 `removeReference()`，就会摧毁键对象的最后一个引用，垃圾回收程序就可以把这个键/值对清理掉。
 
 ## Set
 
+`Set` 用来表示一个集合，其中的元素是唯一的，不重复的。可以包含任何 JavaScript 数据类型作为值。
+
+### 基本 API
+
+在初始化时，可以给 `Set` 构造函数传入一个可迭代对象。
+
+```js
+// 使用数组初始化集合
+const s1 = new Set(["val1", "val2", "val3"]);
+
+// 使用自定义迭代器初始化集合
+const s2 = new Set({
+  [Symbol.iterator]: function*() {
+    yield "val1";
+    yield "val2";
+    yield "val3";
+  },
+});
+```
+
+使用 `add()` 增加值，使用 `has()` 查询，通过 `size` 取得元素数量，以及使用 `delete()` 和 `clear()` 删除元素：
+
+```js
+const s = new Set();
+
+alert(s.has("Matt")); // false
+alert(s.size); // 0
+
+s.add("Matt").add("Frisbie");
+
+alert(s.has("Matt")); // true
+alert(s.size); // 2
+
+alert(s.delete("Matt")); // true
+
+alert(s.has("Matt")); // false
+alert(s.has("Frisbie")); // true
+alert(s.size); // 1
+
+s.clear(); // 销毁集合实例中的所有值
+
+alert(s.has("Matt")); // false
+alert(s.has("Frisbie")); // false
+alert(s.size); // 0
+```
+
+如果向 `Set` 中 `add` 已有元素，该元素不会被添加，即不会出现重复的元素。
+
+`add()` 和 `delete()` 操作是幂等的，也就是执行多次和执行一次结果相同。`delete()`返回一个布尔值，表示集合中是否存在要删除的值：
+
+```js
+const s = new Set();
+
+s.add("foo");
+alert(s.size); // 1
+s.add("foo");
+alert(s.size); // 1
+
+// 集合里有这个值
+alert(s.delete("foo")); // true
+
+// 集合里没有这个值
+alert(s.delete("foo")); // false
+```
+
+### 顺序 & 迭代
+
+Set 会维护值插入时的顺序，因此支持按顺序迭代。
+
+集合实例可以提供一个迭代器（Iterator），能以插入顺序生成集合内容。
+
+可以通过 `values()` 方法及其别名方法 `keys()`（或者 `Symbol.iterator` 属性，它引用 `values()`）取得这个迭代器：
+
+```js
+const s = new Set(["val1", "val2", "val3"]);
+
+alert(s.values === s[Symbol.iterator]); // true
+alert(s.keys === s[Symbol.iterator]); // true
+
+for (let value of s.values()) {
+  alert(value);
+}
+// val1
+// val2
+// val3
+
+for (let value of s[Symbol.iterator]()) {
+  alert(value);
+}
+// val1
+// val2
+// val3
+```
+
+因为 `values()` 是默认迭代器，所以可以直接对集合实例使用扩展操作，把集合转换为数组：
+
+```js
+const s = new Set(["val1", "val2", "val3"]);
+
+console.log([...s]); // ["val1", "val2", "val3"]
+```
+
 ## WeakSet
 
-## 迭代器与生成器
+和 WeakMap 一样，弱集合中的值不属于正式的引用，不会阻止垃圾回收。
+
+```js
+const ws = new WeakSet();
+
+ws.add({});
+```
+
+`add()` 方法初始化了一个新对象，并将它用作一个值。因为没有指向这个对象的其他引用，所以当这行代码执行完成后，这个对象值就会被当作垃圾回收。
+
+## 迭代器
+
+在软件开发领域，“迭代” 的意思是按照顺序反复多次执行一段程序，通常会有明确的终止条件。
+
+循环是迭代机制的基础，这是因为它可以指定迭代的次数，以及每次迭代要执行什么操作。每次循环都会在下一次迭代开始之前完成，而每次迭代的顺序都是事先定义好的。
+
+下面 👇 是 `fo-loop` 迭代一个数组的方式，是最简单的一种迭代：
+
+```js
+let collection = ["foo", "bar", "baz"];
+
+for (let index = 0; index < collection.length; ++index) {
+  console.log(collection[index]);
+}
+```
+
+但是，这种迭代只特定于数组数据结构：
+
+1. 数组中的每一项都只能先通过引用取得数组对象，然后再通过 `[]` 操作符取得特定索引位置上的项。
+2. 通过递增索引来访问数据是特定于数组类型的方式，并不适用于其他具有隐式顺序的数据结构。
+
+ES5 新增了 `Array.prototype.forEach()` 方法，向通用迭代需求迈进了一步，但仍然不够理想。
+
+- 这个方法解决了单独记录索引和通过数组对象取得值的问题。
+- 不过，没有办法标识迭代何时终止。
+
+### 迭代器模式
+
+我们希望开发者无须事先知道一种数据类型如何迭代，就能实现迭代操作。
+
+ECMAScript 采用的解决方案就是『 **迭代器模式** 』
+
+迭代器模式描述了一个方案，即可以把有些结构称为 “可迭代对象 Iterable”，因为它们实现了 `Iterable` 接口，而且可以通过迭代器 `Iterator` 进行迭代。
+
+可迭代对象是一种抽象的说法。基本上，可以把可迭代对象理解成数组或集合这样的「 集合类型 」的对象。
+
+- 包含的元素都是有限的。
+- 可以定义一种遍历顺序。
+
+```js
+// 数组的元素是有限的
+// 递增索引可以按序访问每个元素
+let arr = [3, 1, 4];
+
+// 集合的元素是有限的
+// 可以按插入顺序访问每个元素
+let set = new Set()
+  .add(3)
+  .add(1)
+  .add(4);
+```
+
+**迭代器**（ Iterator ）是按需创建的一次性对象。每个迭代器都会关联一个可迭代对象。
+
+- 迭代器会暴露迭代其关联可迭代对象的 API。
+- 迭代器无须了解与其关联的可迭代对象的结构，只需要知道如何取得连续的值。
+
+### 可迭代协议
+
+实现了 `Iterable` 接口的对象，必须暴露一个属性作为「 默认迭代器 」，且这个必须使用 `Symbol.iterator` 作为键。这个默认迭代器属性必须引用一个「 迭代器工厂函数 」，调用这个工厂函数必须返回一个新迭代器。
+
+ECMAScript 中那个很多内置类型都实现了 `Iterable` 接口：
+
+- `String` 字符串
+- `Array` 数组
+- `Map` 映射
+- `Set` 集合
+- `arguments`对象
+- `NodeList` 等 DOM 集合类型
+
+通过检查 `Symbol.iterator` 属性值，可以知道一个对象是否是可迭代的 `Iterable`。
+
+```js
+let num = 1;
+let obj = {};
+
+// 这两种类型没有实现迭代器工厂函数
+console.log(num[Symbol.iterator]); // undefined
+console.log(obj[Symbol.iterator]); // undefined
+
+let str = "abc";
+let arr = ["a", "b", "c"];
+let map = new Map()
+  .set("a", 1)
+  .set("b", 2)
+  .set("c", 3);
+let set = new Set()
+  .add("a")
+  .add("b")
+  .add("c");
+let els = document.querySelectorAll("div");
+
+// 这些类型都实现了迭代器工厂函数
+console.log(str[Symbol.iterator]); // f values() { [native code] }
+console.log(arr[Symbol.iterator]); // f values() { [native code] }
+console.log(map[Symbol.iterator]); // f values() { [native code] }
+console.log(set[Symbol.iterator]); // f values() { [native code] }
+console.log(els[Symbol.iterator]); // f values() { [native code] }
+
+// 调用这个工厂函数会生成一个迭代器
+console.log(str[Symbol.iterator]()); // StringIterator {}
+console.log(arr[Symbol.iterator]()); // ArrayIterator {}
+console.log(map[Symbol.iterator]()); // MapIterator {}
+console.log(set[Symbol.iterator]()); // SetIterator {}
+console.log(els[Symbol.iterator]()); // ArrayIterator {}
+```
+
+实际写代码过程中，不需要显式调用这个工厂函数来生成迭代器。ECAMScript 中的原生语言，自动兼容接收可迭代对象。
+
+- 这些原生语言会在后台调用提供的可迭代对象的这个工厂函数，从而创建一个迭代器。
+
+- `for-of` 循环
+- 数组解构
+- 扩展操作符
+- `Array.from()`
+- 创建集合
+- 创建映射
+- `Promise.all()` 接收由期约组成的可迭代对象
+- `Promise.race()` 接收由期约组成的可迭代对象
+- `yield*` 操作符，在生成器中使用
+
+```js
+let arr = ["foo", "bar", "baz"];
+
+// for-of循环
+for (let el of arr) {
+  console.log(el);
+}
+// foo
+// bar
+// baz
+
+// 数组解构
+let [a, b, c] = arr;
+console.log(a, b, c); // foo, bar, baz
+
+// 扩展操作符
+let arr2 = [...arr];
+console.log(arr2); // ['foo', 'bar', 'baz']
+
+// Array.from()
+let arr3 = Array.from(arr);
+console.log(arr3); // ['foo', 'bar', 'baz']
+
+// Set构造函数
+let set = new Set(arr);
+console.log(set); // Set(3) {'foo', 'bar', 'baz'}
+
+// Map构造函数
+let pairs = arr.map((x, i) => [x, i]);
+console.log(pairs); // [['foo', 0], ['bar', 1], ['baz', 2]]
+let map = new Map(pairs);
+console.log(map); // Map(3) { 'foo'=>0, 'bar'=>1, 'baz'=>2 }
+```
+
+如果对象原型链上的父类实现了 `Iterable` 接口，那该子类对象也是可迭代的 `Iterable`：
+
+```js
+class FooArray extends Array {}
+let fooArr = new FooArray("foo", "bar", "baz");
+
+for (let el of fooArr) {
+  console.log(el);
+}
+// foo
+// bar
+// baz
+```
+
+### 迭代器协议
+
+迭代器提供 `next()` API，该方法在可迭代对象中遍历数据。每次成功调用 `next()`，都会返回一个 `IteratorResult` 对象。
+
+`IteratorResult` 包含两个属性：
+
+- `done` 是一个布尔值，表示迭代是否结束。
+- `value` 包含可迭代对象的下一个值。
+
+```js
+// 可迭代对象
+let arr = ["foo", "bar"];
+
+// 迭代器
+let iter = arr[Symbol.iterator]();
+console.log(iter); // ArrayIterator {}
+
+// 执行迭代
+console.log(iter.next()); // { done: false, value: 'foo' }
+console.log(iter.next()); // { done: false, value: 'bar' }
+console.log(iter.next()); // { done: true, value: undefined }
+```
+
+每个迭代器都表示对可迭代对象的一次性有序遍历。不同迭代器的实例相互之间没有联系，只会独立地遍历可迭代对象。
+
+```js
+let arr = ["foo", "bar"];
+let iter1 = arr[Symbol.iterator]();
+let iter2 = arr[Symbol.iterator]();
+
+console.log(iter1.next()); // { done: false, value: 'foo' }
+console.log(iter2.next()); // { done: false, value: 'foo' }
+console.log(iter2.next()); // { done: false, value: 'bar' }
+console.log(iter1.next()); // { done: false, value: 'bar' }
+```
+
+如果可迭代对象在迭代期间被修改了，那么迭代器也会反映相应的变化。
+
+```js
+let arr = ["foo", "baz"];
+let iter = arr[Symbol.iterator]();
+
+console.log(iter.next()); // { done: false, value: 'foo' }
+
+// 在数组中间插入值
+arr.splice(1, 0, "bar");
+
+console.log(iter.next()); // { done: false, value: 'bar' }
+console.log(iter.next()); // { done: false, value: 'baz' }
+console.log(iter.next()); // { done: true, value: undefined }
+```
+
+### 自定义迭代器
+
+任何实现 `Iterator` 接口的对象都可以作为迭代器使用。也就的需要具有 `next` 方法，并且该方法返回一个 `IteratorResult` 对象。
+
+下面 👇 的 `Counter` 类里有 `Symbol.iterator` 属性，值为一个方法，调用时会返回一个具备 `next` 方法的迭代器，而且每次调用时返回的迭代器都是一个独立的实例。
+
+```js
+class Counter {
+  constructor(limit) {
+    this.limit = limit;
+  }
+
+  [Symbol.iterator]() {
+    let count = 1,
+      limit = this.limit;
+    return {
+      next() {
+        if (count <= limit) {
+          return { done: false, value: count++ };
+        } else {
+          return { done: true, value: undefined };
+        }
+      },
+    };
+  }
+}
+
+let counter = new Counter(3);
+
+for (let i of counter) {
+  console.log(i);
+}
+// 1
+// 2
+// 3
+
+for (let i of counter) {
+  console.log(i);
+}
+// 1
+// 2
+// 3
+```
+
+### 提前终止迭代器
+
+可选的 `return()` 方法用于指定在迭代器提前关闭时执行的逻辑。会触发提前关闭的 ECMAScript 内置语言特性有：
+
+- `for-of` 循环通过 `break、continue、return` 或 `throw` 提前退出。
+- 解构操作并未消费所有值。
+
+`return()` 方法必须返回一个有效的 `IteratorResult` 对象。简单情况下，可以只返回 `{ done: true }`。
+
+```js
+class Counter {
+  constructor(limit) {
+    this.limit = limit;
+  }
+
+  [Symbol.iterator]() {
+    let count = 1,
+      limit = this.limit;
+    return {
+      next() {
+        if (count <= limit) {
+          return { done: false, value: count++ };
+        } else {
+          return { done: true };
+        }
+      },
+      return() {
+        console.log("Exiting early");
+        return { done: true };
+      },
+    };
+  }
+}
+
+let counter1 = new Counter(5);
+
+for (let i of counter1) {
+  if (i > 2) {
+    break;
+  }
+  console.log(i);
+}
+// 1
+// 2
+// Exiting early
+```
+
+要知道某个迭代器是否可关闭，可以测试这个迭代器实例的 `return` 属性是不是函数对象。
+
+不是所有的可迭代对象都是可关闭的。比如，数组的迭代器就是不能关闭的。
+
+如果迭代器没有关闭，则还可以继续从上次离开的地方继续迭代。
+
+```js
+let a = [1, 2, 3, 4, 5];
+let iter = a[Symbol.iterator]();
+
+for (let i of iter) {
+  console.log(i);
+  if (i > 2) {
+    break;
+  }
+}
+// 1
+// 2
+// 3
+
+for (let i of iter) {
+  console.log(i);
+}
+// 4
+// 5
+```
+
+### 扩展操作符
+
+`...` 扩展操作符可以将一个可迭代对象展开，将其中包含的元素转化为一个参数序列。
+
+具体使用场景如下：
+
+**可变参数个数的函数调用 & 将数组每一项作为参数传入函数**：
+
+```js
+function add(...vals) {
+  let sum = 0;
+
+  for (let i = 0; i < vals.length; i++) {
+    sum += vals[i];
+  }
+
+  return sum;
+}
+
+let arr = [1, 2, 3, 4, 5, 6];
+let sum = add(...arr);
+
+console.log(sum); // 21
+```
+
+**数组的浅拷贝 & 拼接**：
+
+```js
+let arr1 = [1, 2];
+let arr2 = [5, 6];
+let newArr = [20, ...arr1, ...arr2];
+console.log(newArr); // [20,1,2,5,6]
+```
+
+**将字符串转为真正的数组**：
+
+```js
+[..."hello"];
+// [ "h", "e", "l", "l", "o" ]
+```
+
+**类数组转换为数组**：
+
+```js
+var nodeList = document.querySelectorAll("div");
+var array = [...nodeList];
+```
+
+**对象的浅拷贝 & 合并**：
+
+```js
+var obj1 = { foo: "bar", x: 42 };
+var obj2 = { foo: "baz", y: 13 };
+
+var clonedObj = { ...obj1 };
+// 克隆后的对象: { foo: "bar", x: 42 }
+
+var mergedObj = { ...obj1, ...obj2 };
+// 合并后的对象: { foo: "baz", x: 42, y: 13 }
+```
+
+## 生成器
+
+生成器是 ECMAScript 6 新增的一个极为灵活的结构，拥有**在一个函数块内暂停和恢复代码执行的能力**。
+
+生成器的形式是一个函数，函数名称前面加一个星号 `*` 表示它是一个生成器。
+
+- 标识生成器函数的星号不受两侧空格的影响。
+- 箭头函数不能用来定义生成器函数。
+
+```js
+// 生成器函数声明
+function* generatorFn() {}
+
+// 生成器函数表达式
+let generatorFn = function*() {};
+
+// 作为对象字面量方法的生成器函数
+let foo = {
+  *generatorFn() {},
+};
+
+// 作为类实例方法的生成器函数
+class Foo {
+  *generatorFn() {}
+}
+
+// 作为类静态方法的生成器函数
+class Bar {
+  static *generatorFn() {}
+}
+```
+
+调用生成器函数会产生一个「 生成器对象 」。生成器对象一开始处于暂停执行（ suspended ）的状态。与迭代器相似，生成器对象也实现了 `Iterator` 接口，因此具有 `next()` 方法。调用这个方法会让生成器开始或恢复执行。
+
+同时生成器对象还实现了 `Iterable` 接口，它自身即是可迭代对象，也是迭代器。
+
+```js
+function* generatorFn() {}
+
+const g = generatorFn();
+
+console.log(g === g[Symbol.iterator]());
+// true
+```
+
+`next()` 方法的返回值类似于迭代器，有一个 `done` 属性和一个 `value` 属性。
+
+- 函数体为空的生成器函数中间不会停留，调用一次 `next()` 就会让生成器到达 `done: true` 状态。
+- `value` 属性默认值为 `undefined` ，可以通过生成器函数的返回值指定。
+
+生成器函数只会在初次调用 `next()`方法后开始执行，如下所示：
+
+```js
+function* generatorFn() {
+  console.log("foobar");
+  return "foo";
+}
+
+// 初次调用生成器函数并不会打印日志
+let generatorObject = generatorFn();
+
+let result = generatorObject.next(); // foobar
+console.log(result); // { done: true, value: 'foo' }
+```
+
+### `yield` 关键字
+
+`yield` 关键字可以让生成器停止和开始执行。生成器函数在遇到 `yield` 关键字之前会正常执行。遇到这个关键字后，执行会停止，函数作用域的状态会被保留。停止执行的生成器函数只能通过在生成器对象上调用 `next()` 方法来恢复执行。
+
+`yield` 关键字只能在生成器函数内部使用。
+
+通过 `yield` 关键字退出的生成器函数会处在 `done: false` 状态；通过 `return` 关键字退出的生成器函数会处于 `done: true` 状态。
+
+```js
+function* generatorFn() {
+  yield "foo";
+  yield "bar";
+  return "baz";
+}
+
+let generatorObject = generatorFn();
+
+console.log(generatorObject.next()); // { done: false, value: 'foo' }
+console.log(generatorObject.next()); // { done: false, value: 'bar' }
+console.log(generatorObject.next()); // { done: true, value: 'baz' }
+```
+
+对于两个生成器对象，在一个生成器对象上调用 `next()` 不会影响其他生成器：
+
+```js
+let generatorObject1 = generatorFn();
+let generatorObject2 = generatorFn();
+
+console.log(generatorObject1.next()); // { done: false, value: 'foo' }
+console.log(generatorObject2.next()); // { done: false, value: 'foo' }
+console.log(generatorObject2.next()); // { done: false, value: 'bar' }
+console.log(generatorObject1.next()); // { done: false, value: 'bar' }
+```
+
+#### 生成器对象作为可迭代对象
+
+```js
+function* generatorFn() {
+  yield 1;
+  yield 2;
+  yield 3;
+}
+
+for (const x of generatorFn()) {
+  console.log(x);
+}
+// 1
+// 2
+// 3
+```
+
+#### 使用 `yield` 实现输入和输出
+
+除了可以作为函数的中间返回语句使用，`yield` 关键字还可以作为函数的中间参数使用。
+
+上一次让生成器函数暂停的 `yield` 关键字会接收到传给 `next()` 方法的第一个值。
+
+⚠️ 第一次调用 `next()` 传入的值不会被使用，因为这一次调用是为了开始执行生成器函数。
+
+```js
+function* generatorFn(initial) {
+  console.log(initial);
+  console.log(yield);
+  console.log(yield);
+}
+
+let generatorObject = generatorFn("foo");
+
+generatorObject.next("bar"); // foo
+generatorObject.next("baz"); // baz
+generatorObject.next("qux"); // qux
+```
+
+下面 👇 的例子中，因为函数必须对整个表达式求值才能确定要返回的值，所以它在遇到 `yield` 关键字时暂停执行并计算出要产生的值：`"foo"`。下一次调用 `next()` 传入了 `"bar"`，作为 `yield` 的值。然后这个值被确定为本次生成器函数要返回的值。
+
+```js
+function* generatorFn() {
+  return yield "foo";
+}
+
+let generatorObject = generatorFn();
+
+console.log(generatorObject.next()); // { done: false, value: 'foo' }
+console.log(generatorObject.next("bar")); // { done: true, value: 'bar' }
+```
+
+#### 使用 `*` 增强 `yield` 的行为
+
+可以使用星号 `*` 增强 `yield` 的行为，让它能够迭代一个可迭代对象，从而一次产出一个值。
+
+与生成器函数的星号类似，`yield` 星号两侧的空格不影响其行为。
+
+```js
+function* generatorFn() {
+  yield* [1, 2, 3];
+}
+
+let generatorObject = generatorFn();
+
+for (const x of generatorFn()) {
+  console.log(x);
+}
+// 1
+// 2
+// 3
+
+// 等价的generatorFn：
+function* generatorFn() {
+  for (const x of [1, 2, 3]) {
+    yield x;
+  }
+}
+```
+
+### 提前终止生成器
+
+与迭代器类似，生成器也支持“可关闭”的概念。所有的生成器对象都具备 `return()` 方法和 `throw()` 方法用于提前终止迭代器。
+
+`return()`方法会强制生成器进入关闭状态。提供给 `return()` 方法的值，就是终止迭代器对象的值。
+
+```js
+function* generatorFn() {
+  for (const x of [1, 2, 3]) {
+    yield x;
+  }
+}
+
+const g = generatorFn();
+
+console.log(g); // generatorFn {<suspended>}
+console.log(g.return(4)); // { done: true, value: 4 }
+console.log(g); // generatorFn {<closed>}
+```
+
+`throw()` 方法会在暂停的时候将一个提供的错误注入到生成器对象中。如果错误未被处理，生成器就会关闭。
+
+```js
+function* generatorFn() {
+  for (const x of [1, 2, 3]) {
+    yield x;
+  }
+}
+
+const g = generatorFn();
+
+console.log(g); // generatorFn {<suspended>}
+
+try {
+  g.throw("foo");
+} catch (e) {
+  console.log(e); // foo
+}
+
+console.log(g); // generatorFn {<closed>}
+```
+
+假如生成器函数内部处理了这个错误，那么生成器就不会关闭，而且还可以恢复执行。错误处理会跳过对应的 `yield`。
+
+```js
+function* generatorFn() {
+  for (const x of [1, 2, 3]) {
+    try {
+      yield x;
+    } catch (e) {
+      console.log("Error: " + e);
+    }
+  }
+}
+
+const g = generatorFn();
+
+console.log(g.next()); // { done: false, value: 1}
+g.throw("foo"); // Error: foo
+console.log(g.next()); // { done: false, value: 3}
+```
