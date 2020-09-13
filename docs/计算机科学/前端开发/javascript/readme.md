@@ -1,7 +1,8 @@
 # JavaScrip 笔记
 
 - [JavaScript 基础](./基础知识/JS基础.md)
-- [JavaScript 基础](./基础知识/面向对象.md)
+- [面向对象](./基础知识/面向对象.md)
+- [函数](./基础知识/函数.md)
 
 ## JavaScript 语言核心
 
