@@ -3407,7 +3407,7 @@ var mergedObj = { ...obj1, ...obj2 };
 
 ## 生成器
 
-生成器是 ECMAScript 6 新增的一个极为灵活的结构，拥有**在一个函数块内暂停和恢复代码执行的能力**。
+`Generator` 生成器是 ECMAScript 6 新增的一个极为灵活的结构，拥有**在一个函数块内暂停和恢复代码执行的能力**。
 
 生成器的形式是一个函数，函数名称前面加一个星号 `*` 表示它是一个生成器。
 
@@ -3472,11 +3472,15 @@ console.log(result); // { done: true, value: 'foo' }
 
 ### `yield` 关键字
 
-`yield` 关键字可以让生成器停止和开始执行。生成器函数在遇到 `yield` 关键字之前会正常执行。遇到这个关键字后，执行会停止，函数作用域的状态会被保留。停止执行的生成器函数只能通过在生成器对象上调用 `next()` 方法来恢复执行。
+`yield` 关键字可以让生成器暂停执行。生成器函数遇到这个关键字后，执行会停止，函数作用域的状态会被保留。
 
-`yield` 关键字只能在生成器函数内部使用。
+停止执行的生成器函数只能通过在生成器对象上调用 `next()` 方法来恢复执行。
 
-通过 `yield` 关键字退出的生成器函数会处在 `done: false` 状态；通过 `return` 关键字退出的生成器函数会处于 `done: true` 状态。
+`next` 方法的运行逻辑如下:
+
+1. 遇到 `yield` 表达式，就暂停执行后面的操作，并将紧跟在 `yield` 后面的那个表达式的值，作为返回的对象的 `value` 属性值。如果是遇到 `return` 语句, 将 `return` 语句后面的表达式的值，作为返回的对象的 `value` 属性值。
+2. 下一次调用 `next` 方法时，再继续往下执行，直到遇到下一个 `yield` 表达式, 或者 `return` 语句.
+3. 如果到最后, 该函数没有 `return` 语句，则返回的对象的 `value` 属性值为 `undefined`
 
 ```js
 function* generatorFn() {
@@ -3523,9 +3527,7 @@ for (const x of generatorFn()) {
 
 #### 使用 `yield` 实现输入和输出
 
-除了可以作为函数的中间返回语句使用，`yield` 关键字还可以作为函数的中间参数使用。
-
-上一次让生成器函数暂停的 `yield` 关键字会接收到传给 `next()` 方法的第一个值。
+**`yield` 表达式本身总是返回 `undefined`**。`next` 方法可以带一个参数，该参数就会被当作上一个 `yield` 表达式的返回值。
 
 ⚠️ 第一次调用 `next()` 传入的值不会被使用，因为这一次调用是为了开始执行生成器函数。
 
@@ -3543,17 +3545,22 @@ generatorObject.next("baz"); // baz
 generatorObject.next("qux"); // qux
 ```
 
-下面 👇 的例子中，因为函数必须对整个表达式求值才能确定要返回的值，所以它在遇到 `yield` 关键字时暂停执行并计算出要产生的值：`"foo"`。下一次调用 `next()` 传入了 `"bar"`，作为 `yield` 的值。然后这个值被确定为本次生成器函数要返回的值。
-
 ```js
-function* generatorFn() {
-  return yield "foo";
+function* foo(x) {
+  var y = 2 * (yield x + 1);
+  var z = yield y / 3;
+  return x + y + z;
 }
 
-let generatorObject = generatorFn();
+var a = foo(5);
+a.next(); // Object{value:6, done:false}
+a.next(); // Object{value:NaN, done:false}
+a.next(); // Object{value:NaN, done:true}
 
-console.log(generatorObject.next()); // { done: false, value: 'foo' }
-console.log(generatorObject.next("bar")); // { done: true, value: 'bar' }
+var b = foo(5);
+b.next(); // { value:6, done:false }
+b.next(12); // { value:8, done:false }
+b.next(13); // { value:42, done:true }
 ```
 
 #### 使用 `*` 增强 `yield` 的行为
