@@ -3,6 +3,8 @@
 - [JavaScript 基础](./基础知识/JS基础.md)
 - [面向对象](./基础知识/面向对象.md)
 - [函数](./基础知识/函数.md)
+- [BOM](./基础知识/BOM.md)
+- [DOM](./基础知识/DOM.md)
 
 ## JavaScript 语言核心
 
