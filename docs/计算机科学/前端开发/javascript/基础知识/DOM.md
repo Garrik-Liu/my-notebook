@@ -31,9 +31,11 @@ DOM（文档对象模型）是针对 HTML 和 XML 文档的一个 API（应用�
 
 DOM 中总共有 12 种节点类型。但是其中有一些已经被弃用，有一些是只针对 XML 的。
 
-下面 👇 我们介绍的节点类型，只是针对于 HTML 文档的。
+下面 👇 我们针对于 HTML 文档，介绍一些开发中常用的节点类型。
 
 ### Node 类型
+
+[W3cubDocs 文档](https://docs.w3cub.com/dom/node/)
 
 在 DOM 中，所有节点类型都继承 Node 类型。因此，所有类型都共享相同的基本属性和方法。
 
@@ -200,18 +202,298 @@ alert(shallowList.childNodes.length); // 0
 
 ### Document 类型
 
+[W3cubDocs 文档](https://docs.w3cub.com/dom/document/adoptnode/)
+
+`Document` 类型是 JavaScript 中表示文档节点的类型。`HTMLDocument` 继承自 `Document`，表示 HTML 文档。Document 类型的节点有以下特征：
+
+- `nodeType` 等于 `9`；
+- `nodeName` 值为 `"#document"`；
+- `nodeValue` 值为 `null`；
+- `parentNode` 值为 `null`；
+- `ownerDocument` 值为 `null`；
+- 子节点可以是 `DocumentType（` 最多一个 ）、`Element`（ 最多一个 ）、`ProcessingInstruction` 或 `Comment` 类型；
+
+文档对象 `document` 是 `HTMLDocument` 的实例。`document` 是 `window` 对象的属性，可以作为全局变量访问。
+
+#### 文档子节点
+
+- `document.documentElement` 属性，始终指向 HTML 页面中的 `<html>` 元素。
+- `document.body` 属性，直接指向 `<body>` 元素。
+- `document.doctype` 属性，直接指向 HTML 文档的 `<!doctype>` 标签。
+
+```html
+<!DOCTYPE html>
+<html>
+  <head></head>
+  <body></body>
+</html>
+```
+
+```js
+let html = document.documentElement; // 取得对 <html> 的引用
+let body = document.body; // 取得对 <body> 的引用
+let doctype = document.doctype; // 取得对 <!DOCTYPE html> 的引用
+
+alert(html === document.childNodes[1]); // true
+alert(body === document.childNodes[1].childNodes[1]); // true
+alert(doctype === document.childNodes[0]); // true
+alert(doctype === document.firstChild); // true
+```
+
+#### 文档信息
+
+- `title` 属性包含 `<title>` 元素中的文本。不过，修改 `title` 属性并不会改变 `<title>` 元素。
+- `URL` 属性包含当前页面的完整 URL。
+- `domain` 属性包含页面的域名。
+- `referrer` 属性包含链接到当前页面的那个页面的 URL。如果当前页面没有来源，则 `referrer` 属性包含空字符串。
+
+```js
+console.log(document.title); // 第 14 章　DOM-图灵社区
+console.log(document.URL); // https://www.ituring.com.cn/book/tupubarticle/32500
+console.log(document.domain); // www.ituring.com.cn
+console.log(document.referrer); // https://www.ituring.com.cn/book/tupubarticle/32498
+```
+
+#### 元素获取
+
+使用 DOM 最常见的情形可能就是获取某个或某组元素的引用，然后对它们执行某些操作。
+
+`getElementById()` 方法接收一个参数，即要获取元素的 ID，如果找到了则返回这个元素，如果没找到则返回 `null`。
+
+```html
+<div id="myDiv">Some text</div>
+```
+
+```js
+let div = document.getElementById("myDiv"); // 取得对这个<div>元素的引用
+```
+
+`getElementsByTagName()` 方法接收一个参数，即要获取元素的标签名 ( 不区分大小写 )，返回包含零个或多个匹配元素的 `HTMLCollection` 对象。
+
+```js
+let images = document.getElementsByTagName("img");
+alert(images.length); // 图片数量
+alert(images[0].src); // 第一张图片的 src 属性
+```
+
+`HTMLCollection` 对象提供 `namedItem()` 方法。可以获得列表中，具有指定 `name` 属性节点。这提供了除索引之外的另一种获取列表项的方式。为了使用便利，`HTMLCollection` 对象还支持直接使用中括号 `["name"]` 来获取。
+
+```html
+<div name="a"></div>
+<div name="b"></div>
+<div name="c"></div>
+```
+
+```js
+let divList = document.getElementsByTagName("div");
+divList.namedItem("a") === divList["a"]; // true
+```
+
+`getElementsByName()` 方法会返回包含具有给定 `name` 属性的所有元素的 `NodeList` 对象。
+
+```js
+<ul>
+    <li>
+      <input type="radio" value="red" name="color" id="colorRed">
+      <label for="colorRed">Red</label>
+    </li>
+    <li>
+      <input type="radio" value="green" name="color" id="colorGreen">
+      <label for="colorGreen">Green</label>
+    </li>
+    <li>
+      <input type="radio" value="blue" name="color" id="colorBlue">
+      <label for="colorBlue">Blue</label>
+    </li>
+</ul>
+```
+
+```js
+let inputList = document.getElementsByName("color");
+console.log(inputList);
+// NodeList(3) [ input#colorRed, input#colorGreen, input#colorBlue ]
+```
+
 ### Element 类型
 
-### Text 类型
+[W3cubDocs 文档](https://docs.w3cub.com/dom/element/)
 
-### Comment 类型
+`Element` 类型描述了所有元素所普遍具有的方法和属性。
 
-### Attr 类型
+`Element` 类型的节点具有以下特征：
 
-### DocumentType 类型
+- `nodeType` 等于 `1`；
+- `nodeName` 值为元素的标签名；
+- `nodeValue` 值为 `null`；
+- `parentNode` 值为 `Document` 或 `Element` 对象；
+- 子节点可以是 `Element`、`Text`、`Comment`、`ProcessingInstruction`、`CDATASection`、`EntityReference` 类型；
+
+`Element` 类型本身提供 `nodeName` 或 `tagName` 属性来获取元素的标签名 ( 全大写 )
+
+```js
+// <div id="myDiv"></div>
+let div = document.getElementById("myDiv");
+alert(div.tagName); // "DIV"
+alert(div.tagName == div.nodeName); // true
+```
+
+#### HTMLElement 类型
+
+`HTMLElement` 类型继承自 `Element` 类型，用以表示 HTML 元素。所有 HTML 元素都是 `HTMLElement` 或其子类型的实例。
+
+提供如下属性，用来获取 HTML 元素上对应的属性值，也可以用来修改属性值。
+
+- `id` 属性
+- `title` 属性
+- `className` 属性，相当于 `class` 属性（ 因为 `class` 是 ECMAScript 关键字，所以不能直接用这个名字 ）
+- `style` 属性，返回一个 `CSSStyleDeclaration` 对象，包含该元素的所有 `style` 属性及其属性值。
+
+```html
+<div
+  id="myDiv"
+  style="height: 300px; width: 200px;"
+  class="div_1 div_2 div_3"
+  title="hahaha"
+></div>
+```
+
+```js
+let div = document.getElementById("myDiv");
+console.log(div.id); // "myDiv"
+console.log(div.className); // "div_1, div_2, div_3"
+console.log(div.title); // "hahaha"
+console.log(div.style); // CSS2Properties { height → "300px", width → "200px" }
+
+// 可以使用下列代码修改元素的属性：
+div.id = "someOtherId";
+div.className = "div_4, div_5, div_6";
+div.title = "lalala";
+```
+
+#### 操控属性
+
+`getAttribute()` 方法用以取得 HTML 元素的上的指定属性值。
+
+也能取得不是 HTML 语言正式属性的自定义属性的值。根据 HTML5 规范的要求，自定义属性名应该前缀 `data-` 以方便验证。
+
+```html
+<div id="myDiv" class="div_1 div_2 div_3" data-my-attribute="hello!"></div>
+```
+
+```js
+let div = document.getElementById("myDiv");
+console.log(div.getAttribute("id")); // "myDiv"
+console.log(div.getAttribute("class")); // "div_1, div_2, div_3"
+console.log(div.getAttribute("data-my-attribute")); // "hello!"
+```
+
+`getAttribute()` 方法的返回值都是字符串形式。
+
+- 访问 `style` 属性时，返回的是 CSS 字符串。`HTMLElement` 实例的 `style` 属性返回的是一个 `CSSStyleDeclaration` 对象。
+- 访问事件属性时，返回的是字符串形式的，事件处理回调函数的源代码。
+
+---
+
+`setAttribute()` 方法用以给指定的属性设置属性值。适用于 HTML 属性，也适用于自定义属性。接收两个参数：
+
+- 要设置的属性名
+- 属性值
+
+如果属性已经存在，则 `setAttribute()` 会以指定的值替换原来的值；如果属性不存在，则 `setAttribute()` 会以指定的值创建该属性。
+
+```js
+div.setAttribute("id", "someOtherId");
+div.setAttribute("class", "ft");
+div.setAttribute("title", "Some other text");
+```
+
+---
+
+`removeAttribute()` 用于从元素中删除属性。
+
+```js
+div.removeAttribute("class");
+```
+
+#### `attributes` 属性
+
+`Element` 类型的 `attributes` 属性包含一个 `NamedNodeMap` 对象。元素的每个属性都表示为一个 `Attr` 类型节点，并保存在这个 `NamedNodeMap` 对象中。
+
+`Attr` 类型节点的 `nodeName` 属性是对应属性的名字，`nodeValue` 是属性的值。
+
+`NamedNodeMap` 对象包含下列方法：
+
+- `getNamedItem(name)`，返回 `nodeName` 属性等于 `name` 的节点。提供中括号 `[]` 访问属性的简写形式；
+- `removeNamedItem(name)`，删除 `nodeName` 属性等于 `name` 的节点；
+- `setNamedItem(node)`，向对象中添加 `node` 节点。以此方式，给元素添加一个新属性。
+- `item(pos)`，返回索引位置 `pos` 处的节点；
+
+```js
+// 取得元素 id 属性的值
+let id = element.attributes.getNamedItem("id").nodeValue;
+// 使用中括号访问属性的简写形式：
+id = element.attributes["id"].nodeValue;
+// 通过将 nodeValue 设置为新值，来设置属性值
+element.attributes["id"].nodeValue = "someOtherId";
+```
+
+通常开发者更喜欢使用 `getAttribute()`、`removeAttribute()` 和`setAttribute()` 方法。
+
+`attributes` 属性最有用的场景是需要迭代元素上所有属性。
+
+- `attributes.length` 属性的值表示元素具有的属性数量。
+
+```js
+// 以下代码能够迭代一个元素上的所有属性，
+// 并以 attribute1="value1" attribute2="value2" 的形式生成格式化字符串：
+function outputAttributes(element) {
+  let pairs = [];
+
+  for (let i = 0, len = element.attributes.length; i < len; ++i) {
+    const attribute = element.attributes[i];
+    pairs.push(`${attribute.nodeName}="${attribute.nodeValue}"`);
+  }
+
+  return pairs.join(" ");
+}
+```
+
+#### 创建元素
+
+使用 `document.createElement()` 方法创建新元素。接收一个参数，即要创建元素的标签名 ( 不区分大小 )
+
+新创建的元素还没有添加到文档树，可以使用 `appendChild()`、`insertBefore()` 或 `replaceChild()` 将其插入文档树。
+
+```js
+let div = document.createElement("div");
+
+div.id = "myNewDiv";
+div.className = "box";
+
+document.body.appendChild(div);
+```
+
+#### 元素后代
+
+前面提过，`childNodes` 属性包含元素所有的子节点，
+
+要取得某个元素的子节点和其他后代节点，可以使用元素的 `getElementsByTagName()` 方法。元素上调用这个方法与在文档上调用是一样的，只不过搜索范围限制在当前元素之内。
+
+```js
+let ul = document.getElementById("myList");
+let items = ul.getElementsByTagName("li");
+```
 
 ## DOM 编程
 
+### 动态加载脚本
+
+### 动态加载样式
+
+### 使用 NodeList
+
 ## MutationObserver 接口
+
+使用 `MutationObserver` 接口，可以观察整个文档，某个元素，元素属性、文本的变化，并在 DOM 被修改时异步执行回调。
 
 ## DOM 扩展
