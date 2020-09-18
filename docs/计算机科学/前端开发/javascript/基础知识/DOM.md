@@ -488,12 +488,97 @@ let items = ul.getElementsByTagName("li");
 
 ### 动态加载脚本
 
+动态脚本就是在页面初始加载时不存在，之后又通过 DOM 包含的脚本。有两种方式通过 `<script>` 动态为网页添加脚本：
+
+- 引入外部文件
+- 直接插入源代码。 `<script>` 元素上有一个 `text` 属性，可以用来添加 JavaScript 代码。
+
+```js
+// 引入外部文件
+let script = document.createElement("script");
+script.src = "foo.js";
+document.body.appendChild(script);
+
+// 直接插入源代码
+let script = document.createElement("script");
+script.text = "function sayHi(){alert('hi');}";
+document.body.appendChild(script);
+```
+
+这个过程可以抽象为一个函数：
+
+```js
+function loadScript(url) {
+  let script = document.createElement("script");
+  script.src = url;
+  document.body.appendChild(script);
+}
+
+loadScript("client.js");
+```
+
+⚠️ 注意，通过 `innerHTML` 属性创建的 `<script>` 元素永远不会执行。浏览器会创建 `<script>` 元素，以及其中的脚本文本，但解析器会给这个 `<script>` 元素打上永不执行的标签。
+
 ### 动态加载样式
 
-### 使用 NodeList
+CSS 样式在 HTML 页面中可以通过两个元素加载。
+
+- `<link>` 元素包含 CSS 外部文件。
+- `<style>` 元素添加嵌入样式。提供 `styleSheet.cssText` 用于添加 CSS 规则。
+
+```js
+// <link> 元素包含 CSS 外部文件
+let link = document.createElement("link");
+link.rel = "stylesheet";
+link.type = "text/css";
+link.href = "styles.css";
+let head = document.getElementsByTagName("head")[0];
+head.appendChild(link);
+
+// <style> 元素添加嵌入样式
+let style = document.createElement("style");
+style.type = "text/css";
+style.styleSheet.cssText = "body{background-color:red}";
+let head = document.getElementsByTagName("head")[0];
+head.appendChild(style);
+```
+
+### 实时的 NodeList
+
+在使用 `NodeList` 对象，以及它的子类，例如 `HTMLCollection` 对象时，要注意它们都是「 实时的 」，文档结构的变化会实时地在它们身上反映出来。
+
+🌰 例如，下面的代码会导致无穷循环：
+
+```js
+let divs = document.getElementsByTagName("div");
+
+for (let i = 0; i < divs.length; i++) {
+  let div = document.createElement("div");
+  document.body.appendChild(div);
+}
+```
+
+任何时候要迭代 `NodeList`，最好初始化一个变量保存当时查询时的长度：
+
+```js
+let divs = document.getElementsByTagName("div");
+
+for (let i = 0, len = divs.length; i < len; ++i) {
+  let div = document.createElement("div");
+  document.body.appendChild(div);
+}
+```
 
 ## MutationObserver 接口
 
 使用 `MutationObserver` 接口，可以观察整个文档，某个元素，元素属性、文本的变化，并在 DOM 被修改时异步执行回调。
 
 ## DOM 扩展
+
+### Selectors API
+
+### Traversal API
+
+### HTML5 扩展
+
+### 专有扩展
