@@ -484,6 +484,10 @@ let ul = document.getElementById("myList");
 let items = ul.getElementsByTagName("li");
 ```
 
+### Text 类型
+
+### Comment 类型
+
 ## DOM 编程
 
 ### 动态加载脚本
@@ -569,16 +573,396 @@ for (let i = 0, len = divs.length; i < len; ++i) {
 }
 ```
 
+最好限制操作 `NodeList` 的次数。因为每次查询都会搜索整个文档，所以最好把查询到的 `NodeList` 缓存起来。
+
 ## MutationObserver 接口
 
 使用 `MutationObserver` 接口，可以观察整个文档，某个元素，元素属性、文本的变化，并在 DOM 被修改时异步执行回调。
 
 ## DOM 扩展
 
+2008 年以前，大部分浏览器对 DOM 的扩展是专有的。此后，W3C 开始着手将这些已成为事实标准的专有扩展编制成正式规范。
+
+但是，这些扩展并不属于 DOM 的标准，不属于 DOM Level 中的任何一级。它们只是作为功能扩展的非核心 API。
+
 ### Selectors API
+
+Selectors API 规定了，浏览器原生支持根据 CSS 选择符匹配查询 DOM 元素。
+
+#### `querySelector()` 方法
+
+`querySelector()` 方法接收 CSS 选择符参数，返回匹配该模式的第一个后代元素，如果没有匹配项则返回 `null`。
+
+在 `Document` 上使用 `querySelector()` 方法时，会从文档元素开始搜索；在 `Element` 上使用 `querySelector()` 方法时，则只会从当前元素的后代中查询。
+
+```js
+// 取得<body>元素
+let body = document.querySelector("body");
+
+// 取得ID为"myDiv"的元素
+let myDiv = document.querySelector("#myDiv");
+
+// 取得类名为"selected"的第一个元素
+let selected = document.querySelector(".selected");
+
+// 取得类名为"button"的图片
+let img = document.body.querySelector("img.button");
+```
+
+#### `querySelectorAll()` 方法
+
+`querySelectorAll()` 方法，也接收一个用于查询的参数，返回包含所有匹配的节点的 `NodeList` 静态实例，也就是它是文档结构的「 快照 」而非「 实时 」的查询。避免了使用 `NodeList` 对象可能造成的性能问题。
+
+- 如果没有匹配项，则返回空的 `NodeList` 实例。
+
+```js
+// 取得ID为"myDiv"的<div>元素中的所有<em>元素
+let ems = document.getElementById("myDiv").querySelectorAll("em");
+
+// 取得所有类名中包含"selected"的元素
+let selecteds = document.querySelectorAll(".selected");
+
+// 取得所有是<p>元素子元素的<strong>元素
+let strongs = document.querySelectorAll("p strong");
+```
+
+#### `matches()`
+
+`matches()` 方法接收一个 CSS 选择符参数，如果元素匹配则该选择符返回 `true`，否则返回 `false`。
+
+这个方法可以方便地检测某个元素会不会被 `querySelector()` 或 `querySelectorAll()` 方法返回
+
+目前，所有主流浏览器都支持 `matches()`。
+
+```html
+<div id="haha" class="a b c"></div>
+```
+
+```js
+document.getElementById("haha").matches(".a"); // true
+document.getElementById("haha").matches(".b"); // true
+document.getElementById("haha").matches(".a,.b"); // true
+document.getElementById("haha").matches(".d"); // false
+```
 
 ### Traversal API
 
+IE9 之前的版本不会把元素间的空格当成空白节点，而其他浏览器则会。这样就导致了 `childNodes` 属性上的差异。为了弥补这个差异，同时不影响 DOM 规范，W3C 通过新的 Element Traversal 规范。
+
+大多数时候，开发者想遍历的是 `Element` 类型节点。Element Traversal API 为 DOM 元素添加了 `5` 个属性，为遍历 `Element` 类型节点提供便利。开发者不用担心空白文本节点的问题了。
+
+- `childElementCount`，返回 `Element` 类型的子元素数量；
+- `firstElementChild`，指向第一个 `Element` 类型的子元素；
+- `lastElementChild`，指向最后一个 `Element` 类型的子元素；
+- `previousElementSibling`，指向前一个 `Element` 类型的同胞元素；
+- `nextElementSibling`，指向后一个 `Element` 类型的同胞元素；
+
+过去要以跨浏览器方式遍历特定元素的所有子元素，代码大致是这样写的：
+
+```js
+let parentElement = document.getElementById("parent");
+let currentChildNode = parentElement.firstChild;
+
+while (currentChildNode) {
+  // 判断是不是 Element 类型节点。
+  if (currentChildNode.nodeType === 1) {
+    processChild(currentChildNode);
+  }
+
+  currentChildNode = currentChildNode.nextSibling;
+}
+```
+
+使用 Element Traversal 属性之后，以上代码可以简化如下：
+
+```js
+let parentElement = document.getElementById("parent");
+let currentChildElement = parentElement.firstElementChild;
+
+while (currentChildElement) {
+  processChild(currentChildElement);
+  currentChildElement = currentChildElement.nextElementSibling;
+}
+```
+
 ### HTML5 扩展
 
+在所有以前的 HTML 规范中，从未出现过描述 JavaScript 接口的情形，HTML 就是一个纯标记语言。
+
+然而，HTML5 规范却包含了与标记相关的大量 JavaScript API 定义。浏览器如果支持 HTML5 就必须提供这些 JavaScript API。
+
+HTML5 覆盖的范围极其广泛，其中一部分 API 是和 DOM 相关的扩展，这一节只介绍这一部分。
+
+#### CSS 类扩展
+
+`getElementsByClassName()` 方法接收一个参数，即包含一个或多个 `class` 名的字符串 ( 空格隔开 )，返回类名中包含相应 `class` 名的元素的 `NodeList`。
+
+在 `document` 上调用 `getElementsByClassName()` 返回文档中所有匹配的元素，而在特定元素上调用 `getElementsByClassName()` 则返回该元素后代中匹配的元素。
+
+```js
+// 取得所有类名中包含 "username" 和 "current" 元素
+// 这两个类名的顺序无关紧要
+let allCurrentUsernames = document.getElementsByClassName("username current");
+
+// 取得ID为 "myDiv" 的元素子树中所有包含 "selected" 类的元素
+let selected = document
+  .getElementById("myDiv")
+  .getElementsByClassName("selected");
+```
+
+---
+
+前面提到过，可以通过 `className` 属性实现添加、删除和替换 `class` 名。但 `className` 是一个字符串，所以每次操作之后都需要重新设置这个值才能生效。
+
+```js
+// 要删除"user"类
+let targetClass = "user";
+
+// 把类名拆成数组
+let classNames = div.className.split(/\s+/);
+
+// 找到要删除类名的索引
+let idx = classNames.indexOf(targetClass);
+
+// 如果有则删除
+if (idx > -1) {
+  classNames.splice(i, 1);
+}
+
+// 重新设置类名
+div.className = classNames.join(" ");
+```
+
+HTML5 给所有元素增加 `classList` 属性。保存的是一个 `DOMTokenList` 实例。与其他 DOM 集合类型一样，`DOMTokenList` 也有 `length` 属性表示自己包含多少项，也可以通过 `item()` 或中括号 `[]` 取得个别的元素。
+
+此外，`DOMTokenList` 还增加了以下方法。
+
+- `add(name)`，向类名列表中添加指定的字符串值 `name`。如果这个值已经存在，则什么也不做。
+- `contains(name)`，返回布尔值，表示给定的 `name` 是否存在。
+- `remove(name)`，从类名列表中删除指定的字符串值 `name`。
+- `toggle(name)`，如果类名列表中已经存在指定的 `name`，则删除；如果不存在，则添加。
+
+```js
+// 删除"disabled"类
+div.classList.remove("disabled");
+
+// 添加"current"类
+div.classList.add("current");
+
+// 切换"user"类
+div.classList.toggle("user");
+
+// 检测类名
+if (div.classList.contains("bd")) {
+  // 执行操作
+}
+
+// 迭代类名
+for (let class of div.classList) {
+  doStuff(class);
+}
+```
+
+#### HTMLDocument 扩展
+
+HTML5 扩展了 `HTMLDocument` 类型，增加了更多功能。
+
+`readyState` 是 IE4 最早添加到 `document` 对象上的属性 HTML5 将这个属性写进了标准。
+
+`document.readyState` 属性用以判断文档是否加载完毕。有两个可能的值：
+
+- `loading`，表示文档正在加载；
+- `complete`，表示文档加载完成；
+
+「 加载完成 」的意思是，浏览器已完全加载 HTML，并构建了 DOM 树。并且加载完成了所有外部资源，图片，样式等。
+
+```js
+if (document.readyState == "complete") {
+  // 执行操作
+}
+```
+
+---
+
+`document.compatMode` 属性指示浏览器当前处于什么渲染模式。
+
+- 标准模式：`"CSS1Compat"`
+- 混杂模式：`"BackCompat"`
+
+```js
+if (document.compatMode == "CSS1Compat") {
+  console.log("Standards mode");
+} else {
+  console.log("Quirks mode");
+}
+```
+
+---
+
+HTML5 增加了 `document.head` 属性，指向文档的 `<head>` 元素。
+
+#### 自定义属性
+
+HTML5 允许用户给元素指定自定义的属性。需要以 `data-` 为前缀。
+
+```html
+<div id="myDiv" data-appId="12345" data-myname="Nicholas"></div>
+```
+
+通过元素的 `dataset` 属性可以访问自定义元素，属性值是一个 `DOMStringMap` 的实例，是一个键值对映射。
+
+- 通过 `data-` 后面的字符串作为键来访问属性值。
+- 属性 `data-myname`、`data-myName` 可以通过 `myname` 访问，但要注意 `data-my-name`、`data-My-Name` 要通过 `myName` 来访问。
+
+```js
+// 本例中使用的方法仅用于示范
+
+let div = document.getElementById("myDiv");
+
+// 取得自定义数据属性的值
+let appId = div.dataset.appId;
+let myName = div.dataset.myname;
+
+// 设置自定义数据属性的值
+div.dataset.appId = 23456;
+div.dataset.myname = "Michael";
+
+// 有"myname"吗？
+if (div.dataset.myname) {
+  console.log("Hello, ${div.dataset.myname}");
+}
+```
+
+#### 插入标记
+
+读取 `innerHTML` 属性时，会返回元素所有后代的 HTML 字符串。
+
+在写入 `innerHTML` 时，则会将提供的字符串解析为 DOM 树，并替代元素中原来包含的所有节点。
+
+注意，通过 `innerHTML` 插入的 `<script>` 标签是不会执行的。
+
+```js
+div.innerHTML = "<p>Hello World!</p>";
+```
+
+---
+
+读取 `outerHTML` 属性时，会返回调用它的元素（及所有后代元素）的 HTML 字符串。
+
+在写入 `outerHTML` 属性时，调用它的元素会被传入的 HTML 字符串经解释之后生成的 DOM 树取代。
+
+```js
+// 新的 <p> 元素会取代DOM树中原来的 <div> 元素。
+div.outerHTML = "<p>This is a paragraph.</p>";
+```
+
+---
+
+使用本节介绍的方法可能会导致内存问题。比如，如果被移除的子树元素中之前有关联的事件处理程序，那它们之间的绑定关系会滞留在内存中。如果这种替换操作频繁发生，页面的内存占用就会持续攀升。
+
+同时，HTML 解析器的构建与解构也比较消耗性能。因此最好限制使用 `innerHTML` 和 `outerHTML` 的次数。
+
+```js
+for (let value of values) {
+  ul.innerHTML += "<li>${value}</li>"; // 别这样做！
+}
+// 这段代码，每次循环都要先读取 innerHTML，然后再写入。要访问两次 innerHTML。非常消耗性能。
+// 最好通过循环先构建一个独立的字符串，最后再一次性把生成的字符串赋值给 innerHTML
+let itemsHtml = "";
+for (let value of values) {
+  itemsHtml += "<li>${value}</li>";
+}
+ul.innerHTML = itemsHtml;
+```
+
+#### `scrollIntoView()`
+
+`scrollIntoView()` 方法存在于所有 HTML 元素上，可以滚动浏览器窗口，或容器元素，使调用这个方法的元素进入视口 Viewport。
+
+参数如下：
+
+- `alignToTop` 是一个布尔值，默认为 `true`：
+  - `true`：窗口滚动后元素的顶部与视口顶部对齐。
+  - `false`：窗口滚动后元素的底部与视口底部对齐。
+- `scrollIntoViewOptions` 是一个选项对象：
+  - `behavior`：定义过渡动画，可取的值为 `"smooth"` 和 `"auto"`，默认为 `"auto"`。
+  - `block`：定义垂直方向的对齐，可取的值为 `"start"`、`"center"`、`"end"` 和 `"nearest"`，默认为 `"start"`。
+  - `inline`：定义水平方向的对齐，可取的值为 `"start"`、`"center"`、`"end"` 和 `"nearest"`，默认为 `"nearest"`。
+
+```js
+// 让页面滚动，使得元素进入视口
+document.forms[0].scrollIntoView();
+document.forms[0].scrollIntoView(true);
+
+// 将元素平滑地滚入视口
+document.forms[0].scrollIntoView({ behavior: "smooth", block: "start" });
+```
+
 ### 专有扩展
+
+除了已经标准化的，各家浏览器还有很多未被标准化的专有扩展。这些扩展有可能未来会被纳入到标准之中。
+
+#### `children` 属性
+
+children 属性是一个 HTMLCollection，只包含元素的 `Element` 类型的子节点。
+
+```js
+let childCount = element.children.length;
+let firstChild = element.children[0];
+```
+
+#### `contains()` 方法
+
+`contains()` 方法用以确定一个元素是不是包含另一个元素。
+
+- 在祖先元素上调用，参数是待确定的目标节点。
+- 返回布尔值。
+
+```js
+document.documentElement.contains(document.body);
+```
+
+#### 插入标记
+
+HTML5 将 IE 发明的 `innerHTML` 和 `outerHTML` 纳入了标准，但还有两个属性没有入选。这两个剩下的属性是 `innerText` 和 `outerText`。
+
+`innerText` 属性对应元素中包含的所有文本内容，无论文本在子树中哪个层级。
+
+- 读取值时，`innerText` 会按照深度优先的顺序。将子树中所有文本节点的值拼接起来。
+- 写入值时，`innerText` 会移除元素的所有后代并插入一个包含该值的文本节点。
+
+```html
+<div id="content">
+  <p>This is a <strong>paragraph</strong> with a list following it.</p>
+  <ul>
+    <li>Item 1</li>
+    <li>Item 2</li>
+    <li>Item 3</li>
+  </ul>
+</div>
+```
+
+```js
+console.log(document.getElementById("content").innerText);
+// This is a paragraph with a list following it.
+// Item 1
+// Item 2
+// Item 3
+// 注意：不同浏览器对待空格的方式不同
+```
+
+---
+
+`outerText` 与 `innerText` 是类似的，只不过作用范围还包含调用它的节点。
+
+- 读取文本值时，`outerText` 与 `innerText` 实际上会返回同样的内容。
+- 写入文本值时，`outerText` 不止会移除所有后代节点，而是会替换整个元素。
+
+```js
+div.outerText = "Hello world!";
+// 等价于
+let text = document.createTextNode("Hello world!");
+div.parentNode.replaceChild(text, div);
+```
+
+## DOM2 & DOM3
