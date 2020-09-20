@@ -1170,78 +1170,33 @@ Switched to a new branch 'new_branch'
 
 ### Git Flow
 
-Git 作为一个分布式版本系统，不可避免涉及到多人协作。
+Git Flow 是一种团队协作的工作流程规范。
 
-协作必须有一个规范的工作流程，让大家有效地合作，使得项目井井有条地发展下去。
+![2020-09-20-14-29-42](https://garrik-default-imgs.oss-accelerate.aliyuncs.com/imgs/2020-09-20-14-29-42.png)
 
-下面介绍的工作流程有一个共同点：都采用"**功能驱动式开发**"（Feature-driven development，简称 FDD）。
+一个项目存在如下分支：
 
-它指的是，需求是开发的起点，先有需求再有功能分支（feature branch）或者补丁分支（hotfix branch）。完成开发后，该分支就合并到主分支，然后被删除。
+- **主分支** Master Branch
+- **开发分支** Develop Branch
+- **功能分支** Feature Branch
+- **补丁分支** Hotfix Branch
+- **发布分支** Release Branch
 
-团队开发中，遵循一个合理、清晰的 Git 使用流程，是非常重要的。
-
-![bg2015080501](https://i.loli.net/2019/02/20/5c6d0dba2e04c.png)
-
-- **第一步：新建分支**
-
-每次开发新功能，都应该新建一个单独的分支
-
-```bash
-# 获取主干最新代码
-$ git checkout master
-$ git pull
-
-# 新建一个开发分支myfeature
-$ git checkout -b myfeature
-```
-
-- **第二步：提交分支 commit**
-- **第三步：撰写提交信息**
-
-好的提交信息可以帮助你更好的再将来查阅你之前的代码提交. 我在下面 **知识/技巧** 章节有涉及提交信息的内容.
-
-- **第四步：与主干同步**
-
-```bash
-$ git fetch origin
-$ git rebase origin/master
-```
-
-- **第五步：合并 commit**
-
-分支开发完成后，很可能有一堆 commit，但是合并到主干的时候，往往希望只有一个（或最多两三个）commit，这样不仅清晰，也容易管理。
-
-前面讲过用 `rebase` 合并
-
-另外一种合并提交的简便方法，就是先用 `reset` 撤销过去多个提交，然后再建一个新的.
-
-- **第六步：推送到远程仓库**
-
-合并提交后，就可以推送当前分支到远程仓库了。
-
-```bash
-$ git push --force origin myfeature
-```
-
-`git push` 命令要加上 `force` 参数，因为 `rebase` 以后，分支历史改变了，跟远程分支不一定兼容，有可能要强行推送.
-
-- **第七步：发出 Pull Request**
-
-提交到远程仓库以后，就可以发出 Pull Request 到 `master` 分支，然后请求别人进行代码 Review，确认可以合并到 `master`。
+Git Flow 的缺点是：相对复杂，维护麻烦。
 
 ### Commit Messgae 模板
 
 我使用的格式为:
 
 ```bash
-<type>(<scope>): <subject>
-<BLANK LINE>
-<body>
-<BLANK LINE>
-<footer>
+<type>(<scope>): <subject> # 标题行
+<BLANK LINE> # 空行
+<body> # 主题内容
+<BLANK LINE> # 空行
+<footer> # 页脚注释
 ```
 
-大致分为三个部分(使用空行分割):
+大致分为三个部分:
 
 - 标题行: 必填, 描述主要修改类型和内容
 - 主题内容: 描述为什么修改, 做了什么样的修改, 以及开发的思路等等
@@ -1255,13 +1210,17 @@ $ git push --force origin myfeature
   - `style`: 代码格式修改, (注意不是 CSS 修改)
   - `test`: 测试用例修改
   - `chore`: 其他修改, 比如构建流程, 依赖管理.
-- `scope`: commit 影响的范围, 比如: route, component, utils, build…
-- `subject`: commit 的概述, 建议符合 "50/72 formatting"
-- `body`: commit 具体修改内容, 可以分为多行, 建议符合 "50/72 formatting"
+- `scope`: 影响的范围, 比如: route, component, utils, build…
+- `subject`: 的概述, 建议符合 "50/72 formatting"
+- `body`: 具体修改内容, 可以分为多行, 建议符合 "50/72 formatting"
 - `footer`: 一些备注, 通常是 BREAKING CHANGE 或修复的 bug 的链接.
 
-通过修改 `~/.gitconfig` 可以添加模板, 每次提交的时候在 vim 中带出, 时刻提醒自己:
+通过修改 `git config --global commit.template [模板文件绝对路径]` 可以添加模板。
+
+如果要取消已设定的模板，则删除掉 `~/.gitconfig` 文件中的 `[commit] template` 部分。
 
 ## 参考
 
 - [图解常用的 Git 指令含义](https://mp.weixin.qq.com/s?__biz=MjM5MTA1MjAxMQ==&mid=2651236225&idx=1&sn=dfda35481d2cf2c3435c5e9802a1dc81&chksm=bd497e058a3ef713a8020acf25e2d159d36dfad35b04b94fcfb41158fec571e2d43c617d7f05&mpshare=1&scene=1&srcid=&sharer_sharetime=1586565597279&sharer_shareid=9fc6c269db99975622f194cd8f0eba8f%23rd)
+- [Git 工作流程](http://www.ruanyifeng.com/blog/2015/12/git-workflow.html)
+- [Git 分支管理策略](http://www.ruanyifeng.com/blog/2012/07/git.html)
